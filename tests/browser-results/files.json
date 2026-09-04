@@ -1,0 +1,59 @@
+{
+  "imported": [
+    ".java/fonts/1.8.0_492-internal/fcinfo-1-192.168.1.1-Linux-1.0-en.properties",
+    "USA.tap",
+    "custom.tiling"
+  ],
+  "binaryIdentical": true,
+  "duplicatePath": "/files/workspace/USA (1).tap",
+  "invalidRejected": true,
+  "customRegistered": true,
+  "openedLayers": 5,
+  "savedFiles": [
+    {
+      "name": "roundtrip.tap",
+      "path": "/files/workspace/roundtrip.tap",
+      "size": 3655
+    },
+    {
+      "name": "roundtrip.tap.png",
+      "path": "/files/workspace/roundtrip.tap.png",
+      "size": 26931
+    },
+    {
+      "name": "roundtrip.tap.tap_info",
+      "path": "/files/workspace/roundtrip.tap.tap_info",
+      "size": 6
+    }
+  ],
+  "exports": {
+    "svgValid": true,
+    "epsHeader": "%!PS-Adobe-3.0 EPSF-3.0\n%%BoundingB",
+    "preview": [
+      300,
+      200
+    ]
+  },
+  "formats": {
+    "png": {
+      "success": 1,
+      "bytes": 71
+    },
+    "jpeg": {
+      "success": 1,
+      "bytes": 631
+    },
+    "gif": {
+      "success": 1,
+      "bytes": 55
+    },
+    "bmp": {
+      "success": 1,
+      "bytes": 486
+    },
+    "wbmp": {
+      "success": 0,
+      "bytes": 0
+    }
+  }
+}

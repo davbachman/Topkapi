@@ -1,0 +1,11 @@
+{
+  "suite": "layers",
+  "passed": 1,
+  "originalIssues": 0,
+  "records": {
+    "layers/reorder-clone-remove": {
+      "status": "pass",
+      "value": "-4297489,-4969222;saved=5bda407e"
+    }
+  }
+}

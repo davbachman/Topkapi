@@ -1,0 +1,20 @@
+{
+  "registry": "mock contract check; live browser registry unavailable",
+  "tools": [
+    "list_taprats_files",
+    "download_taprats_files"
+  ],
+  "validList": {
+    "files": [
+      {
+        "path": "/files/workspace/a.tap"
+      }
+    ]
+  },
+  "validDownload": {
+    "downloaded": [
+      "/files/workspace/a.tap"
+    ]
+  },
+  "invalidInputsRejected": 7
+}

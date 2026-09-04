@@ -1,0 +1,151 @@
+{
+  "suite": "styles",
+  "passed": 36,
+  "originalIssues": 0,
+  "records": {
+    "export/Emboss/eps": {
+      "status": "pass",
+      "value": "bytes=19856;crc=774bee54"
+    },
+    "export/Emboss/jpg": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/Emboss/png": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/Filled/eps": {
+      "status": "pass",
+      "value": "bytes=2889;crc=fcd453f4"
+    },
+    "export/Filled/jpg": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/Filled/png": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/Interlace/eps": {
+      "status": "pass",
+      "value": "bytes=12660;crc=5e83cc62"
+    },
+    "export/Interlace/jpg": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/Interlace/png": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/Outline/eps": {
+      "status": "pass",
+      "value": "bytes=9214;crc=aa5a9608"
+    },
+    "export/Outline/jpg": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/Outline/png": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/Plain/eps": {
+      "status": "pass",
+      "value": "bytes=2774;crc=39b75013"
+    },
+    "export/Plain/jpg": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/Plain/png": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/Sketch/eps": {
+      "status": "pass",
+      "value": "bytes=18580;crc=5066789a"
+    },
+    "export/Sketch/jpg": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/Sketch/png": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/Thick/eps": {
+      "status": "pass",
+      "value": "bytes=2781;crc=1c136caf"
+    },
+    "export/Thick/jpg": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/Thick/png": {
+      "status": "pass",
+      "value": "width=240;height=240;nonblank=true;reopened=true"
+    },
+    "export/svg-dependency": {
+      "status": "pass",
+      "value": "batik-present"
+    },
+    "style/Emboss/default": {
+      "status": "pass",
+      "value": "operations=256;crc=81794a02"
+    },
+    "style/Emboss/settings": {
+      "status": "pass",
+      "value": "operations=256;crc=d61026b6"
+    },
+    "style/Filled/default": {
+      "status": "pass",
+      "value": "operations=37;crc=ff63b668"
+    },
+    "style/Filled/settings": {
+      "status": "pass",
+      "value": "operations=5;crc=9b394935"
+    },
+    "style/Interlace/default": {
+      "status": "pass",
+      "value": "operations=200;crc=17895bc4"
+    },
+    "style/Interlace/settings": {
+      "status": "pass",
+      "value": "operations=200;crc=416c0762"
+    },
+    "style/Outline/default": {
+      "status": "pass",
+      "value": "operations=128;crc=31f4ff53"
+    },
+    "style/Outline/settings": {
+      "status": "pass",
+      "value": "operations=128;crc=2ad80ff0"
+    },
+    "style/Plain/default": {
+      "status": "pass",
+      "value": "operations=128;crc=60474570"
+    },
+    "style/Plain/settings": {
+      "status": "pass",
+      "value": "operations=128;crc=614a6912"
+    },
+    "style/Sketch/default": {
+      "status": "pass",
+      "value": "operations=1024;crc=441b1f2b"
+    },
+    "style/Sketch/settings": {
+      "status": "pass",
+      "value": "operations=1024;crc=2b2ea864"
+    },
+    "style/Thick/default": {
+      "status": "pass",
+      "value": "operations=128;crc=defc3e45"
+    },
+    "style/Thick/settings": {
+      "status": "pass",
+      "value": "operations=128;crc=e4431c36"
+    }
+  }
+}

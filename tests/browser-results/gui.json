@@ -1,0 +1,3066 @@
+{
+  "pass": true,
+  "log": [
+    {
+      "method": "loadExample",
+      "args": [
+        "USA"
+      ],
+      "result": {
+        "scheduled": 1,
+        "operation": "loadExample USA"
+      }
+    },
+    {
+      "method": "layerScenario",
+      "args": [],
+      "result": {
+        "pass": true,
+        "checks": [
+          "clone",
+          "clone equality",
+          "down",
+          "up",
+          "Space hide",
+          "Space show",
+          "remove"
+        ],
+        "layerCount": 5
+      }
+    },
+    {
+      "method": "transformScenario",
+      "args": [],
+      "result": {
+        "pass": true,
+        "checks": [
+          "numeric pan X/Y",
+          "rotation degrees",
+          "width zoom",
+          "selected layer isolation",
+          "restored"
+        ]
+      }
+    },
+    {
+      "method": "click",
+      "args": [
+        6
+      ],
+      "result": {
+        "scheduled": 2,
+        "operation": "click 6"
+      }
+    },
+    {
+      "method": "select",
+      "args": [
+        9,
+        0
+      ],
+      "result": {
+        "scheduled": 3,
+        "operation": "select 9 0"
+      }
+    },
+    {
+      "method": "setText",
+      "args": [
+        22,
+        "25"
+      ],
+      "result": {
+        "scheduled": 4,
+        "operation": "setText 22"
+      }
+    },
+    {
+      "method": "style controls",
+      "result": {
+        "type": "Plain",
+        "alpha": 191
+      }
+    },
+    {
+      "method": "select",
+      "args": [
+        9,
+        1
+      ],
+      "result": {
+        "scheduled": 5,
+        "operation": "select 9 1"
+      }
+    },
+    {
+      "method": "setText",
+      "args": [
+        24,
+        "25"
+      ],
+      "result": {
+        "scheduled": 6,
+        "operation": "setText 24"
+      }
+    },
+    {
+      "method": "style controls",
+      "result": {
+        "type": "Thick",
+        "alpha": 191
+      }
+    },
+    {
+      "method": "select",
+      "args": [
+        9,
+        2
+      ],
+      "result": {
+        "scheduled": 7,
+        "operation": "select 9 2"
+      }
+    },
+    {
+      "method": "setText",
+      "args": [
+        26,
+        "25"
+      ],
+      "result": {
+        "scheduled": 8,
+        "operation": "setText 26"
+      }
+    },
+    {
+      "method": "style controls",
+      "result": {
+        "type": "Filled",
+        "alpha": 191
+      }
+    },
+    {
+      "method": "select",
+      "args": [
+        9,
+        3
+      ],
+      "result": {
+        "scheduled": 9,
+        "operation": "select 9 3"
+      }
+    },
+    {
+      "method": "setText",
+      "args": [
+        28,
+        "25"
+      ],
+      "result": {
+        "scheduled": 10,
+        "operation": "setText 28"
+      }
+    },
+    {
+      "method": "style controls",
+      "result": {
+        "type": "Outline",
+        "alpha": 191
+      }
+    },
+    {
+      "method": "select",
+      "args": [
+        9,
+        4
+      ],
+      "result": {
+        "scheduled": 11,
+        "operation": "select 9 4"
+      }
+    },
+    {
+      "method": "setText",
+      "args": [
+        30,
+        "25"
+      ],
+      "result": {
+        "scheduled": 12,
+        "operation": "setText 30"
+      }
+    },
+    {
+      "method": "style controls",
+      "result": {
+        "type": "Interlace",
+        "alpha": 191
+      }
+    },
+    {
+      "method": "select",
+      "args": [
+        9,
+        5
+      ],
+      "result": {
+        "scheduled": 13,
+        "operation": "select 9 5"
+      }
+    },
+    {
+      "method": "setText",
+      "args": [
+        32,
+        "25"
+      ],
+      "result": {
+        "scheduled": 14,
+        "operation": "setText 32"
+      }
+    },
+    {
+      "method": "style controls",
+      "result": {
+        "type": "Emboss",
+        "alpha": 191
+      }
+    },
+    {
+      "method": "select",
+      "args": [
+        9,
+        6
+      ],
+      "result": {
+        "scheduled": 15,
+        "operation": "select 9 6"
+      }
+    },
+    {
+      "method": "setText",
+      "args": [
+        34,
+        "25"
+      ],
+      "result": {
+        "scheduled": 16,
+        "operation": "setText 34"
+      }
+    },
+    {
+      "method": "style controls",
+      "result": {
+        "type": "Sketch",
+        "alpha": 191
+      }
+    },
+    {
+      "method": "click",
+      "args": [
+        5
+      ],
+      "result": {
+        "scheduled": 17,
+        "operation": "click 5"
+      }
+    },
+    {
+      "method": "startWizard",
+      "args": [
+        "4.8^2"
+      ],
+      "result": {
+        "scheduled": 18,
+        "operation": "startWizard 4.8^2"
+      }
+    },
+    {
+      "method": "wizardScenario",
+      "args": [],
+      "result": {
+        "pass": true,
+        "features": [
+          {
+            "index": 0,
+            "sides": 8,
+            "algorithms": [
+              {
+                "name": "Infer",
+                "vertices": 8,
+                "edges": 8
+              },
+              {
+                "name": "Star",
+                "vertices": 24,
+                "edges": 32
+              },
+              {
+                "name": "Rosette",
+                "vertices": 48,
+                "edges": 64
+              },
+              {
+                "name": "Extended",
+                "vertices": 56,
+                "edges": 80
+              },
+              {
+                "name": "Girih Tiles",
+                "vertices": 16,
+                "edges": 16
+              },
+              {
+                "name": "Intersect",
+                "vertices": 16,
+                "edges": 16
+              }
+            ]
+          },
+          {
+            "index": 1,
+            "sides": 4,
+            "algorithms": [
+              {
+                "name": "Infer",
+                "vertices": 8,
+                "edges": 8
+              },
+              {
+                "name": "Star",
+                "vertices": 4,
+                "edges": 4
+              },
+              {
+                "name": "Rosette",
+                "vertices": 12,
+                "edges": 16
+              },
+              {
+                "name": "Hourglass",
+                "vertices": 6,
+                "edges": 6
+              },
+              {
+                "name": "Girih Tiles",
+                "vertices": 8,
+                "edges": 8
+              },
+              {
+                "name": "Intersect",
+                "vertices": 8,
+                "edges": 8
+              }
+            ]
+          }
+        ],
+        "previewAndPrevious": true
+      }
+    },
+    {
+      "method": "wizardStep",
+      "args": [
+        "next"
+      ],
+      "result": {
+        "scheduled": 19,
+        "operation": "wizardStep next"
+      }
+    },
+    {
+      "method": "wizardStep",
+      "args": [
+        "next"
+      ],
+      "result": {
+        "scheduled": 20,
+        "operation": "wizardStep next"
+      }
+    },
+    {
+      "method": "action",
+      "args": [
+        "newTiling"
+      ],
+      "result": {
+        "scheduled": 21,
+        "operation": "main action newTiling"
+      }
+    },
+    {
+      "method": "designerScenario",
+      "args": [],
+      "result": {
+        "pass": true,
+        "checks": [
+          "digit+Add square",
+          "digit+Add triangle",
+          "exclude",
+          "remove excluded",
+          "fill translations",
+          "clear translations",
+          "validate"
+        ],
+        "designer": 46,
+        "note": "Seeded final 4^4 tiling ready for manual drag/preview/save checks"
+      }
+    }
+  ],
+  "state": {
+    "queued": 21,
+    "completed": 21,
+    "lastOperation": "main action newTiling",
+    "lastError": "",
+    "tilings": 92,
+    "main": 1,
+    "layerCount": 6,
+    "view": {
+      "left": -10,
+      "top": 10,
+      "width": 20,
+      "theta": 0
+    },
+    "controls": {
+      "layered_view": 2,
+      "layers_editor.layers_list": 3,
+      "layers_editor.add_button": 4,
+      "layers_editor.remove_button": 5,
+      "layers_editor.clone_button": 6,
+      "layers_editor.up_button": 7,
+      "layers_editor.down_button": 8,
+      "style_editor.style_choice": 9,
+      "transform_all_button": 10,
+      "transform_editor.pan_x": 11,
+      "transform_editor.pan_y": 12,
+      "transform_editor.rot": 13,
+      "transform_editor.zoom": 14
+    },
+    "layers": [
+      {
+        "id": 45,
+        "type": "Interlace",
+        "description": "4.8^2 interlaced",
+        "selected": true,
+        "hidden": false,
+        "transform": {
+          "left": -10,
+          "top": 10,
+          "width": 20,
+          "theta": 0
+        },
+        "colorARGB": -15427886
+      },
+      {
+        "id": 15,
+        "type": "Interlace",
+        "description": "4.8^2 interlaced",
+        "selected": false,
+        "hidden": false,
+        "transform": {
+          "left": -10,
+          "top": 10,
+          "width": 20,
+          "theta": 0
+        },
+        "colorARGB": -527376
+      },
+      {
+        "id": 16,
+        "type": "Interlace",
+        "description": "4.8^2 interlaced",
+        "selected": false,
+        "hidden": false,
+        "transform": {
+          "left": -10,
+          "top": 10,
+          "width": 20,
+          "theta": 0
+        },
+        "colorARGB": -988444
+      },
+      {
+        "id": 17,
+        "type": "Outline",
+        "description": "4.8^2 outlined",
+        "selected": false,
+        "hidden": false,
+        "transform": {
+          "left": -10,
+          "top": 10,
+          "width": 20,
+          "theta": 0
+        },
+        "colorARGB": -16777216
+      },
+      {
+        "id": 18,
+        "type": "Filled",
+        "description": "4.8^2 filled",
+        "selected": false,
+        "hidden": false,
+        "transform": {
+          "left": -10,
+          "top": 10,
+          "width": 20,
+          "theta": 0
+        },
+        "colorARGB": -16764007
+      },
+      {
+        "id": 19,
+        "type": "Filled",
+        "description": "4.8^2 filled",
+        "selected": false,
+        "hidden": false,
+        "transform": {
+          "left": -10,
+          "top": 10,
+          "width": 20,
+          "theta": 0
+        },
+        "colorARGB": -6750208
+      }
+    ],
+    "wizards": [],
+    "designers": [
+      {
+        "id": 46,
+        "panel": 47,
+        "features": 9,
+        "included": 1,
+        "mode": 0,
+        "transform": {
+          "left": -5,
+          "top": 5,
+          "width": 10,
+          "theta": 0
+        }
+      }
+    ]
+  },
+  "snapshot": {
+    "queued": 21,
+    "completed": 21,
+    "lastOperation": "main action newTiling",
+    "lastError": "",
+    "windows": [
+      {
+        "id": 48,
+        "class": "javax.swing.JFrame",
+        "visible": true,
+        "showing": true,
+        "enabled": true,
+        "bounds": [
+          0,
+          0,
+          1200,
+          694
+        ],
+        "screen": [
+          0,
+          0,
+          1200,
+          694
+        ],
+        "name": "frame0",
+        "title": "Taprats 1.1.12 - USA",
+        "children": [
+          {
+            "id": 49,
+            "class": "javax.swing.JRootPane",
+            "visible": true,
+            "showing": true,
+            "enabled": true,
+            "bounds": [
+              0,
+              45,
+              1200,
+              649
+            ],
+            "screen": [
+              0,
+              45,
+              1200,
+              649
+            ],
+            "children": [
+              {
+                "id": 50,
+                "class": "javax.swing.JPanel",
+                "visible": false,
+                "showing": false,
+                "enabled": true,
+                "bounds": [
+                  0,
+                  0,
+                  1200,
+                  649
+                ],
+                "name": "null.glassPane",
+                "children": []
+              },
+              {
+                "id": 51,
+                "class": "javax.swing.JLayeredPane",
+                "visible": true,
+                "showing": true,
+                "enabled": true,
+                "bounds": [
+                  0,
+                  0,
+                  1200,
+                  649
+                ],
+                "screen": [
+                  0,
+                  45,
+                  1200,
+                  649
+                ],
+                "name": "null.layeredPane",
+                "children": [
+                  {
+                    "id": 52,
+                    "class": "javax.swing.JPanel",
+                    "visible": true,
+                    "showing": true,
+                    "enabled": true,
+                    "bounds": [
+                      0,
+                      0,
+                      1200,
+                      649
+                    ],
+                    "screen": [
+                      0,
+                      45,
+                      1200,
+                      649
+                    ],
+                    "name": "null.contentPane",
+                    "children": [
+                      {
+                        "id": 1,
+                        "class": "csk.taprats.ui.MainWindow",
+                        "visible": true,
+                        "showing": true,
+                        "enabled": true,
+                        "bounds": [
+                          0,
+                          0,
+                          1200,
+                          649
+                        ],
+                        "screen": [
+                          0,
+                          45,
+                          1200,
+                          649
+                        ],
+                        "children": [
+                          {
+                            "id": 53,
+                            "class": "csk.taprats.ui.toolkit.LayersEditor",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              4,
+                              4,
+                              310,
+                              340
+                            ],
+                            "screen": [
+                              4,
+                              49,
+                              310,
+                              340
+                            ],
+                            "children": [
+                              {
+                                "id": 54,
+                                "class": "javax.swing.JScrollPane",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  0,
+                                  40,
+                                  310,
+                                  300
+                                ],
+                                "screen": [
+                                  4,
+                                  89,
+                                  310,
+                                  300
+                                ],
+                                "children": [
+                                  {
+                                    "id": 55,
+                                    "class": "javax.swing.JViewport",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      1,
+                                      1,
+                                      307,
+                                      297
+                                    ],
+                                    "screen": [
+                                      5,
+                                      90,
+                                      307,
+                                      297
+                                    ],
+                                    "children": [
+                                      {
+                                        "id": 3,
+                                        "class": "javax.swing.JList",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          0,
+                                          0,
+                                          307,
+                                          297
+                                        ],
+                                        "screen": [
+                                          5,
+                                          90,
+                                          307,
+                                          297
+                                        ],
+                                        "selectedIndex": 0,
+                                        "items": [
+                                          "csk.taprats.style.Interlace@ae4c",
+                                          "csk.taprats.style.Interlace@8a41",
+                                          "csk.taprats.style.Interlace@8a42",
+                                          "csk.taprats.style.Outline@8a43",
+                                          "csk.taprats.style.Filled@8a44",
+                                          "csk.taprats.style.Filled@8a45"
+                                        ],
+                                        "children": [
+                                          {
+                                            "id": 56,
+                                            "class": "javax.swing.CellRendererPane",
+                                            "visible": false,
+                                            "showing": false,
+                                            "enabled": true,
+                                            "bounds": [
+                                              0,
+                                              0,
+                                              0,
+                                              0
+                                            ],
+                                            "children": []
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "id": 57,
+                                    "class": "javax.swing.JScrollPane$ScrollBar",
+                                    "visible": false,
+                                    "showing": false,
+                                    "enabled": true,
+                                    "bounds": [
+                                      0,
+                                      0,
+                                      0,
+                                      0
+                                    ],
+                                    "value": 0,
+                                    "min": 0,
+                                    "max": 297,
+                                    "children": [
+                                      {
+                                        "id": 58,
+                                        "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                        "visible": true,
+                                        "showing": false,
+                                        "enabled": true,
+                                        "bounds": [
+                                          0,
+                                          0,
+                                          0,
+                                          0
+                                        ],
+                                        "text": "",
+                                        "selected": false,
+                                        "children": []
+                                      },
+                                      {
+                                        "id": 59,
+                                        "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                        "visible": true,
+                                        "showing": false,
+                                        "enabled": true,
+                                        "bounds": [
+                                          0,
+                                          0,
+                                          0,
+                                          0
+                                        ],
+                                        "text": "",
+                                        "selected": false,
+                                        "children": []
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "id": 60,
+                                    "class": "javax.swing.JScrollPane$ScrollBar",
+                                    "visible": false,
+                                    "showing": false,
+                                    "enabled": true,
+                                    "bounds": [
+                                      0,
+                                      0,
+                                      0,
+                                      0
+                                    ],
+                                    "value": 0,
+                                    "min": 0,
+                                    "max": 307,
+                                    "children": [
+                                      {
+                                        "id": 61,
+                                        "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                        "visible": true,
+                                        "showing": false,
+                                        "enabled": true,
+                                        "bounds": [
+                                          0,
+                                          0,
+                                          0,
+                                          0
+                                        ],
+                                        "text": "",
+                                        "selected": false,
+                                        "children": []
+                                      },
+                                      {
+                                        "id": 62,
+                                        "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                        "visible": true,
+                                        "showing": false,
+                                        "enabled": true,
+                                        "bounds": [
+                                          0,
+                                          0,
+                                          0,
+                                          0
+                                        ],
+                                        "text": "",
+                                        "selected": false,
+                                        "children": []
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "id": 63,
+                                "class": "javax.swing.JPanel",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  0,
+                                  0,
+                                  310,
+                                  40
+                                ],
+                                "screen": [
+                                  4,
+                                  49,
+                                  310,
+                                  40
+                                ],
+                                "children": [
+                                  {
+                                    "id": 64,
+                                    "class": "javax.swing.JLabel",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      11,
+                                      13,
+                                      47,
+                                      14
+                                    ],
+                                    "screen": [
+                                      15,
+                                      62,
+                                      47,
+                                      14
+                                    ],
+                                    "text": "Layers: ",
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 65,
+                                    "class": "javax.swing.JToolBar",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      63,
+                                      5,
+                                      236,
+                                      30
+                                    ],
+                                    "screen": [
+                                      67,
+                                      54,
+                                      236,
+                                      30
+                                    ],
+                                    "children": [
+                                      {
+                                        "id": 4,
+                                        "class": "javax.swing.JToolBar$1",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          2,
+                                          1,
+                                          35,
+                                          26
+                                        ],
+                                        "screen": [
+                                          69,
+                                          55,
+                                          35,
+                                          26
+                                        ],
+                                        "text": "Add",
+                                        "selected": false,
+                                        "children": []
+                                      },
+                                      {
+                                        "id": 5,
+                                        "class": "javax.swing.JToolBar$1",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          37,
+                                          1,
+                                          60,
+                                          26
+                                        ],
+                                        "screen": [
+                                          104,
+                                          55,
+                                          60,
+                                          26
+                                        ],
+                                        "text": "Remove",
+                                        "selected": false,
+                                        "children": []
+                                      },
+                                      {
+                                        "id": 66,
+                                        "class": "javax.swing.JToolBar$Separator",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          97,
+                                          9,
+                                          10,
+                                          10
+                                        ],
+                                        "screen": [
+                                          164,
+                                          63,
+                                          10,
+                                          10
+                                        ],
+                                        "children": []
+                                      },
+                                      {
+                                        "id": 7,
+                                        "class": "javax.swing.JToolBar$1",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": false,
+                                        "bounds": [
+                                          107,
+                                          1,
+                                          28,
+                                          26
+                                        ],
+                                        "screen": [
+                                          174,
+                                          55,
+                                          28,
+                                          26
+                                        ],
+                                        "text": "Up",
+                                        "selected": false,
+                                        "children": []
+                                      },
+                                      {
+                                        "id": 8,
+                                        "class": "javax.swing.JToolBar$1",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          135,
+                                          1,
+                                          44,
+                                          26
+                                        ],
+                                        "screen": [
+                                          202,
+                                          55,
+                                          44,
+                                          26
+                                        ],
+                                        "text": "Down",
+                                        "selected": false,
+                                        "children": []
+                                      },
+                                      {
+                                        "id": 67,
+                                        "class": "javax.swing.JToolBar$Separator",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          179,
+                                          9,
+                                          10,
+                                          10
+                                        ],
+                                        "screen": [
+                                          246,
+                                          63,
+                                          10,
+                                          10
+                                        ],
+                                        "children": []
+                                      },
+                                      {
+                                        "id": 6,
+                                        "class": "javax.swing.JToolBar$1",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          189,
+                                          1,
+                                          45,
+                                          26
+                                        ],
+                                        "screen": [
+                                          256,
+                                          55,
+                                          45,
+                                          26
+                                        ],
+                                        "text": "Clone",
+                                        "selected": false,
+                                        "children": []
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "id": 68,
+                            "class": "csk.taprats.ui.style.StyleEditor",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              4,
+                              352,
+                              310,
+                              293
+                            ],
+                            "screen": [
+                              4,
+                              397,
+                              310,
+                              293
+                            ],
+                            "children": [
+                              {
+                                "id": 9,
+                                "class": "javax.swing.JComboBox",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  2,
+                                  2,
+                                  306,
+                                  23
+                                ],
+                                "screen": [
+                                  6,
+                                  399,
+                                  306,
+                                  23
+                                ],
+                                "selectedIndex": 4,
+                                "items": [
+                                  "Plain",
+                                  "Thick lines",
+                                  "Filled",
+                                  "Outlined",
+                                  "Interlaced",
+                                  "Embossed",
+                                  "Sketched"
+                                ],
+                                "children": [
+                                  {
+                                    "id": 69,
+                                    "class": "javax.swing.plaf.metal.MetalComboBoxButton",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      286,
+                                      0,
+                                      20,
+                                      23
+                                    ],
+                                    "screen": [
+                                      292,
+                                      399,
+                                      20,
+                                      23
+                                    ],
+                                    "text": "",
+                                    "selected": false,
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 70,
+                                    "class": "javax.swing.CellRendererPane",
+                                    "visible": false,
+                                    "showing": false,
+                                    "enabled": true,
+                                    "bounds": [
+                                      0,
+                                      0,
+                                      0,
+                                      0
+                                    ],
+                                    "children": [
+                                      {
+                                        "id": 71,
+                                        "class": "javax.swing.plaf.basic.BasicComboBoxRenderer$UIResource",
+                                        "visible": true,
+                                        "showing": false,
+                                        "enabled": true,
+                                        "bounds": [
+                                          -283,
+                                          -16,
+                                          0,
+                                          0
+                                        ],
+                                        "text": "Interlaced",
+                                        "children": []
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "id": 72,
+                                "class": "csk.taprats.ui.style.InterlaceEditor",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  2,
+                                  29,
+                                  306,
+                                  262
+                                ],
+                                "screen": [
+                                  6,
+                                  426,
+                                  306,
+                                  262
+                                ],
+                                "children": [
+                                  {
+                                    "id": 73,
+                                    "class": "javax.swing.JLabel",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      55,
+                                      1,
+                                      31,
+                                      14
+                                    ],
+                                    "screen": [
+                                      61,
+                                      427,
+                                      31,
+                                      14
+                                    ],
+                                    "text": "Color",
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 74,
+                                    "class": "javax.swing.JPanel",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      98,
+                                      1,
+                                      128,
+                                      14
+                                    ],
+                                    "screen": [
+                                      104,
+                                      427,
+                                      128,
+                                      14
+                                    ],
+                                    "tooltip": "Click to select a color...",
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 75,
+                                    "class": "javax.swing.JPanel",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      6,
+                                      130,
+                                      294,
+                                      131
+                                    ],
+                                    "screen": [
+                                      12,
+                                      556,
+                                      294,
+                                      131
+                                    ],
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 76,
+                                    "class": "javax.swing.JLabel",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      10,
+                                      20,
+                                      80,
+                                      14
+                                    ],
+                                    "screen": [
+                                      16,
+                                      446,
+                                      80,
+                                      14
+                                    ],
+                                    "text": "Transparency",
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 77,
+                                    "class": "javax.swing.JScrollBar",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      92,
+                                      18,
+                                      138,
+                                      17
+                                    ],
+                                    "screen": [
+                                      98,
+                                      444,
+                                      138,
+                                      17
+                                    ],
+                                    "value": 0,
+                                    "min": 0,
+                                    "max": 12000,
+                                    "children": [
+                                      {
+                                        "id": 78,
+                                        "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          122,
+                                          0,
+                                          16,
+                                          17
+                                        ],
+                                        "screen": [
+                                          220,
+                                          444,
+                                          16,
+                                          17
+                                        ],
+                                        "text": "",
+                                        "selected": false,
+                                        "children": []
+                                      },
+                                      {
+                                        "id": 79,
+                                        "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          0,
+                                          0,
+                                          15,
+                                          17
+                                        ],
+                                        "screen": [
+                                          98,
+                                          444,
+                                          15,
+                                          17
+                                        ],
+                                        "text": "",
+                                        "selected": false,
+                                        "children": []
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "id": 80,
+                                    "class": "javax.swing.JTextField",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      232,
+                                      18,
+                                      74,
+                                      18
+                                    ],
+                                    "screen": [
+                                      238,
+                                      444,
+                                      74,
+                                      18
+                                    ],
+                                    "text": "0.0",
+                                    "editable": true,
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 81,
+                                    "class": "javax.swing.JLabel",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      58,
+                                      67,
+                                      32,
+                                      14
+                                    ],
+                                    "screen": [
+                                      64,
+                                      493,
+                                      32,
+                                      14
+                                    ],
+                                    "text": "Width",
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 82,
+                                    "class": "javax.swing.JScrollBar",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      92,
+                                      65,
+                                      138,
+                                      17
+                                    ],
+                                    "screen": [
+                                      98,
+                                      491,
+                                      138,
+                                      17
+                                    ],
+                                    "value": 500,
+                                    "min": 0,
+                                    "max": 12000,
+                                    "children": [
+                                      {
+                                        "id": 83,
+                                        "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          122,
+                                          0,
+                                          16,
+                                          17
+                                        ],
+                                        "screen": [
+                                          220,
+                                          491,
+                                          16,
+                                          17
+                                        ],
+                                        "text": "",
+                                        "selected": false,
+                                        "children": []
+                                      },
+                                      {
+                                        "id": 84,
+                                        "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          0,
+                                          0,
+                                          15,
+                                          17
+                                        ],
+                                        "screen": [
+                                          98,
+                                          491,
+                                          15,
+                                          17
+                                        ],
+                                        "text": "",
+                                        "selected": false,
+                                        "children": []
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "id": 85,
+                                    "class": "javax.swing.JTextField",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      232,
+                                      65,
+                                      74,
+                                      18
+                                    ],
+                                    "screen": [
+                                      238,
+                                      491,
+                                      74,
+                                      18
+                                    ],
+                                    "text": "5.0",
+                                    "editable": true,
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 86,
+                                    "class": "javax.swing.JLabel",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      6,
+                                      43,
+                                      80,
+                                      14
+                                    ],
+                                    "screen": [
+                                      12,
+                                      469,
+                                      80,
+                                      14
+                                    ],
+                                    "text": "Draw Outlines",
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 87,
+                                    "class": "javax.swing.JCheckBox",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      98,
+                                      40,
+                                      21,
+                                      21
+                                    ],
+                                    "screen": [
+                                      104,
+                                      466,
+                                      21,
+                                      21
+                                    ],
+                                    "text": "",
+                                    "selected": false,
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 88,
+                                    "class": "javax.swing.JLabel",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      32,
+                                      89,
+                                      58,
+                                      14
+                                    ],
+                                    "screen": [
+                                      38,
+                                      515,
+                                      58,
+                                      14
+                                    ],
+                                    "text": "Gap Width",
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 89,
+                                    "class": "javax.swing.JScrollBar",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      92,
+                                      87,
+                                      138,
+                                      17
+                                    ],
+                                    "screen": [
+                                      98,
+                                      513,
+                                      138,
+                                      17
+                                    ],
+                                    "value": 0,
+                                    "min": 0,
+                                    "max": 12000,
+                                    "children": [
+                                      {
+                                        "id": 90,
+                                        "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          122,
+                                          0,
+                                          16,
+                                          17
+                                        ],
+                                        "screen": [
+                                          220,
+                                          513,
+                                          16,
+                                          17
+                                        ],
+                                        "text": "",
+                                        "selected": false,
+                                        "children": []
+                                      },
+                                      {
+                                        "id": 91,
+                                        "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          0,
+                                          0,
+                                          15,
+                                          17
+                                        ],
+                                        "screen": [
+                                          98,
+                                          513,
+                                          15,
+                                          17
+                                        ],
+                                        "text": "",
+                                        "selected": false,
+                                        "children": []
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "id": 92,
+                                    "class": "javax.swing.JTextField",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      232,
+                                      87,
+                                      74,
+                                      18
+                                    ],
+                                    "screen": [
+                                      238,
+                                      513,
+                                      74,
+                                      18
+                                    ],
+                                    "text": "0.0",
+                                    "editable": true,
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 93,
+                                    "class": "javax.swing.JLabel",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      10,
+                                      111,
+                                      80,
+                                      14
+                                    ],
+                                    "screen": [
+                                      16,
+                                      537,
+                                      80,
+                                      14
+                                    ],
+                                    "text": "Shadow Width",
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 94,
+                                    "class": "javax.swing.JScrollBar",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      92,
+                                      109,
+                                      138,
+                                      17
+                                    ],
+                                    "screen": [
+                                      98,
+                                      535,
+                                      138,
+                                      17
+                                    ],
+                                    "value": 714,
+                                    "min": 0,
+                                    "max": 12000,
+                                    "children": [
+                                      {
+                                        "id": 95,
+                                        "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          122,
+                                          0,
+                                          16,
+                                          17
+                                        ],
+                                        "screen": [
+                                          220,
+                                          535,
+                                          16,
+                                          17
+                                        ],
+                                        "text": "",
+                                        "selected": false,
+                                        "children": []
+                                      },
+                                      {
+                                        "id": 96,
+                                        "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                        "visible": true,
+                                        "showing": true,
+                                        "enabled": true,
+                                        "bounds": [
+                                          0,
+                                          0,
+                                          15,
+                                          17
+                                        ],
+                                        "screen": [
+                                          98,
+                                          535,
+                                          15,
+                                          17
+                                        ],
+                                        "text": "",
+                                        "selected": false,
+                                        "children": []
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "id": 97,
+                                    "class": "javax.swing.JTextField",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      232,
+                                      109,
+                                      74,
+                                      18
+                                    ],
+                                    "screen": [
+                                      238,
+                                      535,
+                                      74,
+                                      18
+                                    ],
+                                    "text": "5.0",
+                                    "editable": true,
+                                    "children": []
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "id": 2,
+                            "class": "csk.taprats.toolkit.GeoLayeredView",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              322,
+                              4,
+                              874,
+                              516
+                            ],
+                            "screen": [
+                              322,
+                              49,
+                              874,
+                              516
+                            ],
+                            "children": []
+                          },
+                          {
+                            "id": 98,
+                            "class": "javax.swing.JToolBar",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              581,
+                              528,
+                              355,
+                              30
+                            ],
+                            "screen": [
+                              581,
+                              573,
+                              355,
+                              30
+                            ],
+                            "children": [
+                              {
+                                "id": 99,
+                                "class": "javax.swing.JToggleButton",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  2,
+                                  1,
+                                  64,
+                                  26
+                                ],
+                                "screen": [
+                                  583,
+                                  574,
+                                  64,
+                                  26
+                                ],
+                                "text": "Pan View",
+                                "selected": false,
+                                "children": []
+                              },
+                              {
+                                "id": 100,
+                                "class": "javax.swing.JToggleButton",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  66,
+                                  1,
+                                  80,
+                                  26
+                                ],
+                                "screen": [
+                                  647,
+                                  574,
+                                  80,
+                                  26
+                                ],
+                                "text": "Rotate View",
+                                "selected": false,
+                                "children": []
+                              },
+                              {
+                                "id": 101,
+                                "class": "javax.swing.JToggleButton",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  146,
+                                  1,
+                                  74,
+                                  26
+                                ],
+                                "screen": [
+                                  727,
+                                  574,
+                                  74,
+                                  26
+                                ],
+                                "text": "Zoom View",
+                                "selected": false,
+                                "children": []
+                              },
+                              {
+                                "id": 10,
+                                "class": "javax.swing.JToggleButton",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  220,
+                                  1,
+                                  133,
+                                  26
+                                ],
+                                "screen": [
+                                  801,
+                                  574,
+                                  133,
+                                  26
+                                ],
+                                "text": "Transform All Layers",
+                                "selected": true,
+                                "children": []
+                              }
+                            ]
+                          },
+                          {
+                            "id": 102,
+                            "class": "csk.taprats.ui.toolkit.TransformEditor",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              322,
+                              566,
+                              874,
+                              79
+                            ],
+                            "screen": [
+                              322,
+                              611,
+                              874,
+                              79
+                            ],
+                            "children": [
+                              {
+                                "id": 103,
+                                "class": "javax.swing.JLabel",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  287,
+                                  2,
+                                  91,
+                                  14
+                                ],
+                                "screen": [
+                                  609,
+                                  613,
+                                  91,
+                                  14
+                                ],
+                                "text": "Panning",
+                                "children": []
+                              },
+                              {
+                                "id": 11,
+                                "class": "javax.swing.JTextField",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  287,
+                                  20,
+                                  91,
+                                  18
+                                ],
+                                "screen": [
+                                  609,
+                                  631,
+                                  91,
+                                  18
+                                ],
+                                "text": "0",
+                                "editable": true,
+                                "children": []
+                              },
+                              {
+                                "id": 12,
+                                "class": "javax.swing.JTextField",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  287,
+                                  42,
+                                  91,
+                                  18
+                                ],
+                                "screen": [
+                                  609,
+                                  653,
+                                  91,
+                                  18
+                                ],
+                                "text": "0",
+                                "editable": true,
+                                "children": []
+                              },
+                              {
+                                "id": 104,
+                                "class": "javax.swing.JLabel",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  287,
+                                  64,
+                                  91,
+                                  13
+                                ],
+                                "screen": [
+                                  609,
+                                  675,
+                                  91,
+                                  13
+                                ],
+                                "text": "(Shift + Left Mouse)",
+                                "children": []
+                              },
+                              {
+                                "id": 105,
+                                "class": "javax.swing.JLabel",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  382,
+                                  2,
+                                  103,
+                                  14
+                                ],
+                                "screen": [
+                                  704,
+                                  613,
+                                  103,
+                                  14
+                                ],
+                                "text": "Rotation",
+                                "children": []
+                              },
+                              {
+                                "id": 13,
+                                "class": "javax.swing.JTextField",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  382,
+                                  20,
+                                  103,
+                                  18
+                                ],
+                                "screen": [
+                                  704,
+                                  631,
+                                  103,
+                                  18
+                                ],
+                                "text": "0",
+                                "editable": true,
+                                "children": []
+                              },
+                              {
+                                "id": 106,
+                                "class": "javax.swing.JLabel",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  382,
+                                  64,
+                                  103,
+                                  13
+                                ],
+                                "screen": [
+                                  704,
+                                  675,
+                                  103,
+                                  13
+                                ],
+                                "text": "(Shift + Middle Mouse)",
+                                "children": []
+                              },
+                              {
+                                "id": 107,
+                                "class": "javax.swing.JLabel",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  489,
+                                  2,
+                                  97,
+                                  14
+                                ],
+                                "screen": [
+                                  811,
+                                  613,
+                                  97,
+                                  14
+                                ],
+                                "text": "Zooming",
+                                "children": []
+                              },
+                              {
+                                "id": 14,
+                                "class": "javax.swing.JTextField",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  489,
+                                  20,
+                                  97,
+                                  18
+                                ],
+                                "screen": [
+                                  811,
+                                  631,
+                                  97,
+                                  18
+                                ],
+                                "text": "20",
+                                "editable": true,
+                                "children": []
+                              },
+                              {
+                                "id": 108,
+                                "class": "javax.swing.JLabel",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  489,
+                                  64,
+                                  97,
+                                  13
+                                ],
+                                "screen": [
+                                  811,
+                                  675,
+                                  97,
+                                  13
+                                ],
+                                "text": "(Shift + Right Mouse)",
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "menus": [
+          {
+            "id": 109,
+            "class": "java.awt.Menu",
+            "text": "File",
+            "enabled": true,
+            "items": [
+              {
+                "id": 110,
+                "class": "java.awt.MenuItem",
+                "text": "New Design",
+                "enabled": true
+              },
+              {
+                "id": 111,
+                "class": "java.awt.MenuItem",
+                "text": "New Tiling",
+                "enabled": true
+              },
+              {
+                "id": 112,
+                "class": "java.awt.MenuItem",
+                "text": "Open...",
+                "enabled": true
+              },
+              {
+                "id": 113,
+                "class": "java.awt.MenuItem",
+                "text": "Select Example...",
+                "enabled": true
+              },
+              {
+                "id": 114,
+                "class": "java.awt.MenuItem",
+                "text": "Save",
+                "enabled": true
+              },
+              {
+                "id": 115,
+                "class": "java.awt.MenuItem",
+                "text": "Save As...",
+                "enabled": true
+              },
+              {
+                "id": 116,
+                "class": "java.awt.MenuItem",
+                "text": "Export Image...",
+                "enabled": true
+              },
+              {
+                "id": 117,
+                "class": "java.awt.MenuItem",
+                "text": "Export EPS...",
+                "enabled": true
+              },
+              {
+                "id": 118,
+                "class": "java.awt.MenuItem",
+                "text": "Export SVG...",
+                "enabled": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 46,
+        "class": "csk.taprats.ui.tile.DesignerWindow",
+        "visible": true,
+        "showing": true,
+        "enabled": true,
+        "bounds": [
+          20,
+          20,
+          898,
+          602
+        ],
+        "screen": [
+          20,
+          20,
+          898,
+          602
+        ],
+        "name": "frame1",
+        "title": "Tiling Designer 1.1.12",
+        "children": [
+          {
+            "id": 119,
+            "class": "javax.swing.JRootPane",
+            "visible": true,
+            "showing": true,
+            "enabled": true,
+            "bounds": [
+              0,
+              20,
+              898,
+              582
+            ],
+            "screen": [
+              20,
+              40,
+              898,
+              582
+            ],
+            "children": [
+              {
+                "id": 120,
+                "class": "javax.swing.JPanel",
+                "visible": false,
+                "showing": false,
+                "enabled": true,
+                "bounds": [
+                  0,
+                  0,
+                  898,
+                  582
+                ],
+                "name": "null.glassPane",
+                "children": []
+              },
+              {
+                "id": 121,
+                "class": "javax.swing.JLayeredPane",
+                "visible": true,
+                "showing": true,
+                "enabled": true,
+                "bounds": [
+                  0,
+                  0,
+                  898,
+                  582
+                ],
+                "screen": [
+                  20,
+                  40,
+                  898,
+                  582
+                ],
+                "name": "null.layeredPane",
+                "children": [
+                  {
+                    "id": 122,
+                    "class": "javax.swing.JPanel",
+                    "visible": true,
+                    "showing": true,
+                    "enabled": true,
+                    "bounds": [
+                      0,
+                      0,
+                      898,
+                      582
+                    ],
+                    "screen": [
+                      20,
+                      40,
+                      898,
+                      582
+                    ],
+                    "name": "null.contentPane",
+                    "children": [
+                      {
+                        "id": 47,
+                        "class": "csk.taprats.ui.tile.DesignerPanel",
+                        "visible": true,
+                        "showing": true,
+                        "enabled": true,
+                        "bounds": [
+                          188,
+                          0,
+                          500,
+                          582
+                        ],
+                        "screen": [
+                          208,
+                          40,
+                          500,
+                          582
+                        ],
+                        "children": []
+                      },
+                      {
+                        "id": 123,
+                        "class": "javax.swing.JToolBar",
+                        "visible": true,
+                        "showing": true,
+                        "enabled": true,
+                        "bounds": [
+                          0,
+                          0,
+                          188,
+                          582
+                        ],
+                        "screen": [
+                          20,
+                          40,
+                          188,
+                          582
+                        ],
+                        "children": [
+                          {
+                            "id": 124,
+                            "class": "javax.swing.JLabel",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              1,
+                              59,
+                              19
+                            ],
+                            "screen": [
+                              27,
+                              41,
+                              59,
+                              19
+                            ],
+                            "text": "Actions",
+                            "children": []
+                          },
+                          {
+                            "id": 125,
+                            "class": "javax.swing.JToolBar$1",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              20,
+                              70,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              60,
+                              70,
+                              26
+                            ],
+                            "text": "New Tiling",
+                            "selected": false,
+                            "tooltip": "Start a new tiling design. (Shortcut: N)",
+                            "children": []
+                          },
+                          {
+                            "id": 126,
+                            "class": "javax.swing.JToolBar$1",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              46,
+                              51,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              86,
+                              51,
+                              26
+                            ],
+                            "text": "Open...",
+                            "selected": false,
+                            "tooltip": "Open a tiling design. (Shortcut: O)",
+                            "children": []
+                          },
+                          {
+                            "id": 127,
+                            "class": "javax.swing.JToolBar$1",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              72,
+                              57,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              112,
+                              57,
+                              26
+                            ],
+                            "text": "Select...",
+                            "selected": false,
+                            "tooltip": "Select a tiling design among built-in ones. (Shortcut: <Shift> + O)",
+                            "children": []
+                          },
+                          {
+                            "id": 128,
+                            "class": "javax.swing.JToolBar$1",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              98,
+                              69,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              138,
+                              69,
+                              26
+                            ],
+                            "text": "Save As...",
+                            "selected": false,
+                            "tooltip": "Save the tiling design. (Shortcut: S)",
+                            "children": []
+                          },
+                          {
+                            "id": 129,
+                            "class": "javax.swing.JToolBar$1",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              124,
+                              102,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              164,
+                              102,
+                              26
+                            ],
+                            "text": "Save Code As...",
+                            "selected": false,
+                            "tooltip": "Save the tiling design as code. (Shortcut: <Shift> + S)",
+                            "children": []
+                          },
+                          {
+                            "id": 130,
+                            "class": "javax.swing.JToolBar$1",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              150,
+                              158,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              190,
+                              158,
+                              26
+                            ],
+                            "text": "Clear Translation Vectors",
+                            "selected": false,
+                            "tooltip": "Clear the translation vectors used to tile the plane. (Shortcut: U.)",
+                            "children": []
+                          },
+                          {
+                            "id": 131,
+                            "class": "javax.swing.JToolBar$1",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              176,
+                              179,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              216,
+                              179,
+                              26
+                            ],
+                            "text": "Fill Using Translation Vectors",
+                            "selected": false,
+                            "tooltip": "Surround the design with copies using the translation vectors. (Shortcut: F.)",
+                            "children": []
+                          },
+                          {
+                            "id": 132,
+                            "class": "javax.swing.JToolBar$1",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              202,
+                              172,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              242,
+                              172,
+                              26
+                            ],
+                            "text": "Remove Excluded Polygons",
+                            "selected": false,
+                            "tooltip": "Remove all polygons that are not included in the tiling. (Shortcut: R)",
+                            "children": []
+                          },
+                          {
+                            "id": 133,
+                            "class": "javax.swing.JToolBar$1",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              228,
+                              139,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              268,
+                              139,
+                              26
+                            ],
+                            "text": "Excluded All Polygons",
+                            "selected": false,
+                            "tooltip": "Excluded all polygons from the tiling. (Shortcut: E)",
+                            "children": []
+                          },
+                          {
+                            "id": 134,
+                            "class": "javax.swing.JToolBar$1",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              254,
+                              84,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              294,
+                              84,
+                              26
+                            ],
+                            "text": "Add Polygon",
+                            "selected": false,
+                            "tooltip": "Add a regular polygon with X side, where X is a number you entered with the keyboard. (Shortcut: <Enter>)",
+                            "children": []
+                          },
+                          {
+                            "id": 135,
+                            "class": "javax.swing.JToolBar$1",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              280,
+                              112,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              320,
+                              112,
+                              26
+                            ],
+                            "text": "Preview the Tiling",
+                            "selected": false,
+                            "tooltip": "Preview the tiling design to verify plane coverage of the translation vector and included polygons. (Shortcut: P)",
+                            "children": []
+                          },
+                          {
+                            "id": 136,
+                            "class": "javax.swing.JToolBar$Separator",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              2,
+                              306,
+                              10,
+                              10
+                            ],
+                            "screen": [
+                              22,
+                              346,
+                              10,
+                              10
+                            ],
+                            "children": []
+                          },
+                          {
+                            "id": 137,
+                            "class": "javax.swing.JLabel",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              316,
+                              162,
+                              19
+                            ],
+                            "screen": [
+                              27,
+                              356,
+                              162,
+                              19
+                            ],
+                            "text": "Mouse Manipulations",
+                            "children": []
+                          },
+                          {
+                            "id": 138,
+                            "class": "javax.swing.JToggleButton",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              335,
+                              157,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              375,
+                              157,
+                              26
+                            ],
+                            "text": "Draw Translation Vectors",
+                            "selected": false,
+                            "tooltip": "Select the two translation vectors used to tile the plane, using the mouse. (Drag with the mouse.)",
+                            "children": []
+                          },
+                          {
+                            "id": 139,
+                            "class": "javax.swing.JToggleButton",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              361,
+                              98,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              401,
+                              98,
+                              26
+                            ],
+                            "text": "Draw Polygons",
+                            "selected": false,
+                            "tooltip": "Select a series of vertices counter-clockwise to draw a free-form polygon. (Click on vertices.)",
+                            "children": []
+                          },
+                          {
+                            "id": 140,
+                            "class": "javax.swing.JToggleButton",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              387,
+                              98,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              427,
+                              98,
+                              26
+                            ],
+                            "text": "Copy Polygons",
+                            "selected": false,
+                            "tooltip": "Copy a polygon by drag-and-drop with the mouse. (Press C or drag with the mouse.)",
+                            "children": []
+                          },
+                          {
+                            "id": 141,
+                            "class": "javax.swing.JToggleButton",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              413,
+                              99,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              453,
+                              99,
+                              26
+                            ],
+                            "text": "Move Polygons",
+                            "selected": false,
+                            "tooltip": "Move a polygon by drag-and-drop with the mouse. (Drag with the mouse.)",
+                            "children": []
+                          },
+                          {
+                            "id": 142,
+                            "class": "javax.swing.JToggleButton",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              439,
+                              105,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              479,
+                              105,
+                              26
+                            ],
+                            "text": "Delete Polygons",
+                            "selected": false,
+                            "tooltip": "Delete polygons by clicking on them with the mouse. (Shortcut: D)",
+                            "children": []
+                          },
+                          {
+                            "id": 143,
+                            "class": "javax.swing.JToggleButton",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              465,
+                              155,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              505,
+                              155,
+                              26
+                            ],
+                            "text": "Include Polygons in Tiling",
+                            "selected": false,
+                            "tooltip": "Toggle the inclusion of polygons in the tiling by clicking on them with the mouse. (Shortcut: T)",
+                            "children": []
+                          },
+                          {
+                            "id": 144,
+                            "class": "javax.swing.JToggleButton",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              491,
+                              85,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              531,
+                              85,
+                              26
+                            ],
+                            "text": "Pan the View",
+                            "selected": false,
+                            "tooltip": "Pan the view by drag-and-drop with the mouse. (<Shift> + left mouse button.)",
+                            "children": []
+                          },
+                          {
+                            "id": 145,
+                            "class": "javax.swing.JToggleButton",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              517,
+                              101,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              557,
+                              101,
+                              26
+                            ],
+                            "text": "Rotate the View",
+                            "selected": false,
+                            "tooltip": "Rotate the view by drag-and-drop with the mouse. (<Shift> + middle mouse button.)",
+                            "children": []
+                          },
+                          {
+                            "id": 146,
+                            "class": "javax.swing.JToggleButton",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              7,
+                              543,
+                              95,
+                              26
+                            ],
+                            "screen": [
+                              27,
+                              583,
+                              95,
+                              26
+                            ],
+                            "text": "Zoom the View",
+                            "selected": false,
+                            "tooltip": "Zoom the view by drag-and-drop with the mouse. (<Shift> + right mouse button.)",
+                            "children": []
+                          },
+                          {
+                            "id": 147,
+                            "class": "javax.swing.JPanel",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              2,
+                              569,
+                              184,
+                              10
+                            ],
+                            "screen": [
+                              22,
+                              609,
+                              184,
+                              10
+                            ],
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "id": 148,
+                        "class": "csk.taprats.ui.tile.TilingDescriptionEditor",
+                        "visible": true,
+                        "showing": true,
+                        "enabled": true,
+                        "bounds": [
+                          688,
+                          0,
+                          210,
+                          582
+                        ],
+                        "screen": [
+                          708,
+                          40,
+                          210,
+                          582
+                        ],
+                        "children": [
+                          {
+                            "id": 149,
+                            "class": "javax.swing.JScrollPane",
+                            "visible": true,
+                            "showing": true,
+                            "enabled": true,
+                            "bounds": [
+                              5,
+                              5,
+                              200,
+                              500
+                            ],
+                            "screen": [
+                              713,
+                              45,
+                              200,
+                              500
+                            ],
+                            "children": [
+                              {
+                                "id": 150,
+                                "class": "javax.swing.JViewport",
+                                "visible": true,
+                                "showing": true,
+                                "enabled": true,
+                                "bounds": [
+                                  1,
+                                  1,
+                                  197,
+                                  497
+                                ],
+                                "screen": [
+                                  714,
+                                  46,
+                                  197,
+                                  497
+                                ],
+                                "children": [
+                                  {
+                                    "id": 151,
+                                    "class": "javax.swing.JEditorPane",
+                                    "visible": true,
+                                    "showing": true,
+                                    "enabled": true,
+                                    "bounds": [
+                                      0,
+                                      0,
+                                      197,
+                                      497
+                                    ],
+                                    "screen": [
+                                      714,
+                                      46,
+                                      197,
+                                      497
+                                    ],
+                                    "text": "<html>\n  <head>\n    \n  </head>\n  <body>\n    <center>\n      <h2>\n        4^4\n      </h2>\n    </center>\n    <p>\n      <font color=\"#888888\">&quot;</font>The plain old tiling by squares.<font color=\"#888888\">&quot;</font>\n    </p>\n    <p>\n      <i><font color=\"#888888\">By</font> </i>Craig S. Kaplan\n    </p>\n  </body>\n</html>\n",
+                                    "editable": true,
+                                    "children": []
+                                  }
+                                ]
+                              },
+                              {
+                                "id": 152,
+                                "class": "javax.swing.JScrollPane$ScrollBar",
+                                "visible": false,
+                                "showing": false,
+                                "enabled": true,
+                                "bounds": [
+                                  0,
+                                  0,
+                                  0,
+                                  0
+                                ],
+                                "value": 0,
+                                "min": 0,
+                                "max": 497,
+                                "children": [
+                                  {
+                                    "id": 153,
+                                    "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                    "visible": true,
+                                    "showing": false,
+                                    "enabled": true,
+                                    "bounds": [
+                                      0,
+                                      0,
+                                      0,
+                                      0
+                                    ],
+                                    "text": "",
+                                    "selected": false,
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 154,
+                                    "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                    "visible": true,
+                                    "showing": false,
+                                    "enabled": true,
+                                    "bounds": [
+                                      0,
+                                      0,
+                                      0,
+                                      0
+                                    ],
+                                    "text": "",
+                                    "selected": false,
+                                    "children": []
+                                  }
+                                ]
+                              },
+                              {
+                                "id": 155,
+                                "class": "javax.swing.JScrollPane$ScrollBar",
+                                "visible": false,
+                                "showing": false,
+                                "enabled": true,
+                                "bounds": [
+                                  0,
+                                  0,
+                                  0,
+                                  0
+                                ],
+                                "value": 0,
+                                "min": 0,
+                                "max": 197,
+                                "children": [
+                                  {
+                                    "id": 156,
+                                    "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                    "visible": true,
+                                    "showing": false,
+                                    "enabled": true,
+                                    "bounds": [
+                                      0,
+                                      0,
+                                      0,
+                                      0
+                                    ],
+                                    "text": "",
+                                    "selected": false,
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 157,
+                                    "class": "javax.swing.plaf.metal.MetalScrollButton",
+                                    "visible": true,
+                                    "showing": false,
+                                    "enabled": true,
+                                    "bounds": [
+                                      0,
+                                      0,
+                                      0,
+                                      0
+                                    ],
+                                    "text": "",
+                                    "selected": false,
+                                    "children": []
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

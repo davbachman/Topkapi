@@ -1,0 +1,35 @@
+{
+  "suite": "svg",
+  "passed": 7,
+  "originalIssues": 0,
+  "records": {
+    "svg/Emboss": {
+      "status": "pass",
+      "value": "characters=24686;crc=35e45fa2"
+    },
+    "svg/Filled": {
+      "status": "pass",
+      "value": "characters=4167;crc=da39d419"
+    },
+    "svg/Interlace": {
+      "status": "pass",
+      "value": "characters=19794;crc=91c69240"
+    },
+    "svg/Outline": {
+      "status": "pass",
+      "value": "characters=12634;crc=c818a617"
+    },
+    "svg/Plain": {
+      "status": "pass",
+      "value": "characters=9522;crc=604fdf2b"
+    },
+    "svg/Sketch": {
+      "status": "pass",
+      "value": "characters=70128;crc=6afa91ca"
+    },
+    "svg/Thick": {
+      "status": "pass",
+      "value": "characters=9563;crc=68cf973f"
+    }
+  }
+}

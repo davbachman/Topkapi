@@ -1,0 +1,8 @@
+{
+  "taprats.jar": "0cc67879161621db76201adb8dc27262b49cd1ae5a10433195d517efa68d4148",
+  "lib/commons-io-2.17.0.jar": "4aa4ca48f3dfd30b78220b7881d8cb93eac4093ec94361b6befa9487998a550b",
+  "lib/commons-logging-1.3.0.jar": "66d3c980470b99b0c511dad3dfc0ae7b265ec1fb144e96bc0253a8a175fd34d9",
+  "lib/xmlgraphics-commons-2.11.jar": "1a37948ebfedab0cd292cfc5007e65c2fa16a701b94c206152720d3a738561bc",
+  "lib/batik-all-1.19.jar": "5dc32d73d586b12b6c4a545b83eb537e5e3c2cd820a873730b073b2e94dcf525",
+  "lib/xml-apis-ext-1.3.04.jar": "d0b4887dc34d57de49074a58affad439a013d0baffa1a8034f8ef2a5ea191646"
+}

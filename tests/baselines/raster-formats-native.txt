@@ -1,0 +1,7 @@
+writerFormatNames=[BMP, GIF, JPEG, JPG, PNG, WBMP, bmp, gif, jpeg, jpg, png, wbmp]
+GIF fileWrite=true streamWrite=true fileExists=true fileBytes=150 streamBytes=150 reopened=true dimensions=32x24 changedPixels=0
+BMP fileWrite=true streamWrite=true fileExists=true fileBytes=2358 streamBytes=2358 reopened=true dimensions=32x24 changedPixels=0
+WBMP fileWrite=false streamWrite=false fileExists=false fileBytes=0 streamBytes=0 reopened=false dimensions=none changedPixels=not-applicable
+PNG fileWrite=true streamWrite=true fileExists=true fileBytes=109 streamBytes=109 reopened=true dimensions=32x24 changedPixels=0
+JPEG fileWrite=true streamWrite=true fileExists=true fileBytes=835 streamBytes=835 reopened=true dimensions=32x24 changedPixels=660
+JPG fileWrite=true streamWrite=true fileExists=true fileBytes=835 streamBytes=835 reopened=true dimensions=32x24 changedPixels=660

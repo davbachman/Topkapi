@@ -1,0 +1,48 @@
+{
+  "persistence": {
+    "files": [
+      "USA (1).tap",
+      "USA.tap",
+      "custom.tiling",
+      "roundtrip.eps",
+      "roundtrip.svg",
+      "roundtrip.tap",
+      "roundtrip.tap.png",
+      "roundtrip.tap.tap_info"
+    ],
+    "savedDesign": true,
+    "runtimeFilesHidden": true,
+    "tilingsRestored": true
+  },
+  "webmcpRegistry": false,
+  "pan": {
+    "left": -11.805869074492103,
+    "top": 11.128668171557564,
+    "width": 20,
+    "theta": 0
+  },
+  "mobile": {
+    "width": 390,
+    "workspace": 390,
+    "scroll": 900,
+    "desktop": 900
+  },
+  "french": true,
+  "revisionPaths": [
+    "/files/workspace/revision.tiling",
+    "/files/workspace/revision (1).tiling"
+  ],
+  "beforeReload": "Latest revision",
+  "dotFilename": "/files/workspace/draft..tap",
+  "revisionReload": {
+    "restoredRevision": "Latest",
+    "metadataHidden": true
+  },
+  "close": {
+    "windowsRemaining": 0,
+    "dirty": false,
+    "running": false
+  },
+  "reopen": true,
+  "dotFilenameDownload": true
+}
