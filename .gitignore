@@ -40,3 +40,6 @@ next-env.d.ts
 /java-build/
 /output/
 /.playwright-cli/
+
+# TypeScript incremental check cache
+*.tsbuildinfo

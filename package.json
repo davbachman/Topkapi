@@ -12,7 +12,9 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "verify": "node scripts/verify-artifacts.mjs",
-    "build:java": "sh scripts/build-java.sh"
+    "build:java": "sh scripts/build-java.sh",
+    "test:native": "node scripts/test-native.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "react": "19.2.6",

@@ -1,8 +1,10 @@
-# Taprats Web
+# Taprats Studio
 
-The complete Taprats 1.1.12 desktop application, running locally in a modern browser through CheerpJ 4.3. The supplied `taprats.jar` is preserved byte for byte. This directory contains the web application.
+A native web workspace for constructing Islamic geometric patterns. Choose among 105 tilings, edit motifs and tile geometry, combine layers, explore variations, paint regions, and export vector artwork or DXF geometry.
 
-## Run
+This is the first editing milestone of a ground-up TypeScript rebuild. Its main route has no Java dependency. The preserved desktop migration remains at `/classic`.
+
+## Run locally
 
 Requires Node.js 22.13 or later:
 
@@ -11,28 +13,28 @@ npm ci
 npm run dev
 ```
 
-Open the local URL printed by the server. No Java installation, browser extension, account, or backend data service is needed to use the web app. Internet access is required to load CheerpJ's browser runtime. The community runtime is for personal and non-business use; other use requires a [CheerpJ license](https://cheerpj.com/docs/licensing).
+Open the URL printed by the server. The native workspace runs its calculations and stores autosaves in your browser. Download a `.taprats.json` project for a portable backup; it contains its own tilings and motifs. Clearing browser storage removes local autosaves.
 
 ## Use
 
-- **File → Select Example** opens the original library of 73 designs.
-- **Add** creates a layer: select one of 92 tilings, edit each feature, apply changes, preview, and finish.
-- The original seven styles, layer tools, all figure algorithms, view transforms, and complete custom tiling designer remain available.
-- **Files → Import files** brings `.tap` designs and `.tiling` definitions into `/files/workspace`. Imported custom tilings register automatically and restore on your next visit.
-- Save and export under `/files/workspace`, then use **Files** to download the outputs. Native `.tap` saves retain their `.png` and `.tap_info` sidecars. Files persist in the browser's IndexedDB; download backups before clearing browser data.
-- Original image and EPS exports are preserved. Apache Batik is bundled to enable the original optional SVG exporter.
-- The Help dialog provides English/French startup links. Save before changing language or reloading.
+- Browse tilings to add a layer. Select a tile shape in the inspector and edit its construction live.
+- Draw a motif to edit line segments, snap to construction points, and apply symmetry. Infer from neighboring motifs continues adjacent linework.
+- Edit tiling to arrange polygons, match edges, edit vertices, and set translation or concentric repetition.
+- Shift-click layers for multiple selection. M moves all unlocked layers with group moves enabled; H or Space-drag pans; V selects a tile; B paints a region.
+- Use ⌘/Ctrl-Z and ⇧⌘/Ctrl-Z for undo/redo; ⌘/Ctrl-S downloads the project.
+- Set output dimensions through the project name. Export SVG, PNG, DXF centerlines, closed outlines or solid faces. Check output geometry for physical widths and connection diagnostics.
 
-## Preservation and verification
+See [the native milestone and remaining stages](docs/NATIVE-REBUILD.md) for delivered capabilities and verification limits. Full native parity and the later research/fabrication features remain in progress. Legacy functionality and its earlier checks are documented in [the classic app guide](docs/CLASSIC-APP.md).
 
-`java/taprats/web/BrowserBridge.java` provides window sizing and browser file integration. It does not replace any original class or change geometry, figure, layer, rendering, or serialization logic. The bridge JAR is checked in so Java is needed only to rebuild the adapter (`npm run build:java`).
+## Development checks
 
-The original binary SHA-256 is `0cc67879161621db76201adb8dc27262b49cd1ae5a10433195d517efa68d4148`.
+```sh
+npm run test:native
+npm run typecheck
+npm run verify
+npm run build
+```
 
-See `docs/FEATURE-AUDIT.md`, `tests/README.md`, and `docs/VERIFICATION.md` for the feature inventory, reproducible native/browser comparisons, and verified results. `npm run verify` checks all pinned application/dependency binaries. `npm run build` creates the production application.
+The native tests cover all 105 tilings and compare 216 radial constructions to the original application. The old Java test results do not establish native browser UI correctness.
 
-The Java desktop UI retains its original sizing and interaction conventions. On narrow screens the workspace scrolls; a mouse or trackpad is recommended. This is a browser migration of the complete application, not a redesign of its tools.
-
-## Original limitations
-
-The supplied distribution contains two unlisted examples; one (`8 rings.tap`) depends on a missing tiling. The built-in `12.18` tiling has missing metadata and its original text exporter fails. Original `.tap` files refer to a tiling by name, so custom tilings must accompany their designs. The original format does not persist layer visibility or the global viewport transform. The original WBMP export silently fails because it passes a color image to a monochrome writer; PNG, JPEG, GIF, and BMP exports work. These are documented baseline behaviors, not newly omitted features.
+Geometry and catalog work derives from Craig S. Kaplan's Taprats and Pierre Baillargeon's Alhambra. See [licensing and attribution](THIRD-PARTY-NOTICES.md).

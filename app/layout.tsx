@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import './globals.css';
 export const metadata: Metadata = {
   icons: { icon: '/favicon.svg' },
-  title: 'Taprats — Pattern & Tiling Editor',
+  title: 'Taprats Studio — Geometric Pattern Workshop',
   description:
-    'Create geometric patterns and custom tilings with the complete Taprats 1.1.12 editor in your browser.',
+    'A native web workshop for geometric patterns, tilings, and interlaced ornament.',
 };
 export default function RootLayout({
   children,

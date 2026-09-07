@@ -1,0 +1,23 @@
+// Run against the unmodified public/taprats.jar using Java 8 jjs -cp.
+// This records reference geometry; the normal test suite does not require Java.
+var Star=Java.type('csk.taprats.app.Star');
+var Rosette=Java.type('csk.taprats.app.Rosette');
+var Extended=Java.type('csk.taprats.app.ConnectFigure');
+var cases=[];
+[5,6,8,10,12,16].forEach(function(n){
+  ['star','rosette','extended'].forEach(function(kind){
+    (kind==='star'?[1.1,n*.3,n*.425,n/2-.01]:[-.8,0,.6,.95]).forEach(function(value){
+      [1,2,3].forEach(function(s){
+        var figure=kind==='star'?new Star(n,value,s):new Rosette(n,value,s);
+        if(kind==='extended')figure=new Extended(figure);
+        var map=figure.getMap(),edges=map.getEdges(),lines=[];
+        while(edges.hasMoreElements()){
+          var edge=edges.nextElement(),a=edge.getV1().getPosition(),b=edge.getV2().getPosition();
+          lines.push({a:{x:a.getX(),y:a.getY()},b:{x:b.getX(),y:b.getY()}});
+        }
+        cases.push({kind:kind,n:n,value:value,s:s,lines:lines});
+      });
+    });
+  });
+});
+print(JSON.stringify(cases));
