@@ -1,4 +1,6 @@
 'use client';
+import { useT, LanguageControl } from './locale';
+import { createGeometryWorker } from '@/lib/engine/client-worker';
 import {
   useState,
   useEffect,
@@ -9,6 +11,7 @@ import {
 } from 'react';
 import { flushSync } from 'react-dom';
 import Link from 'next/link';
+import NextImage from 'next/image';
 import {
   browserModelContext,
   registerProjectTools,
@@ -89,8 +92,18 @@ import {
   decodeProject,
   download,
 } from '@/lib/project/storage';
+import { exportEPS } from '@/lib/engine/eps';
+import { encodeBMP, encodeGIF, encodeWBMP } from '@/lib/engine/raster';
 import { layerSVG, exportSVG, exportDXF } from '@/lib/engine/render';
-import { bounds, inside } from '@/lib/engine/geometry';
+import { clipSegment } from '@/lib/engine/construction';
+import {
+  bounds,
+  inside,
+  apply,
+  inverse,
+  transformation,
+  rotate,
+} from '@/lib/engine/geometry';
 import { Range, Choice, Check } from './controls';
 import { Preview } from './preview';
 import { FabricationDialog } from './fabrication';
@@ -98,6 +111,8 @@ import { MotifEditor, TilingEditor, VariationEditor } from './editors';
 import { makeMotif } from '@/lib/engine/motifs';
 import { inferNeighbors } from '@/lib/engine/advanced';
 import { updateProject } from '@/lib/project/model';
+import { loadTilings, blankTiling } from '@/lib/project/tilings';
+import examples from '@/lib/project/examples.json';
 import './workbench.css';
 const styles: { value: StyleKind; label: string }[] = [
   { value: 'plain', label: 'Linework' },
@@ -126,6 +141,7 @@ const palettes = [
   ['#363c44', '#141b22', '#ffffff'],
 ];
 type Modal =
+  | 'examples'
   | 'library'
   | 'export'
   | 'explore'
@@ -148,6 +164,7 @@ function IconButton({
   disabled?: boolean;
   active?: boolean;
 }) {
+  const trText = useT();
   return (
     <Tooltip>
       <TooltipTrigger
@@ -155,7 +172,7 @@ function IconButton({
           <Button
             className={`icon-button ${active ? 'active' : ''}`}
             variant="ghost"
-            aria-label={label}
+            aria-label={trText(label)}
             disabled={disabled}
             onClick={onClick}
           >
@@ -163,17 +180,19 @@ function IconButton({
           </Button>
         }
       />
-      <TooltipContent>{label}</TooltipContent>
+      <TooltipContent>{trText(label)}</TooltipContent>
     </Tooltip>
   );
 }
 export function Workbench() {
+  const trText = useT();
   const [history, setHistory] = useState<History>(() => ({
     past: [],
     present: newProject(),
     future: [],
   }));
   const project = history.present;
+  const lastSavedProject = useRef<Project | null>(null);
   const [hydrated, setHydrated] = useState(false),
     [saveState, setSaveState] = useState('Loading workspace'),
     [message, setMessage] = useState('');
@@ -182,7 +201,9 @@ export function Workbench() {
     [modal, setModal] = useState<Modal>(null),
     [query, setQuery] = useState(''),
     [libraryCount, setLibraryCount] = useState(24);
-  const [mode, setMode] = useState<'select' | 'pan' | 'paint' | 'move'>('pan'),
+  const [mode, setMode] = useState<
+      'select' | 'pan' | 'paint' | 'move' | 'rotate' | 'scale'
+    >('pan'),
     [showTiles, setShowTiles] = useState(false),
     [showChecks, setShowChecks] = useState(false),
     [showCenters, setShowCenters] = useState(false),
@@ -192,8 +213,29 @@ export function Workbench() {
     [calculating, setCalculating] = useState(true),
     [panels, setPanels] = useState({ left: true, right: true });
   const [exportType, setExportType] = useState<
-    'svg' | 'png' | 'dxf-lines' | 'dxf-faces' | 'dxf-solid' | 'project'
+    | 'svg'
+    | 'eps'
+    | 'png'
+    | 'jpeg'
+    | 'gif'
+    | 'bmp'
+    | 'wbmp'
+    | 'dxf-lines'
+    | 'dxf-faces'
+    | 'dxf-solid'
+    | 'project'
   >('svg');
+  const [savedTilings, setSavedTilings] = useState<
+    import('@/lib/engine/types').Tiling[]
+  >([]);
+  useEffect(() => {
+    const load = () => setSavedTilings(loadTilings());
+    load();
+    window.addEventListener('taprats-tilings', load);
+    return () => window.removeEventListener('taprats-tilings', load);
+  }, []);
+  const allTilings = [...savedTilings, ...catalog];
+  const [newTilingLayer, setNewTilingLayer] = useState<Layer | null>(null);
   const [exporting, setExporting] = useState(false);
   const stage = useRef<HTMLDivElement>(null),
     fileInput = useRef<HTMLInputElement>(null),
@@ -204,7 +246,14 @@ export function Workbench() {
       x: number;
       y: number;
       view: Project['view'];
-      moves?: { id: string; x: number; y: number }[];
+      moves?: {
+        id: string;
+        x: number;
+        y: number;
+        rotation: number;
+        scale: number;
+      }[];
+      mode?: 'move' | 'rotate' | 'scale';
     } | null>(null),
     space = useRef(false),
     projectRef = useRef(project);
@@ -280,17 +329,55 @@ export function Workbench() {
     if (!active || !activeTile) return;
     edit((p) => {
       const l = p.layers.find((l) => l.id === active.id);
-      if (l && !l.locked) fn(l.motifs[activeTile.id]);
+      if (l && !l.locked) {
+        delete l.frozen;
+        delete l.frozenFaceClasses;
+        fn(l.motifs[activeTile.id]);
+      }
     }, preview);
   };
   const changeStyle = (patch: Partial<Style>, preview = false) =>
     editLayers((l) => Object.assign(l.style, patch), preview);
+  useEffect(() => {
+    if (!hydrated) return;
+    let live = true;
+    void Promise.resolve().then(() => {
+      if (live) setSaveState('Saving…');
+    });
+    const timer = setTimeout(() => {
+      void autosave(project)
+        .then(() => {
+          lastSavedProject.current = project;
+          if (live) setSaveState('Saved in this browser');
+        })
+        .catch((e) => {
+          if (live) {
+            setSaveState('Save failed');
+            setMessage(`Download a backup: ${String(e)}`);
+          }
+        });
+    }, 450);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+  }, [project, hydrated]);
+  useEffect(() => {
+    const warn = (e: BeforeUnloadEvent) => {
+      if (hydrated && lastSavedProject.current !== projectRef.current) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [hydrated]);
   useEffect(() => {
     let live = true;
     void loadAutosave()
       .then((p) => {
         if (live) {
           if (p) setHistory({ past: [], present: p, future: [] });
+          lastSavedProject.current = p;
           setSaveState(p ? 'Recovered local project' : 'Ready');
           if (window.innerWidth < 1050)
             setPanels({ left: false, right: false });
@@ -308,19 +395,6 @@ export function Workbench() {
     };
   }, []);
   useEffect(() => {
-    if (!hydrated) return;
-    const timer = setTimeout(() => {
-      setSaveState('Saving…');
-      void autosave(project)
-        .then(() => setSaveState('Saved in this browser'))
-        .catch((e) => {
-          setSaveState('Save failed');
-          setMessage(`Download a backup: ${String(e)}`);
-        });
-    }, 450);
-    return () => clearTimeout(timer);
-  }, [project, hydrated]);
-  useEffect(() => {
     const element = stage.current;
     if (!element) return;
     const observer = new ResizeObserver(([e]) =>
@@ -336,6 +410,7 @@ export function Workbench() {
       motifs: l.motifs,
       transform: l.transform,
       visible: l.visible,
+      frozen: l.frozen,
     })),
     region,
   });
@@ -343,10 +418,7 @@ export function Workbench() {
     const id = ++request.current;
     const timer = setTimeout(() => {
       worker.current?.terminate();
-      const w = new Worker(
-        new URL('../../lib/engine/worker.ts', import.meta.url),
-        { type: 'module' },
-      );
+      const w = createGeometryWorker();
       worker.current = w;
       setCalculating(true);
       w.onmessage = (
@@ -443,16 +515,17 @@ export function Workbench() {
       drag.current = { x: e.clientX, y: e.clientY, view: { ...project.view } };
       return;
     }
-    if (mode === 'move') {
+    if (mode === 'move' || mode === 'rotate' || mode === 'scale') {
       const moves = project.layers
         .filter((l) => l.visible && l.moving && !l.locked)
-        .map((l) => ({ id: l.id, x: l.transform.x, y: l.transform.y }));
+        .map((l) => ({ id: l.id, ...l.transform }));
       e.currentTarget.setPointerCapture(e.pointerId);
       drag.current = {
         x: e.clientX,
         y: e.clientY,
         view: { ...project.view },
         moves,
+        mode,
       };
       return;
     }
@@ -487,7 +560,29 @@ export function Workbench() {
       if (d.moves) {
         for (const l of p.layers) {
           const from = d.moves.find((m) => m.id === l.id);
-          if (from) {
+          if (from && d.mode === 'rotate') {
+            const angle = (e.clientX - d.x) * 0.01,
+              offset = rotate(
+                { x: from.x - d.view.x, y: from.y - d.view.y },
+                angle,
+              );
+            l.transform = {
+              ...from,
+              x: d.view.x + offset.x,
+              y: d.view.y + offset.y,
+              rotation: from.rotation + (angle * 180) / Math.PI,
+            };
+          } else if (from && d.mode === 'scale') {
+            const factor = Math.exp((e.clientX - d.x) * 0.005),
+              scale = Math.max(0.01, Math.min(100, from.scale * factor)),
+              f = scale / from.scale;
+            l.transform = {
+              ...from,
+              x: d.view.x + (from.x - d.view.x) * f,
+              y: d.view.y + (from.y - d.view.y) * f,
+              scale,
+            };
+          } else if (from) {
             l.transform.x = from.x + (e.clientX - d.x) / d.view.scale;
             l.transform.y = from.y + (e.clientY - d.y) / d.view.scale;
           }
@@ -548,8 +643,23 @@ export function Workbench() {
     }
     if (fileInput.current) fileInput.current.value = '';
   }
+  async function openExample(id: string) {
+    try {
+      setMessage('Opening example…');
+      const response = await fetch(`/native-examples/${id}.json`);
+      if (!response.ok) throw Error('Example could not be loaded.');
+      const p = decodeProject(await response.text());
+      setHistory((h) => commit(h, p));
+      setSelected([]);
+      setTileId('');
+      setModal(null);
+      setMessage(`Opened ${p.name}. Undo restores your previous project.`);
+    } catch (e) {
+      setMessage(String(e));
+    }
+  }
   function addTiling(id: string) {
-    const t = catalog.find((t) => t.id === id)!;
+    const t = allTilings.find((t) => t.id === id)!;
     if (project.layers.length >= 24) {
       setMessage('This workspace supports up to 24 layers.');
       return;
@@ -580,10 +690,7 @@ export function Workbench() {
       const margin = 2;
       const exportGeometries = await new Promise<Record<string, Geometry>>(
         (resolve, reject) => {
-          const w = new Worker(
-            new URL('../../lib/engine/worker.ts', import.meta.url),
-            { type: 'module' },
-          );
+          const w = createGeometryWorker();
           const timer = setTimeout(() => {
             w.terminate();
             reject(
@@ -622,6 +729,12 @@ export function Workbench() {
       const svg = exportSVG(project, exportGeometries, exportRegion);
       if (exportType === 'svg')
         download(`${project.name}.svg`, svg, 'image/svg+xml');
+      else if (exportType === 'eps')
+        download(
+          `${project.name}.eps`,
+          exportEPS(project, exportGeometries, exportRegion),
+          'application/postscript',
+        );
       else if (exportType.startsWith('dxf'))
         download(
           `${project.name}.dxf`,
@@ -653,13 +766,33 @@ export function Workbench() {
           .getContext('2d')!
           .drawImage(img, 0, 0, canvas.width, canvas.height);
         URL.revokeObjectURL(url);
-        const blob = await new Promise<Blob>((resolve, reject) =>
-          canvas.toBlob(
-            (b) => (b ? resolve(b) : reject(Error('PNG export failed.'))),
-            'image/png',
-          ),
-        );
-        download(`${project.name}.png`, blob);
+        if (['bmp', 'gif', 'wbmp'].includes(exportType)) {
+          const rgba = canvas
+            .getContext('2d')!
+            .getImageData(0, 0, canvas.width, canvas.height).data;
+          const bytes =
+            exportType === 'bmp'
+              ? encodeBMP(canvas.width, canvas.height, rgba)
+              : exportType === 'gif'
+                ? encodeGIF(canvas.width, canvas.height, rgba)
+                : encodeWBMP(canvas.width, canvas.height, rgba);
+          download(
+            `${project.name}.${exportType}`,
+            new Blob([bytes as BlobPart], {
+              type: `image/${exportType === 'wbmp' ? 'vnd.wap.wbmp' : exportType}`,
+            }),
+          );
+        } else {
+          const format = exportType === 'jpeg' ? 'jpeg' : 'png';
+          const blob = await new Promise<Blob>((resolve, reject) =>
+            canvas.toBlob(
+              (b) => (b ? resolve(b) : reject(Error('Image export failed.'))),
+              `image/${format}`,
+              0.95,
+            ),
+          );
+          download(`${project.name}.${format}`, blob);
+        }
       }
       setMessage('Export downloaded.');
       setModal(null);
@@ -680,7 +813,8 @@ export function Workbench() {
           <div className="wb-brand">
             <Compass size={28} />
             <strong>
-              Taprats<span>STUDIO</span>
+              {trText('Taprats')}
+              <span>{trText('STUDIO')}</span>
             </strong>
           </div>
           <button className="project-name" onClick={() => setModal('project')}>
@@ -689,7 +823,7 @@ export function Workbench() {
           </button>
           <div className="header-history">
             <IconButton
-              label="Undo · ⌘Z"
+              label={trText('Undo · ⌘Z')}
               disabled={!history.past.length}
               onClick={() => {
                 setHistory(undo);
@@ -698,7 +832,7 @@ export function Workbench() {
               <Undo2 />
             </IconButton>
             <IconButton
-              label="Redo · ⇧⌘Z"
+              label={trText('Redo · ⇧⌘Z')}
               disabled={!history.future.length}
               onClick={() => {
                 setHistory(redo);
@@ -707,32 +841,43 @@ export function Workbench() {
               <Redo2 />
             </IconButton>
           </div>
+          <LanguageControl />
           <div className="header-spacer" />
           <span className="save-indicator">
             <CheckIcon size={13} />
-            {saveState}
+            {trText(saveState)}
           </span>
           <IconButton
-            label="Open project"
+            label={trText('Open project')}
             onClick={() => fileInput.current?.click()}
           >
             <FolderOpen />
           </IconButton>
-          <IconButton label="Save project · ⌘S" onClick={saveProject}>
+          <IconButton label={trText('Save project · ⌘S')} onClick={saveProject}>
             <Save />
           </IconButton>
           <Button className="export-button" onClick={() => setModal('export')}>
             <Download size={16} />
-            Export
+            {trText('Export')}
           </Button>
         </header>
         <aside className="wb-left">
           <div className="panel-heading">
+            <button
+              className="mobile-panel-close"
+              aria-label={trText('Close layers panel')}
+              onClick={() => setPanels((p) => ({ ...p, left: false }))}
+            >
+              <X size={16} />
+            </button>
             <h2>
               <Layers size={16} />
-              Layers
+              {trText('Layers')}
             </h2>
-            <IconButton label="Add layer" onClick={() => setModal('library')}>
+            <IconButton
+              label={trText('Add layer')}
+              onClick={() => setModal('library')}
+            >
               <Plus />
             </IconButton>
           </div>
@@ -776,10 +921,14 @@ export function Workbench() {
                   <span>
                     <strong>{l.name}</strong>
                     <small>
-                      {styles.find((s) => s.value === l.style.kind)?.label} ·{' '}
+                      {trText(
+                        styles.find((s) => s.value === l.style.kind)?.label ||
+                          '',
+                      )}{' '}
+                      ·{' '}
                       {l.tiling.repetition.kind === 'inflation'
-                        ? 'Inflation'
-                        : 'Periodic'}
+                        ? trText('Inflation')
+                        : trText('Periodic')}
                     </small>
                   </span>
                 </button>
@@ -811,7 +960,7 @@ export function Workbench() {
           </div>
           <div className="layer-actions">
             <IconButton
-              label="Duplicate layer"
+              label={trText('Duplicate layer')}
               disabled={!active || project.layers.length >= 24}
               onClick={() => {
                 if (!active || project.layers.length >= 24) return;
@@ -827,21 +976,21 @@ export function Workbench() {
               <Copy />
             </IconButton>
             <IconButton
-              label="Move layer up"
+              label={trText('Move layer up')}
               disabled={!active}
               onClick={() => active && reorder(active.id, 1)}
             >
               <ArrowUp />
             </IconButton>
             <IconButton
-              label="Move layer down"
+              label={trText('Move layer down')}
               disabled={!active}
               onClick={() => active && reorder(active.id, -1)}
             >
               <ArrowDown />
             </IconButton>
             <IconButton
-              label="Delete selected layers"
+              label={trText('Delete selected layers')}
               disabled={!active}
               onClick={() =>
                 edit((p) => {
@@ -864,38 +1013,98 @@ export function Workbench() {
             onClick={() => setModal('library')}
           >
             <Grid2X2 size={16} />
-            Browse tilings<span>{catalog.length}</span>
+            {trText('Browse tilings')}
+            <span>{allTilings.length}</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="browse-button"
+            onClick={() => {
+              setQuery('');
+              setModal('examples');
+            }}
+          >
+            {trText('Select example')}
+            <span>{examples.length}</span>
           </Button>
           <div className="construction-panel">
-            <h3>CONSTRUCTION</h3>
+            <h3>{trText('CONSTRUCTION')}</h3>
             <Check
-              label="Show underlying tiles"
+              label={trText('Show underlying tiles')}
               checked={showTiles}
               onChange={setShowTiles}
             />
             <Check
-              label="Show symmetry centers"
+              label={trText('Show symmetry centers')}
               checked={showCenters}
               onChange={setShowCenters}
             />
             <Check
-              label="Check connections"
+              label={trText('Check connections')}
               checked={showChecks}
               onChange={setShowChecks}
             />
             {showChecks && (
               <p className="panel-hint">
-                Orange marks open ends and junctions. Violet marks conflicting
-                over/under constraints. Ends at the generated boundary are
-                expected.
+                {trText(
+                  'Orange marks open ends and junctions. Violet marks conflicting over/under constraints. Ends at the generated boundary are expected.',
+                )}
               </p>
             )}
             <button className="text-action" onClick={() => setModal('help')}>
-              How the pattern is made <span>↗</span>
+              {trText('How the pattern is made')}
+              <span>↗</span>
             </button>
           </div>
+          <Button
+            variant="ghost"
+            disabled={!active || active.locked || calculating}
+            onClick={() => {
+              if (!active) return;
+              const g = geometries[active.id];
+              if (!active.frozen && (!g || g.truncated)) {
+                setMessage('Zoom in before freezing a complete construction.');
+                return;
+              }
+              edit((p) => {
+                const l = p.layers.find((l) => l.id === active.id)!;
+                delete l.frozenFaceClasses;
+                if (l.frozen) delete l.frozen;
+                else {
+                  const inv = inverse(
+                    transformation(
+                      l.transform.x,
+                      l.transform.y,
+                      (l.transform.rotation * Math.PI) / 180,
+                      l.transform.scale,
+                    ),
+                  );
+                  l.frozen = g.segments.flatMap((s) => {
+                    const clipped = clipSegment(s, region);
+                    return clipped
+                      ? [{ a: apply(inv, clipped.a), b: apply(inv, clipped.b) }]
+                      : [];
+                  });
+                }
+              });
+            }}
+          >
+            {active?.frozen
+              ? trText('Resume repeating construction')
+              : trText('Freeze visible construction')}
+          </Button>
           <Button variant="ghost" onClick={() => setModal('fabrication')}>
-            Check output geometry
+            {trText('Check output geometry')}
+          </Button>
+          <Button
+            variant="ghost"
+            disabled={project.layers.length >= 24}
+            onClick={() => {
+              setNewTilingLayer(newLayer(blankTiling()));
+              setModal('tiling');
+            }}
+          >
+            {trText('New tiling')}
           </Button>
           <div className="panel-bottom">
             <Button
@@ -904,46 +1113,60 @@ export function Workbench() {
               onClick={() => setModal('tiling')}
             >
               <Compass size={16} />
-              Edit tiling
+              {trText('Edit tiling')}
             </Button>
             <Button variant="ghost" onClick={() => imageInput.current?.click()}>
               <ImagePlus size={16} />
-              Reference image
+              {trText('Reference image')}
             </Button>
           </div>
         </aside>
         <section className="wb-center">
           <div className="canvas-toolbar">
             <IconButton
-              label="Toggle layers panel"
+              label={trText('Toggle layers panel')}
               onClick={() => setPanels((p) => ({ ...p, left: !p.left }))}
             >
               <PanelLeft />
             </IconButton>
             <div className="tool-divider" />
             <IconButton
-              label="Select tile · V"
+              label={trText('Select tile · V')}
               active={mode === 'select'}
               onClick={() => setMode('select')}
             >
               <MousePointer2 />
             </IconButton>
             <IconButton
-              label="Pan · H or Space-drag"
+              label={trText('Pan · H or Space-drag')}
               active={mode === 'pan'}
               onClick={() => setMode('pan')}
             >
               <Hand />
             </IconButton>
             <IconButton
-              label="Move enabled layers · M"
+              label={trText('Move enabled layers · M')}
               active={mode === 'move'}
               onClick={() => setMode('move')}
             >
               <Move />
             </IconButton>
             <IconButton
-              label="Paint a region · B"
+              label={trText('Rotate enabled layers')}
+              active={mode === 'rotate'}
+              onClick={() => setMode('rotate')}
+            >
+              <Redo2 />
+            </IconButton>
+            <IconButton
+              label={trText('Scale enabled layers')}
+              active={mode === 'scale'}
+              onClick={() => setMode('scale')}
+            >
+              <Maximize />
+            </IconButton>
+            <IconButton
+              label={trText('Paint a region · B')}
               active={mode === 'paint'}
               onClick={() => setMode('paint')}
             >
@@ -951,7 +1174,7 @@ export function Workbench() {
             </IconButton>
             {mode === 'paint' && (
               <input
-                aria-label="Region paint color"
+                aria-label={trText('Region paint color')}
                 type="color"
                 value={paint}
                 onChange={(e) => setPaint(e.target.value)}
@@ -960,15 +1183,15 @@ export function Workbench() {
             <div className="header-spacer" />
             <span className="canvas-caption">
               {mode === 'select'
-                ? 'Select any tile to edit its motif'
+                ? trText('Select any tile to edit its motif')
                 : mode === 'move'
-                  ? 'Drag to move layers with group moves enabled'
+                  ? trText('Drag to move layers with group moves enabled')
                   : mode === 'paint'
-                    ? 'Click an enclosed region to color it'
-                    : 'Space to pan · scroll to zoom'}
+                    ? trText('Click an enclosed region to color it')
+                    : trText('Space to pan · scroll to zoom')}
             </span>
             <IconButton
-              label="Toggle inspector"
+              label={trText('Toggle inspector')}
               onClick={() => setPanels((p) => ({ ...p, right: !p.right }))}
             >
               <PanelRight />
@@ -997,7 +1220,9 @@ export function Workbench() {
               className="pattern-svg"
               viewBox={`${region.minX} ${region.minY} ${region.maxX - region.minX} ${region.maxY - region.minY}`}
               role="application"
-              aria-label="Interactive pattern canvas. Use the toolbar to select, pan, or paint."
+              aria-label={trText(
+                'Interactive pattern canvas. Use the toolbar to select, pan, or paint.',
+              )}
               onPointerDown={pointerDown}
               onPointerMove={pointerMove}
               onPointerUp={endPointer}
@@ -1039,30 +1264,49 @@ export function Workbench() {
             {!project.layers.length && (
               <div className="canvas-empty">
                 <Compass size={48} />
-                <h2>Your next pattern starts here</h2>
-                <p>Choose a tiling, then explore its geometry.</p>
+                <h2>{trText('Your next pattern starts here')}</h2>
+                <p>{trText('Choose a tiling, then explore its geometry.')}</p>
                 <Button onClick={() => setModal('library')}>
-                  Choose a tiling
+                  {trText('Choose a tiling')}
                 </Button>
               </div>
             )}
             {calculating && (
               <div className="calculation-badge">
                 <span />
-                Constructing pattern…
+                {trText('Constructing pattern…')}
               </div>
             )}
             <div className="zoom-controls">
-              <IconButton label="Zoom out" onClick={() => zoom(1 / 1.2)}>
+              <span className="mobile-history">
+                <IconButton
+                  label={trText('Undo · ⌘Z')}
+                  disabled={!history.past.length}
+                  onClick={() => setHistory(undo)}
+                >
+                  <Undo2 />
+                </IconButton>
+                <IconButton
+                  label={trText('Redo · ⇧⌘Z')}
+                  disabled={!history.future.length}
+                  onClick={() => setHistory(redo)}
+                >
+                  <Redo2 />
+                </IconButton>
+              </span>
+              <IconButton
+                label={trText('Zoom out')}
+                onClick={() => zoom(1 / 1.2)}
+              >
                 <ZoomOut />
               </IconButton>
               <span>{Math.round((project.view.scale / 85) * 100)}%</span>
-              <IconButton label="Zoom in" onClick={() => zoom(1.2)}>
+              <IconButton label={trText('Zoom in')} onClick={() => zoom(1.2)}>
                 <ZoomIn />
               </IconButton>
               <div className="tool-divider" />
               <IconButton
-                label="Fit pattern"
+                label={trText('Fit pattern')}
                 onClick={() => {
                   if (!active) return;
                   const b = bounds(
@@ -1093,8 +1337,8 @@ export function Workbench() {
           </div>
           <div className="canvas-footer">
             <span>
-              {stats.edges.toLocaleString()} edges <i />{' '}
-              {stats.faces.toLocaleString()} regions
+              {stats.edges.toLocaleString()} {trText('edges')}
+              <i /> {stats.faces.toLocaleString()} {trText('regions')}
             </span>
             <span>
               {stats.truncated
@@ -1102,34 +1346,44 @@ export function Workbench() {
                 : `${project.width} × ${project.height} ${project.units}`}
             </span>
             <button onClick={() => setModal('help')}>
-              Native geometry engine <span className="live-dot" />
+              {trText('Native geometry engine')}
+              <span className="live-dot" />
             </button>
           </div>
         </section>
         <aside className="wb-right">
           <div className="panel-heading">
+            <button
+              className="mobile-panel-close"
+              aria-label={trText('Close inspector')}
+              onClick={() => setPanels((p) => ({ ...p, right: false }))}
+            >
+              <X size={16} />
+            </button>
             <h2>
               <SlidersHorizontal size={16} />
-              Inspector
+              {trText('Inspector')}
             </h2>
             <span>
               {selected.length > 1
                 ? `${selected.length} layers`
                 : active?.tiling.repetition.kind === 'inflation'
-                  ? 'Inflation'
-                  : 'Pattern'}
+                  ? trText('Inflation')
+                  : trText('Pattern')}
             </span>
           </div>
           {active && motif && activeTile ? (
             <Tabs defaultValue="motif" className="inspector-tabs">
               <TabsList>
-                <TabsTrigger value="motif">Motif</TabsTrigger>
-                <TabsTrigger value="style">Style</TabsTrigger>
-                <TabsTrigger value="transform">Position</TabsTrigger>
+                <TabsTrigger value="motif">{trText('Motif')}</TabsTrigger>
+                <TabsTrigger value="style">{trText('Style')}</TabsTrigger>
+                <TabsTrigger value="transform">
+                  {trText('Position')}
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="motif">
                 <div className="inspector-section">
-                  <h3>TILE SHAPE</h3>
+                  <h3>{trText('TILE SHAPE')}</h3>
                   <div className="tile-shapes">
                     {active.tiling.tiles.map((t) => (
                       <button
@@ -1144,17 +1398,19 @@ export function Workbench() {
                             tiles: [{ ...t, placements: [[1, 0, 0, 0, 1, 0]] }],
                           }}
                         />
-                        <small>{t.points.length} sides</small>
+                        <small>
+                          {t.points.length} {trText('sides')}
+                        </small>
                       </button>
                     ))}
                   </div>
                   <p className="panel-hint">
-                    Changes repeat in every matching tile.
+                    {trText('Changes repeat in every matching tile.')}
                   </p>
                 </div>
                 <div className="inspector-section">
                   <Choice
-                    label="Construction"
+                    label={trText('Construction')}
                     value={motif.kind}
                     options={
                       activeTile.regular
@@ -1186,7 +1442,7 @@ export function Workbench() {
                   />
                   {(motif.kind === 'star' || motif.kind === 'hourglass') && (
                     <Range
-                      label="Star sharpness"
+                      label={trText('Star sharpness')}
                       value={motif.d}
                       min={1}
                       max={Math.max(1.1, activeTile.points.length / 2 - 0.01)}
@@ -1199,7 +1455,7 @@ export function Workbench() {
                   )}{' '}
                   {(motif.kind === 'rosette' || motif.kind === 'extended') && (
                     <Range
-                      label="Petal flatness"
+                      label={trText('Petal flatness')}
                       value={motif.q}
                       min={-0.99}
                       max={0.99}
@@ -1218,7 +1474,7 @@ export function Workbench() {
                     'intersect',
                   ].includes(motif.kind) && (
                     <Range
-                      label="Intersections"
+                      label={trText('Intersections')}
                       value={motif.s}
                       min={1}
                       max={Math.max(
@@ -1235,7 +1491,7 @@ export function Workbench() {
                   )}{' '}
                   {motif.kind === 'hankin' && (
                     <Range
-                      label="Ray angle"
+                      label={trText('Ray angle')}
                       value={motif.angle}
                       min={5}
                       max={85}
@@ -1250,7 +1506,7 @@ export function Workbench() {
                   {['girih', 'intersect'].includes(motif.kind) && (
                     <>
                       <Range
-                        label="Star sides"
+                        label={trText('Star sides')}
                         value={motif.n}
                         min={3}
                         max={24}
@@ -1262,7 +1518,7 @@ export function Workbench() {
                         }
                       />
                       <Range
-                        label="Side hops"
+                        label={trText('Side hops')}
                         value={motif.d}
                         min={0.1}
                         max={12}
@@ -1275,7 +1531,7 @@ export function Workbench() {
                       />
                       {motif.kind === 'intersect' && (
                         <Check
-                          label="Progressive intersections"
+                          label={trText('Progressive intersections')}
                           checked={motif.progressive}
                           onChange={(v) =>
                             editMotif((m) => {
@@ -1288,7 +1544,7 @@ export function Workbench() {
                   )}
                   {!activeTile.regular && motif.kind === 'rosette' && (
                     <Range
-                      label="Flex point"
+                      label={trText('Flex point')}
                       value={motif.r}
                       min={0}
                       max={1}
@@ -1330,7 +1586,7 @@ export function Workbench() {
                       }
                     }}
                   >
-                    Infer from neighboring motifs
+                    {trText('Infer from neighboring motifs')}
                   </Button>
                   <Button
                     variant="outline"
@@ -1339,7 +1595,7 @@ export function Workbench() {
                     onClick={() => setModal('motif')}
                   >
                     <Compass size={16} />
-                    Draw a motif
+                    {trText('Draw a motif')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -1352,14 +1608,14 @@ export function Workbench() {
                     onClick={() => setModal('explore')}
                   >
                     <Grid2X2 size={16} />
-                    Explore variations
+                    {trText('Explore variations')}
                   </Button>
                 </div>
                 {active.tiling.repetition.kind === 'inflation' && (
                   <div className="inspector-section">
-                    <h3>CONCENTRIC REPETITION</h3>
+                    <h3>{trText('CONCENTRIC REPETITION')}</h3>
                     <Range
-                      label="Rings"
+                      label={trText('Rings')}
                       value={active.tiling.repetition.rings}
                       min={1}
                       max={9}
@@ -1372,8 +1628,9 @@ export function Workbench() {
                       }
                     />
                     <p className="panel-hint">
-                      Each ring rotates and scales the seed patch. This is ring
-                      inflation, not tile subdivision.
+                      {trText(
+                        'Each ring rotates and scales the seed patch. This is ring inflation, not tile subdivision.',
+                      )}
                     </p>
                   </div>
                 )}
@@ -1381,25 +1638,47 @@ export function Workbench() {
               <TabsContent value="style">
                 <div className="inspector-section">
                   <Choice
-                    label="Rendering"
+                    label={trText('Rendering')}
                     value={active.style.kind}
                     options={styles}
                     onChange={(kind) => changeStyle({ kind })}
                   />
+                  {active.style.kind === 'filled' ? (
+                    <>
+                      <Check
+                        label={trText('Fill inside regions')}
+                        checked={active.style.fillInside}
+                        onChange={(fillInside) => changeStyle({ fillInside })}
+                      />
+                      <Check
+                        label={trText('Fill outside regions')}
+                        checked={active.style.fillOutside}
+                        onChange={(fillOutside) => changeStyle({ fillOutside })}
+                      />
+                    </>
+                  ) : (
+                    !['plain', 'sketch'].includes(active.style.kind) && (
+                      <Check
+                        label={trText('Draw outlines')}
+                        checked={active.style.drawOutline}
+                        onChange={(drawOutline) => changeStyle({ drawOutline })}
+                      />
+                    )
+                  )}
                   <div className="color-row">
                     <label>
-                      Pattern
+                      {trText('Pattern')}
                       <input
-                        aria-label="Pattern color"
+                        aria-label={trText('Pattern color')}
                         type="color"
                         value={active.style.color}
                         onChange={(e) => changeStyle({ color: e.target.value })}
                       />
                     </label>
                     <label>
-                      Outline
+                      {trText('Outline')}
                       <input
-                        aria-label="Outline color"
+                        aria-label={trText('Outline color')}
                         type="color"
                         value={active.style.outline}
                         onChange={(e) =>
@@ -1408,9 +1687,9 @@ export function Workbench() {
                       />
                     </label>
                     <label>
-                      Paper
+                      {trText('Paper')}
                       <input
-                        aria-label="Paper color"
+                        aria-label={trText('Paper color')}
                         type="color"
                         value={project.paper}
                         onChange={(e) =>
@@ -1450,18 +1729,18 @@ export function Workbench() {
                     ))}
                   </div>
                   <Range
-                    label="Band width"
+                    label={trText('Band width')}
                     value={active.style.width}
-                    min={0.005}
-                    max={0.3}
+                    min={0}
+                    max={2}
                     step={0.005}
                     onChange={(width, p) => changeStyle({ width }, p)}
                   />
                   <Range
-                    label="Outline width"
+                    label={trText('Outline width')}
                     value={active.style.outlineWidth}
                     min={0}
-                    max={0.08}
+                    max={1}
                     step={0.002}
                     onChange={(outlineWidth, p) =>
                       changeStyle({ outlineWidth }, p)
@@ -1469,25 +1748,39 @@ export function Workbench() {
                   />
                   {active.style.kind === 'interlace' && (
                     <Range
-                      label="Weave clearance"
+                      label={trText('Weave clearance')}
                       value={active.style.gap}
                       min={0}
-                      max={0.15}
+                      max={1}
                       onChange={(gap, p) => changeStyle({ gap }, p)}
                     />
                   )}
-                  <Choice
-                    label="Corners"
-                    value={active.style.join}
-                    options={[
-                      { value: 'round', label: 'Rounded' },
-                      { value: 'miter', label: 'Mitered' },
-                      { value: 'bevel', label: 'Beveled' },
-                    ]}
-                    onChange={(join) => changeStyle({ join })}
-                  />
+                  {active.style.kind === 'interlace' && (
+                    <Range
+                      label={trText('Shadow width')}
+                      value={active.style.shadowWidth}
+                      min={0}
+                      max={0.7}
+                      step={0.01}
+                      onChange={(shadowWidth, p) =>
+                        changeStyle({ shadowWidth }, p)
+                      }
+                    />
+                  )}
+                  {['plain', 'thick', 'sketch'].includes(active.style.kind) && (
+                    <Choice
+                      label={trText('Corners')}
+                      value={active.style.join}
+                      options={[
+                        { value: 'round', label: 'Rounded' },
+                        { value: 'miter', label: 'Mitered' },
+                        { value: 'bevel', label: 'Beveled' },
+                      ]}
+                      onChange={(join) => changeStyle({ join })}
+                    />
+                  )}
                   <Range
-                    label="Opacity"
+                    label={trText('Opacity')}
                     value={active.style.opacity}
                     min={0}
                     max={1}
@@ -1495,7 +1788,7 @@ export function Workbench() {
                   />
                   {active.style.kind === 'emboss' && (
                     <Range
-                      label="Light direction"
+                      label={trText('Light direction')}
                       value={active.style.light}
                       min={0}
                       max={360}
@@ -1512,14 +1805,14 @@ export function Workbench() {
                       })
                     }
                   >
-                    Clear painted regions
+                    {trText('Clear painted regions')}
                   </Button>
                 </div>
               </TabsContent>
               <TabsContent value="transform">
                 <div className="inspector-section">
                   <Check
-                    label="Include in group moves"
+                    label={trText('Include in group moves')}
                     checked={active.moving}
                     onChange={(moving) =>
                       editLayers((l) => {
@@ -1559,7 +1852,7 @@ export function Workbench() {
                       })
                     }
                   >
-                    Copy position to selection
+                    {trText('Copy position to selection')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -1570,21 +1863,21 @@ export function Workbench() {
                       })
                     }
                   >
-                    Reset transform
+                    {trText('Reset transform')}
                   </Button>
                 </div>
               </TabsContent>
             </Tabs>
           ) : (
             <div className="empty-inspector">
-              Add a layer to start constructing a pattern.
+              {trText('Add a layer to start constructing a pattern.')}
             </div>
           )}
           {project.reference && (
             <div className="inspector-section">
-              <h3>REFERENCE IMAGE</h3>
+              <h3>{trText('REFERENCE IMAGE')}</h3>
               <Range
-                label="Reference opacity"
+                label={trText('Reference opacity')}
                 value={project.reference.opacity}
                 min={0}
                 max={1}
@@ -1595,7 +1888,7 @@ export function Workbench() {
                 }
               />
               <Range
-                label="Reference width"
+                label={trText('Reference width')}
                 value={project.reference.width}
                 min={0.5}
                 max={30}
@@ -1628,7 +1921,7 @@ export function Workbench() {
                   })
                 }
               >
-                Remove reference
+                {trText('Remove reference')}
               </Button>
             </div>
           )}
@@ -1636,7 +1929,10 @@ export function Workbench() {
         {message && (
           <output className="wb-toast">
             {message}
-            <button aria-label="Dismiss message" onClick={() => setMessage('')}>
+            <button
+              aria-label={trText('Dismiss message')}
+              onClick={() => setMessage('')}
+            >
               <X size={16} />
             </button>
           </output>
@@ -1695,22 +1991,70 @@ export function Workbench() {
           }}
         />
         <Dialog
+          open={modal === 'examples'}
+          onOpenChange={(v) => !v && setModal(null)}
+        >
+          <DialogContent className="library-dialog">
+            <DialogHeader>
+              <DialogTitle>{trText('Example designs')}</DialogTitle>
+              <DialogDescription>
+                {trText(
+                  'All 73 original designs, preserved as native editable layers. Undo restores the previous project.',
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <input
+              aria-label={trText('Search examples')}
+              placeholder={trText('Search examples…')}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <div className="tiling-grid">
+              {examples
+                .filter((e) =>
+                  `${e.name} ${e.tilings.join(' ')}`
+                    .toLowerCase()
+                    .includes(query.toLowerCase()),
+                )
+                .map((e) => (
+                  <button key={e.id} onClick={() => void openExample(e.id)}>
+                    <NextImage
+                      unoptimized
+                      src={`/native-examples/${e.id}.png`}
+                      alt=""
+                      loading="lazy"
+                      width={300}
+                      height={200}
+                    />
+                    <strong>{e.name}</strong>
+                    <small>
+                      {e.layers} {trText('layer')}
+                      {e.layers === 1 ? '' : 's'}
+                    </small>
+                  </button>
+                ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+        <Dialog
           open={modal === 'library'}
           onOpenChange={(v) => !v && setModal(null)}
         >
           <DialogContent className="library-dialog">
             <DialogHeader>
-              <DialogTitle>Choose a tiling</DialogTitle>
+              <DialogTitle>{trText('Choose a tiling')}</DialogTitle>
               <DialogDescription>
-                {catalog.length} geometric foundations. Select one to add an
-                editable layer.
+                {allTilings.length}{' '}
+                {trText(
+                  'geometric foundations. Select one to add an editable layer.',
+                )}
               </DialogDescription>
             </DialogHeader>
             <div className="library-search">
               <Search size={18} />
               <input
-                aria-label="Search tilings"
-                placeholder="Search by name, description, or author…"
+                aria-label={trText('Search tilings')}
+                placeholder={trText('Search by name, description, or author…')}
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
@@ -1719,7 +2063,7 @@ export function Workbench() {
               />
             </div>
             <div className="tiling-grid">
-              {catalog
+              {allTilings
                 .filter((t) =>
                   `${t.name} ${t.description} ${t.author} ${t.repetition.kind}`
                     .toLowerCase()
@@ -1732,7 +2076,7 @@ export function Workbench() {
                     <strong>{t.name}</strong>
                     <small>
                       {t.repetition.kind === 'inflation'
-                        ? 'Concentric inflation'
+                        ? trText('Concentric inflation')
                         : `${t.tiles.length} tile shape${t.tiles.length === 1 ? '' : 's'}`}
                     </small>
                   </button>
@@ -1742,7 +2086,7 @@ export function Workbench() {
               variant="outline"
               onClick={() => setLibraryCount((n) => n + 24)}
             >
-              Show more tilings
+              {trText('Show more tilings')}
             </Button>
           </DialogContent>
         </Dialog>
@@ -1752,13 +2096,15 @@ export function Workbench() {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Project settings</DialogTitle>
+              <DialogTitle>{trText('Project settings')}</DialogTitle>
               <DialogDescription>
-                Your project includes its tilings, motifs, colors, and view.
+                {trText(
+                  'Your project includes its tilings, motifs, colors, and view.',
+                )}
               </DialogDescription>
             </DialogHeader>
             <label className="text-field">
-              Project name
+              {trText('Project name')}
               <input
                 value={project.name}
                 maxLength={200}
@@ -1770,7 +2116,7 @@ export function Workbench() {
               />
             </label>
             <Range
-              label="Output width"
+              label={trText('Output width')}
               value={project.width}
               min={project.units === 'mm' ? 1 : 0.04}
               max={project.units === 'mm' ? 1000 : 40}
@@ -1783,7 +2129,7 @@ export function Workbench() {
               }
             />
             <Range
-              label="Output height"
+              label={trText('Output height')}
               value={project.height}
               min={project.units === 'mm' ? 1 : 0.04}
               max={project.units === 'mm' ? 1000 : 40}
@@ -1796,7 +2142,7 @@ export function Workbench() {
               }
             />
             <Choice
-              label="Units"
+              label={trText('Units')}
               value={project.units}
               options={[
                 { value: 'mm', label: 'Millimeters' },
@@ -1812,7 +2158,16 @@ export function Workbench() {
                 })
               }
             />
-            <Button onClick={saveProject}>Download project</Button>
+            <Button onClick={saveProject}>{trText('Download project')}</Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setModal(null);
+                fileInput.current?.click();
+              }}
+            >
+              {trText('Open project')}
+            </Button>
             <Button
               variant="outline"
               onClick={() => {
@@ -1821,11 +2176,12 @@ export function Workbench() {
                 setModal(null);
               }}
             >
-              Start a new project
+              {trText('Start a new project')}
             </Button>
             <p className="panel-hint">
-              New and Open are undoable. Autosave stays on this device; download
-              a project for backup or sharing.
+              {trText(
+                'New and Open are undoable. Autosave stays on this device; download a project for backup or sharing.',
+              )}
             </p>
           </DialogContent>
         </Dialog>
@@ -1835,17 +2191,24 @@ export function Workbench() {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Export your pattern</DialogTitle>
+              <DialogTitle>{trText('Export your pattern')}</DialogTitle>
               <DialogDescription>
-                {project.width} × {project.height} {project.units}. Reference
-                images and construction guides are omitted.
+                {project.width} × {project.height} {project.units}
+                {trText(
+                  '. Reference images and construction guides are omitted.',
+                )}
               </DialogDescription>
             </DialogHeader>
             <Choice
-              label="Format"
+              label={trText('Format')}
               value={exportType}
               options={[
                 { value: 'svg', label: 'SVG · styled vector artwork' },
+                { value: 'eps', label: 'EPS · vector artwork' },
+                { value: 'jpeg', label: 'JPEG · high-quality image' },
+                { value: 'gif', label: 'GIF · 256-color image' },
+                { value: 'bmp', label: 'BMP · uncompressed image' },
+                { value: 'wbmp', label: 'WBMP · monochrome image' },
                 { value: 'png', label: 'PNG · 2400 px on the longer side' },
                 { value: 'dxf-lines', label: 'DXF · centerline geometry' },
                 { value: 'dxf-faces', label: 'DXF · closed region outlines' },
@@ -1858,14 +2221,14 @@ export function Workbench() {
               onChange={setExportType}
             />
             <p className="panel-hint">
-              DXF exports geometric paths in physical units. SVG preserves
-              colors, outlines, and weaving. Files use the current center and
-              visible width, cropped to the output aspect ratio.
+              {trText(
+                'DXF exports geometric paths in physical units. SVG preserves colors, outlines, and weaving. EPS flattens transparency against the paper color. Files use the current center and visible width, cropped to the output aspect ratio.',
+              )}
             </p>
             <Button onClick={() => void doExport()} disabled={exporting}>
               {exporting
-                ? 'Preparing export…'
-                : `Download ${exportType.toUpperCase()}`}
+                ? trText('Preparing export…')
+                : trText(`Download ${exportType.toUpperCase()}`)}
             </Button>
           </DialogContent>
         </Dialog>
@@ -1875,39 +2238,47 @@ export function Workbench() {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>From tiles to a pattern</DialogTitle>
+              <DialogTitle>{trText('From tiles to a pattern')}</DialogTitle>
               <DialogDescription>
-                A geometric construction you can inspect and change.
+                {trText('A geometric construction you can inspect and change.')}
               </DialogDescription>
             </DialogHeader>
             <ol className="help-steps">
               <li>
-                <strong>Choose a tiling.</strong> Polygons repeat along two
-                vectors, or form concentric inflated rings.
+                <strong>{trText('Choose a tiling.')}</strong>
+                {trText(
+                  'Polygons repeat along two vectors, or form concentric inflated rings.',
+                )}
               </li>
               <li>
-                <strong>Decorate each shape.</strong> Stars and rosettes use
-                radial constructions. Hankin and Girih motifs pair rays from
-                tile-edge midpoints.
+                <strong>{trText('Decorate each shape.')}</strong>
+                {trText(
+                  'Stars and rosettes use radial constructions. Hankin and Girih motifs pair rays from tile-edge midpoints.',
+                )}
               </li>
               <li>
-                <strong>Join the linework.</strong> Intersections split into a
-                planar graph. Enclosed faces become paintable regions.
+                <strong>{trText('Join the linework.')}</strong>
+                {trText(
+                  'Intersections split into a planar graph. Enclosed faces become paintable regions.',
+                )}
               </li>
               <li>
-                <strong>Weave and render.</strong> Over/under constraints
-                alternate along strands; diagnostics reveal places where this is
-                impossible.
+                <strong>{trText('Weave and render.')}</strong>
+                {trText(
+                  'Over/under constraints alternate along strands; diagnostics reveal places where this is impossible.',
+                )}
               </li>
             </ol>
             <p className="panel-hint">
-              Built on Craig S. Kaplan’s Taprats and Pierre Baillargeon’s{' '}
+              {trText(
+                'Built on Craig S. Kaplan’s Taprats and Pierre Baillargeon’s',
+              )}{' '}
               <a
                 href="https://github.com/pierrebai/Alhambra"
                 target="_blank"
                 rel="noreferrer"
               >
-                Alhambra
+                {trText('Alhambra')}
               </a>
               .{' '}
               <a
@@ -1915,13 +2286,18 @@ export function Workbench() {
                 target="_blank"
                 rel="noreferrer"
               >
-                GPL license
+                {trText('GPL license')}
               </a>
-              . <Link href="/classic">Open the classic application</Link>.
+              .{' '}
+              <Link href="/classic">
+                {trText('Open the classic application')}
+              </Link>
+              .
             </p>
             <p className="panel-hint">
-              H: pan · V: select · B: paint · Space-drag: pan · ⌘/Ctrl-Z: undo ·
-              ⌘/Ctrl-S: download project. Shift-click layers to select several.
+              {trText(
+                'H: pan · V: select · B: paint · Space-drag: pan · ⌘/Ctrl-Z: undo · ⌘/Ctrl-S: download project. Shift-click layers to select several.',
+              )}
             </p>
           </DialogContent>
         </Dialog>
@@ -1948,26 +2324,35 @@ export function Workbench() {
             onApply={(m) => editMotif((target) => Object.assign(target, m))}
           />
         )}
-        {modal === 'tiling' && active && !active.locked && (
-          <TilingEditor
-            layer={active}
-            onClose={() => setModal(null)}
-            onApply={(tiling) =>
-              edit((p) => {
-                const l = p.layers.find((l) => l.id === active.id)!;
-                l.tiling = tiling;
-                l.motifs = Object.fromEntries(
-                  tiling.tiles.map((t) => [
-                    t.id,
-                    l.motifs[t.id] ||
-                      defaultMotif(t.regular && t.points.length > 4),
-                  ]),
-                );
-                l.regionColors = {};
-              })
-            }
-          />
-        )}
+        {modal === 'tiling' &&
+          (newTilingLayer || (active && !active.locked)) && (
+            <TilingEditor
+              layer={newTilingLayer || active!}
+              onClose={() => {
+                setModal(null);
+                setNewTilingLayer(null);
+              }}
+              onApply={(tiling) =>
+                edit((p) => {
+                  const l = newTilingLayer
+                    ? newLayer(tiling)
+                    : p.layers.find((l) => l.id === active!.id)!;
+                  if (newTilingLayer) p.layers.push(l);
+                  delete l.frozen;
+                  delete l.frozenFaceClasses;
+                  l.tiling = tiling;
+                  l.motifs = Object.fromEntries(
+                    tiling.tiles.map((t) => [
+                      t.id,
+                      l.motifs[t.id] ||
+                        defaultMotif(t.regular && t.points.length > 4),
+                    ]),
+                  );
+                  l.regionColors = {};
+                })
+              }
+            />
+          )}
       </main>
     </TooltipProvider>
   );

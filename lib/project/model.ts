@@ -1,6 +1,15 @@
 import data from '../engine/catalog.json';
+import original from '../engine/original-catalog.json';
 import type { Tiling, Layer, Motif, Project, Style } from '../engine/types';
-export const catalog = data as Tiling[];
+// Keep original named definitions as well as Alhambra's revised constructions.
+export const catalog = [
+  ...data,
+  ...original.map((t) => ({
+    ...t,
+    name: data.some((a) => a.name === t.name) ? `${t.name} · Taprats` : t.name,
+  })),
+] as Tiling[];
+catalog.sort((a, b) => a.name.localeCompare(b.name));
 export const defaultMotif = (regular = true): Motif => ({
   kind: regular ? 'rosette' : 'hankin',
   d: 3,
@@ -25,6 +34,10 @@ export const defaultStyle: Style = {
   opacity: 1,
   join: 'round',
   light: 40,
+  drawOutline: true,
+  fillInside: true,
+  fillOutside: false,
+  shadowWidth: 0.05,
 };
 export const uid = () =>
   globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2);

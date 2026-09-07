@@ -230,8 +230,8 @@ void test('custom symmetry is clipped to the tile and duplicate segments disappe
   assert.equal(clipToTile([line(-2, 1, 4, 1)], square).length, 1);
 });
 
-void test('all 105 catalog tilings produce finite geometry and reopen as self-contained projects', () => {
-  assert.equal(catalog.length, 105);
+void test('all 197 catalog tilings produce finite geometry and reopen as self-contained projects', () => {
+  assert.equal(catalog.length, 197);
   assert.equal(
     catalog.filter((t) => t.repetition.kind === 'inflation').length,
     4,
@@ -364,7 +364,10 @@ void test('SVG styles escape text and reference no Java; DXF uses clipped physic
   const svg = exportSVG(p, geoms, r);
   assert.ok(svg.includes('A &amp; &quot;B&quot; &lt;C&gt;'));
   assert.ok(svg.includes('width="100mm"'));
-  assert.ok(svg.includes('<mask'));
+  assert.ok(
+    !svg.includes('<mask'),
+    'Underpasses use shortened polygons, never circular masks',
+  );
   assert.ok(!svg.includes('NaN'));
   assert.ok(!svg.includes('java'));
   for (const kind of [
@@ -482,4 +485,209 @@ void test('edge matching maps both endpoints and physical checks exclude crop-cr
   assert.equal(report.length, 100);
   assert.equal(report.bandWidth, 0.5);
   assert.equal(report.belowMinimum, true);
+});
+
+void test('all 73 original examples reopen with their finite layer geometry and style controls', () => {
+  const entries = JSON.parse(
+    readFileSync('lib/project/examples.json', 'utf8'),
+  ) as { id: string }[];
+  assert.equal(entries.length, 73);
+  for (const entry of entries) {
+    const p = decodeProject(
+      readFileSync(`public/native-examples/${entry.id}.json`, 'utf8'),
+    );
+    assert.ok(p.layers.length > 0);
+    if (p.name === 'USA') {
+      assert.equal(p.layers[0].style.color, '#990000');
+      assert.equal(p.layers.at(-1)!.style.color, '#f7f3f0');
+    }
+    for (const l of p.layers) {
+      assert.ok(l.frozen?.length, `${p.name} has no finite construction`);
+      const g = generate(l, r);
+      assert.ok(g.edges.length > 0);
+      if (l.frozenFaceClasses) {
+        assert.equal(
+          g.faces.filter((f) => l.frozenFaceClasses![f.id] !== undefined)
+            .length,
+          Object.keys(l.frozenFaceClasses).length,
+          `${p.name} lost original inside/outside regions`,
+        );
+      }
+      assert.ok(
+        !/NaN|Infinity/.test(layerSVG(l, g)),
+        `${p.name} has invalid artwork`,
+      );
+      assert.equal(g.segments.length, l.frozen.length);
+      assert.ok(
+        g.segments.every((s) =>
+          [s.a.x, s.a.y, s.b.x, s.b.y].every(Number.isFinite),
+        ),
+      );
+      assert.ok(!g.truncated);
+    }
+  }
+});
+
+void test('144 irregular constructions agree with the original Java algorithms', () => {
+  const fixtures = JSON.parse(
+    readFileSync('tests/native/advanced-fixtures.json', 'utf8'),
+  ) as {
+    kind: string;
+    points: { x: number; y: number }[];
+    d: number;
+    s: number;
+    q: number;
+    r: number;
+    n: number;
+    lines: Segment[];
+  }[];
+  assert.equal(fixtures.length, 144);
+  for (const f of fixtures) {
+    const tile = {
+      id: 'test',
+      regular: false,
+      points: f.points,
+      placements: [IDENTITY],
+    };
+    const m = {
+      ...defaultMotif(false),
+      ...f,
+      kind: (f.kind === 'progressive'
+        ? 'intersect'
+        : f.kind) as import('../../lib/engine/types').MotifKind,
+      progressive: f.kind === 'progressive',
+    };
+    const actual = planarize(makeMotif(tile, m)),
+      expected = planarize(f.lines);
+    const segs = (g: ReturnType<typeof planarize>) =>
+      g.edges.map((e) => ({ a: g.nodes[e.a].point, b: g.nodes[e.b].point }));
+    assert.deepEqual(
+      signature(segs(actual)),
+      signature(segs(expected)),
+      `${f.kind} n=${f.points.length} d=${f.d} s=${f.s}`,
+    );
+  }
+});
+
+void test('zoom, distant panning, layer rotation and export crops never reverse the repeating weave', () => {
+  const l = newLayer(catalog.find((t) => t.name === '4.8^2')!);
+  const key = (p: { x: number; y: number }) =>
+    `${Math.round(p.x * 1e6)},${Math.round(p.y * 1e6)}`;
+  const big = generate(l, { minX: -12, minY: -12, maxX: 12, maxY: 12 });
+  const known = new Map(big.crossings.map((c) => [key(c.point), c.over]));
+  let shared = 0;
+  for (const r of [
+    { minX: -4, minY: -3, maxX: 4, maxY: 3 },
+    { minX: -1, minY: -1, maxX: 1, maxY: 1 },
+    { minX: 4, minY: 2, maxX: 9, maxY: 6 },
+  ]) {
+    const g = generate(l, r);
+    for (const c of g.crossings) {
+      const expected = known.get(key(c.point));
+      if (expected) {
+        shared++;
+        assert.ok(
+          Math.abs(expected.x * c.over.x + expected.y * c.over.y) > 0.99999,
+          'Weave flipped at ' + key(c.point),
+        );
+      }
+    }
+  }
+  assert.ok(shared > 100);
+  const shifted = structuredClone(l);
+  shifted.transform = { x: 4, y: -3, rotation: 36, scale: 2 };
+  const pose = transformation(4, -3, (36 * Math.PI) / 180, 2),
+    inv = inverse(pose);
+  const transformed = generate(shifted, {
+    minX: -12,
+    minY: -12,
+    maxX: 12,
+    maxY: 12,
+  });
+  for (const c of transformed.crossings) {
+    const p = apply(inv, c.point),
+      expected = known.get(key(p));
+    if (expected) {
+      const d = apply(inv, {
+          x: c.point.x + c.over.x,
+          y: c.point.y + c.over.y,
+        }),
+        x = d.x - p.x,
+        y = d.y - p.y;
+      assert.ok(
+        Math.abs((expected.x * x + expected.y * y) / Math.hypot(x, y)) >
+          0.99999,
+      );
+    }
+  }
+});
+
+void test('polygonal underpasses follow oblique band edges and leave genuine transparent gaps', async () => {
+  const { bandPolygons } = await import('../../lib/engine/bands');
+  const l = newProject().layers[0];
+  l.style = { ...l.style, width: 0.2, gap: 0.08 };
+  for (const slope of [0.3, 1, 2]) {
+    const g = graph([line(-2, 0, 2, 0), line(-2, -2 * slope, 2, 2 * slope)]),
+      c = g.crossings[0];
+    c.over = { x: 1, y: 0 };
+    c.under = { x: 1 / Math.hypot(1, slope), y: slope / Math.hypot(1, slope) };
+    const bands = bandPolygons(g, l.style),
+      under = bands.filter((b) => b.shadows.length);
+    assert.equal(under.length, 2);
+    assert.equal(bands.length, 4);
+    for (const band of under) {
+      assert.ok(
+        band.points.every((p) => Math.abs(p.y) >= l.style.width / 2 - 1e-7),
+        'Underpass crosses the over-band interior',
+      );
+      assert.equal(band.shadows[0].length, 4);
+    }
+    const svg = layerSVG(l, g);
+    assert.ok(!/<mask|<circle|fill="#fff/.test(svg));
+  }
+});
+
+void test('standalone tilings round-trip text and JSON, retain metadata and exclude guides', async () => {
+  const { decodeTiling, exportTiling, validateTiling } =
+    await import('../../lib/project/tilings');
+  const t = structuredClone(catalog.find((t) => t.name === '4.8^2')!);
+  t.name = 'Quotes " and café';
+  t.description = 'A # % // /* description */';
+  t.author = 'Test';
+  const decoded = decodeTiling('# comment\n' + exportTiling(t));
+  assert.equal(decoded.name, t.name);
+  assert.equal(decoded.description, t.description);
+  assert.equal(decoded.author, t.author);
+  const actualPoints = decoded.tiles.flatMap((t) => t.points),
+    originalPoints = t.tiles.flatMap((t) => t.points);
+  assert.equal(actualPoints.length, originalPoints.length);
+  // Text regular polygons are reconstructed trigonometrically; JSON is exact.
+  actualPoints.forEach((p, i) =>
+    assert.ok(distance(p, originalPoints[i]) < 1e-12),
+  );
+  assert.equal(decodeTiling(JSON.stringify({ tiling: t })).name, t.name);
+  t.tiles[0].placements.push(IDENTITY);
+  t.tiles[0].excluded = [t.tiles[0].placements.length - 1];
+  assert.equal(
+    decodeTiling(exportTiling(t)).tiles[0].placements.length,
+    t.tiles[0].placements.length - 1,
+  );
+  t.tiles.forEach((t) => (t.excluded = t.placements.map((_, i) => i)));
+  assert.throws(() => validateTiling(t), /Include at least/);
+});
+
+void test('filled inside/outside switches independently control both face classes', () => {
+  const l = newProject().layers[0],
+    g = graph([...squareLines, line(1, 0, 1, 2)]);
+  l.style.kind = 'filled';
+  const count = () => (layerSVG(l, g).match(/<path/g) || []).length;
+  l.style.fillInside = false;
+  l.style.fillOutside = false;
+  assert.equal(count(), 0);
+  l.style.fillInside = true;
+  assert.equal(count(), 1);
+  l.style.fillOutside = true;
+  assert.equal(count(), 2);
+  l.style.fillInside = false;
+  assert.equal(count(), 1);
 });

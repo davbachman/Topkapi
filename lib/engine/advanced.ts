@@ -43,7 +43,8 @@ export function segmentHit(
     : null;
 }
 function polygonArc(frac: number, ps: Point[]): Point {
-  frac = ((frac % 1) + 1) % 1;
+  while (frac > 1) frac -= 1;
+  while (frac < 0) frac += 1;
   const pos = frac * ps.length,
     prev = Math.floor(pos + 0.01) % ps.length,
     next = Math.ceil(pos - 0.01) % ps.length;
@@ -97,7 +98,7 @@ function halfStar(
         polygonArc(frac + (sign * di) / n, mid),
         polygonArc(frac - (sign * df) / n, mid),
         points[0],
-        polygonArc(frac + (sign * clamped) / n, mid),
+        polygonArc(frac + (sign * d) / n, mid),
       );
       if (h) lines.push({ a: points.at(-1)!, b: h }, { a: h, b: next });
     }
@@ -292,7 +293,11 @@ export function inferNeighbors(
       }));
     for (const unit of units)
       for (const neighbor of layer.tiling.tiles)
-        for (const placement of neighbor.placements) {
+        for (const [
+          placementIndex,
+          placement,
+        ] of neighbor.placements.entries()) {
+          if (neighbor.excluded?.includes(placementIndex)) continue;
           const m = compose(inv, compose(unit, placement));
           const same =
             neighbor.id === tile.id &&

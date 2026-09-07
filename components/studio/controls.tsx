@@ -8,6 +8,7 @@ import {
   SelectItem,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useT } from './locale';
 import { useId } from 'react';
 export function Range({
   label,
@@ -26,7 +27,9 @@ export function Range({
   unit?: string;
   onChange: (v: number, preview?: boolean) => void;
 }) {
-  const id = useId();
+  const id = useId(),
+    t = useT();
+  label = t(label);
   return (
     <div className="parameter">
       <div>
@@ -81,7 +84,9 @@ export function Choice<T extends string>({
   options: { value: T; label: string }[];
   onChange: (v: T) => void;
 }) {
-  const id = useId();
+  const id = useId(),
+    t = useT();
+  label = t(label);
   return (
     <div className="choice">
       <label id={id}>{label}</label>
@@ -93,13 +98,14 @@ export function Choice<T extends string>({
       >
         <SelectTrigger aria-labelledby={id}>
           <SelectValue>
-            {options.find((o) => o.value === value)?.label}
+            {options.find((o) => o.value === value)?.label &&
+              t(options.find((o) => o.value === value)!.label)}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {options.map((o) => (
             <SelectItem key={o.value} value={o.value}>
-              {o.label}
+              {t(o.label)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -116,10 +122,11 @@ export function Check({
   checked: boolean;
   onChange: (v: boolean) => void;
 }) {
+  const t = useT();
   return (
     <label className="check-row">
       <Checkbox checked={checked} onCheckedChange={(v) => onChange(v)} />
-      {label}
+      {t(label)}
     </label>
   );
 }

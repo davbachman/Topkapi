@@ -1,5 +1,6 @@
+import { bandPolygons, embossedFaces, shadeColor } from './bands';
 import type { Geometry, Layer, Project, Point, Bounds } from './types';
-import { mul, add, key, bounds } from './geometry';
+import { mul, add, key } from './geometry';
 import { clipSegment, clipPolygon, triangulate } from './construction';
 const num = (n: number) => Number(n.toFixed(6));
 const esc = (s: string) =>
@@ -60,7 +61,9 @@ export function strands(g: Geometry): Point[][] {
   return paths;
 }
 /** Two-color bounded faces across shared edges; explicit paint overrides it. */
-export function faceColors(g: Geometry): Map<string, boolean> {
+export function faceColors(g: Geometry, layer?: Layer): Map<string, boolean> {
+  if (layer?.frozen && layer.frozenFaceClasses)
+    return new Map(Object.entries(layer.frozenFaceClasses));
   const owners = new Map<string, string[]>(),
     neighbors = new Map<string, string[]>();
   for (const f of g.faces)
@@ -111,44 +114,65 @@ export function layerSVG(
   const s = {
       ...layer.style,
       width: layer.style.width * scale,
-      outlineWidth: layer.style.outlineWidth * scale,
+      outlineWidth: layer.style.drawOutline
+        ? layer.style.outlineWidth * scale
+        : 0,
+      shadowWidth: layer.style.shadowWidth * scale,
       gap: layer.style.gap * scale,
     },
-    id = (options.id || layer.id).replace(/[^a-zA-Z0-9_-]/g, ''),
     color = esc(s.color),
     outline = esc(s.outline),
     opacity = s.opacity;
-  const paths = strands(g),
+  const paths =
+      s.kind === 'thick'
+        ? g.edges.map((e) => [g.nodes[e.a].point, g.nodes[e.b].point])
+        : strands(g),
     line = paths.map((p) => pathData(p)).join(''),
     sw = s.kind === 'plain' || s.kind === 'sketch' ? 0.014 : s.width;
   const attrs = `fill="none" stroke-linecap="round" stroke-linejoin="${s.join}"`;
   const stroke = (d: string, c: string, w: number, extra = '') =>
     `<path d="${d}" stroke="${c}" stroke-width="${num(w)}" ${attrs} ${extra}/>`;
   let body = '';
-  const tones = faceColors(g);
+  const tones = faceColors(g, layer);
   for (const f of g.faces) {
     const paint = layer.regionColors[f.id];
-    if (paint || (s.kind === 'filled' && tones.get(f.id)))
+    if (
+      paint ||
+      (s.kind === 'filled' &&
+        tones.has(f.id) &&
+        (tones.get(f.id) ? s.fillInside : s.fillOutside))
+    )
       body += `<path d="${pathData(f.points, true)}" fill="${esc(paint || s.color)}"/>`;
   }
-  if (s.kind !== 'filled') {
-    let ink = '';
-    if (
-      s.outlineWidth > 0 &&
-      s.kind !== 'plain' &&
-      s.kind !== 'thick' &&
-      s.kind !== 'sketch'
-    )
-      ink += stroke(line, outline, sw + 2 * s.outlineWidth);
+  if (s.kind === 'interlace' || s.kind === 'outline' || s.kind === 'emboss') {
+    const bands = bandPolygons(g, s);
     if (s.kind === 'emboss') {
-      const a = (s.light * Math.PI) / 180,
-        x = Math.cos(a),
-        y = Math.sin(a);
-      body += `<defs><linearGradient id="emboss-${id}" x1="${50 - 50 * x}%" y1="${50 - 50 * y}%" x2="${50 + 50 * x}%" y2="${50 + 50 * y}%"><stop stop-color="${color}"/><stop offset=".48" stop-color="${color}"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="${outline}"/></linearGradient></defs>`;
-      ink += stroke(line, `url(#emboss-${id})`, sw);
-    } else if (s.kind === 'sketch') {
+      for (const b of bands)
+        for (const f of embossedFaces(b.points, s.color, s.light))
+          body += `<path d="${pathData(f.points, true)}" fill="${f.color}"/>`;
+    } else
+      body += `<path d="${bands.map((b) => pathData(b.points, true)).join('')}" fill="${color}"/>`;
+    if (s.kind === 'interlace')
+      body += `<path d="${bands.flatMap((b) => b.shadows.map((p) => pathData(p, true))).join('')}" fill="${shadeColor(s.color, 0.9, 0.8)}"/>`;
+    if (s.outlineWidth) {
+      const edges = bands.flatMap(({ points: p }) =>
+        s.kind === 'emboss'
+          ? [pathData(p, true), pathData([p[1], p[4]])]
+          : [pathData([p[2], p[3]]), pathData([p[5], p[0]])],
+      );
+      body += stroke(
+        edges.join(''),
+        outline,
+        s.outlineWidth,
+        'style="stroke-linecap:butt"',
+      );
+    }
+  } else if (s.kind !== 'filled') {
+    if (s.kind === 'thick' && s.outlineWidth)
+      body += stroke(line, outline, sw + 2 * s.outlineWidth);
+    if (s.kind === 'sketch')
       for (let i = 0; i < 3; i++)
-        ink += stroke(
+        body += stroke(
           paths
             .map((path, j) =>
               pathData(
@@ -163,46 +187,7 @@ export function layerSVG(
           0.008,
           'opacity=".6"',
         );
-    } else ink += stroke(line, color, sw);
-    if (s.kind === 'interlace' && g.crossings.length) {
-      const halfWidth = sw / 2 + s.outlineWidth;
-      const crossingSpan = (c: Geometry['crossings'][number]) =>
-        Math.min(
-          1,
-          (halfWidth + s.gap) /
-            Math.max(
-              0.05,
-              Math.abs(c.over.x * c.under.y - c.over.y * c.under.x),
-            ),
-        );
-      const b = bounds(g.nodes.map((n) => n.point)),
-        pad = s.width + s.outlineWidth + s.gap + 1;
-      const maskBox = `x="${num(b.minX - pad)}" y="${num(b.minY - pad)}" width="${num(b.maxX - b.minX + 2 * pad)}" height="${num(b.maxY - b.minY + 2 * pad)}"`;
-      const cut = g.crossings
-        .map((c) => {
-          const under = c.under,
-            span = crossingSpan(c);
-          return stroke(
-            pathData([
-              add(c.point, mul(under, -span)),
-              add(c.point, mul(under, span)),
-            ]),
-            '#000',
-            sw + 2 * s.outlineWidth + 0.004,
-          );
-        })
-        .join('');
-      body += `<defs><mask id="weave-${id}" maskUnits="userSpaceOnUse" ${maskBox}><rect ${maskBox} fill="#fff"/>${cut}</mask></defs><g mask="url(#weave-${id})">${ink}</g>`;
-      for (const c of g.crossings) {
-        const span = crossingSpan(c);
-        const d = pathData([
-          add(c.point, mul(c.over, -span)),
-          add(c.point, mul(c.over, span)),
-        ]);
-        if (s.outlineWidth) body += stroke(d, outline, sw + 2 * s.outlineWidth);
-        body += stroke(d, color, sw);
-      }
-    } else body += ink;
+    else body += stroke(line, color, sw);
   }
   let guides = '';
   if (options.tiles)

@@ -7,6 +7,7 @@ export type Tile = {
   points: Point[];
   placements: Matrix[];
   regular: boolean;
+  excluded?: number[];
 };
 export type Repetition =
   | { kind: 'translation'; u: Point; v: Point }
@@ -66,6 +67,10 @@ export type Style = {
   opacity: number;
   join: 'round' | 'miter' | 'bevel';
   light: number;
+  drawOutline: boolean;
+  fillInside: boolean;
+  fillOutside: boolean;
+  shadowWidth: number;
 };
 export type Layer = {
   id: string;
@@ -78,6 +83,10 @@ export type Layer = {
   moving: boolean;
   transform: { x: number; y: number; rotation: number; scale: number };
   regionColors: Record<string, string>;
+  /** Finite construction, in layer coordinates. Omit to repeat procedurally. */
+  frozen?: Segment[];
+  /** Original finite designs retain the saved inside/outside face selection. */
+  frozenFaceClasses?: Record<string, boolean>;
 };
 export type View = { x: number; y: number; scale: number };
 export type Project = {

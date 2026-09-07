@@ -1,0 +1,239 @@
+// Run from web: Java 8 jjs -J-Djava.awt.headless=true -cp public/taprats.jar scripts/import-native-library.jjs
+var JarFile = Java.type('java.util.jar.JarFile'),
+  OIS = Java.type('java.io.ObjectInputStream'),
+  BR = Java.type('java.io.BufferedReader'),
+  IR = Java.type('java.io.InputStreamReader'),
+  Files = Java.type('java.nio.file.Files'),
+  Paths = Java.type('java.nio.file.Paths'),
+  Standard = Java.type('java.nio.charset.StandardCharsets'),
+  Known = Java.type('csk.taprats.tile.KnownTilings'),
+  View = Java.type('csk.taprats.toolkit.GeoLayeredView');
+var browserCoordinates = false;
+var root = './',
+  jar = new JarFile(root + 'public/taprats.jar');
+function write(path, o) {
+  Files.write(
+    Paths.get(root + path),
+    new java.lang.String(JSON.stringify(o)).getBytes(Standard.UTF_8)
+  );
+}
+function pt(p) {
+  return { x: p.getX(), y: (browserCoordinates ? -1 : 1) * p.getY() };
+}
+function mat(m) {
+  var a = Java.to([0, 0, 0, 0, 0, 0], 'double[]');
+  m.get(a);
+  var v = Java.from(a);
+  return browserCoordinates ? [v[0], -v[1], v[2], -v[3], v[4], -v[5]] : v;
+}
+function lines(map) {
+  var a = [],
+    es = map.getEdges();
+  while (es.hasMoreElements()) {
+    var e = es.nextElement();
+    a.push({ a: pt(e.getV1().getPosition()), b: pt(e.getV2().getPosition()) });
+  }
+  return a;
+}
+
+function faceKey(points) {
+  var s = Java.from(points)
+      .map(pt)
+      .map(function (p) {
+        return Math.round(p.x / 1e-7) + ',' + Math.round(p.y / 1e-7);
+      })
+      .sort()
+      .join(';'),
+    h = 2166136261;
+  for (var j = 0; j < s.length; j++) {
+    var a = h ^ s.charCodeAt(j),
+      b = 16777619;
+    h = ((a & 65535) * b + ((((a >>> 16) * b) & 65535) << 16)) | 0;
+  }
+  return (h >>> 0).toString(36);
+}
+function faceClasses(map) {
+  var inside = new java.util.Vector(),
+    outside = new java.util.Vector(),
+    result = {};
+  Java.type('csk.taprats.geometry.Faces').extractFaces(map, inside, outside);
+  for (var j = 0; j < inside.size(); j++) result[faceKey(inside.get(j))] = true;
+  for (var j = 0; j < outside.size(); j++)
+    result[faceKey(outside.get(j))] = false;
+  return result;
+}
+
+function motif(f) {
+  return {
+    kind: 'custom',
+    d: 3,
+    q: 0,
+    s: 2,
+    n: 10,
+    r: 0.5,
+    progressive: false,
+    angle: 54,
+    lines: f ? lines(f.getMap()) : [],
+    symmetry: 1,
+    reflect: false
+  };
+}
+function tiling(t, proto) {
+  var fs = [],
+    tiles = [],
+    motifs = {},
+    it = t.getFeatures();
+  while (it.hasNext()) {
+    var pf = it.next(),
+      f = pf.getFeature(),
+      idx = -1;
+    for (var j = 0; j < fs.length; j++)
+      if (fs[j].equals(f)) {
+        idx = j;
+        break;
+      }
+    if (idx < 0) {
+      idx = fs.length;
+      fs.push(f);
+      var id = 'shape-' + idx;
+      tiles.push({
+        id: id,
+        regular: f.isRegular(),
+        points: Java.from(f.getPoints()).map(pt),
+        placements: []
+      });
+      if (proto) motifs[id] = motif(proto.getFigure(f));
+    }
+    tiles[idx].placements.push(mat(pf.getTransform()));
+  }
+  return {
+    tiling: {
+      id: 'taprats-' + String(t.getName()).replace(/[^A-Za-z0-9_-]/g, '-'),
+      name: String(t.getName()),
+      description: String(t.getDescription() || ''),
+      author: String(t.getAuthor() || ''),
+      tiles: tiles,
+      repetition: {
+        kind: 'translation',
+        u: pt(t.getTrans1()),
+        v: pt(t.getTrans2())
+      }
+    },
+    motifs: motifs
+  };
+}
+var cat = [],
+  en = Known.getTilings();
+while (en.hasMoreElements()) cat.push(tiling(en.nextElement(), null).tiling);
+write('lib/engine/original-catalog.json', cat);
+// Java layers are listed top-first and use upward-positive y; SVG is the reverse.
+browserCoordinates = true;
+var br = new BR(
+    new IR(jar.getInputStream(jar.getJarEntry('examples/designs.txt')))
+  ),
+  name,
+  index = [],
+  count = 0;
+while ((name = br.readLine()) !== null) {
+  var o = new OIS(jar.getInputStream(jar.getJarEntry(name))),
+    ls = o.readObject();
+  o.close();
+  var view = new View(-10, 10, 20);
+  view.setSize(500, 500);
+  var project = {
+    format: 'taprats-studio',
+    version: 1,
+    name: String(name)
+      .replace(/^examples\//, '')
+      .replace(/\.tap$/, ''),
+    layers: [],
+    view: { x: 0, y: 0, scale: 35 },
+    paper: '#ffffff',
+    width: 240,
+    height: 180,
+    units: 'mm'
+  };
+  for (var i = 0; i < ls.size(); i++) {
+    var l = ls.get(i),
+      proto = l.getPrototype(),
+      pair = tiling(proto.getTiling(), proto),
+      mBefore = lines(l.getMap());
+    view.insert(l, i);
+    var m = mat(l.getTransform()),
+      c = l.getColor(),
+      hex = function (n) {
+        return ('0' + Number(n).toString(16)).slice(-2);
+      },
+      type = String(l.getClass().getSimpleName()).toLowerCase();
+    var style = {
+      kind: type,
+      color: '#' + hex(c.getRed()) + hex(c.getGreen()) + hex(c.getBlue()),
+      outline: '#000000',
+      background: '#ffffff',
+      width: 0.04,
+      outlineWidth: 0.015,
+      gap: 0,
+      opacity: c.getAlpha() / 255,
+      join: 'miter',
+      light: 40,
+      drawOutline: false,
+      fillInside: true,
+      fillOutside: false,
+      shadowWidth: 0
+    };
+    if (l.getWidth) {
+      style.width = l.getWidth() * 2;
+      style.drawOutline = l.getDrawOutline();
+    }
+    if (l.getDrawInside) {
+      style.fillInside = l.getDrawInside();
+      style.fillOutside = l.getDrawOutside();
+    }
+    if (l.getGap) {
+      style.gap = l.getGap();
+      style.shadowWidth = l.getShadow();
+    }
+    if (l.getAngle) style.light = (360 - (l.getAngle() * 180) / Math.PI) % 360;
+    project.layers.push({
+      id: 'example-' + count + '-layer-' + i,
+      name: pair.tiling.name,
+      tiling: pair.tiling,
+      motifs: pair.motifs,
+      style: style,
+      visible: true,
+      locked: false,
+      moving: true,
+      transform: {
+        x: m[2],
+        y: m[5],
+        rotation: (Math.atan2(m[3], m[0]) * 180) / Math.PI,
+        scale: Math.sqrt(m[0] * m[0] + m[3] * m[3])
+      },
+      regionColors: {},
+      frozenFaceClasses:
+        type === 'filled' ? faceClasses(l.getMap()) : undefined,
+      frozen: mBefore
+    });
+  }
+  project.layers.reverse();
+  var slug = ('00' + count).slice(-3);
+  write('public/native-examples/' + slug + '.json', project);
+  var stream = jar.getInputStream(jar.getJarEntry(name + '.png'));
+  Files.copy(
+    stream,
+    Paths.get(root + 'public/native-examples/' + slug + '.png'),
+    Java.type('java.nio.file.StandardCopyOption').REPLACE_EXISTING
+  );
+  stream.close();
+  index.push({
+    id: slug,
+    name: project.name,
+    layers: project.layers.length,
+    tilings: project.layers.map(function (l) {
+      return l.tiling.name;
+    })
+  });
+  count++;
+}
+write('lib/project/examples.json', index);
+print('Converted ' + cat.length + ' tilings and ' + count + ' examples');

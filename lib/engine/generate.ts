@@ -11,6 +11,7 @@ import {
   cleanSegments,
 } from './geometry';
 import { makeMotif } from './motifs';
+import { stabilizeWeave } from './weave';
 import { planarize, faceId } from './topology';
 export function generate(
   layer: Layer,
@@ -33,6 +34,20 @@ export function generate(
     (layer.transform.rotation * Math.PI) / 180,
     layer.transform.scale,
   );
+  if (layer.frozen) {
+    result.segments = layer.frozen.map((s) => ({
+      a: apply(tr, s.a),
+      b: apply(tr, s.b),
+    }));
+    if (detail) {
+      Object.assign(result, planarize(result.segments));
+      const inv = inverse(tr);
+      result.faces.forEach((f) => {
+        f.id = faceId(f.points.map((p) => apply(inv, p)));
+      });
+    }
+    return result;
+  }
   const repetition = layer.tiling.repetition,
     localRegion = bounds(
       [
@@ -118,7 +133,8 @@ export function generate(
   );
   outer: for (const unit of units)
     for (const tile of layer.tiling.tiles)
-      for (const placement of tile.placements) {
+      for (const [placementIndex, placement] of tile.placements.entries()) {
+        if (tile.excluded?.includes(placementIndex)) continue;
         const m = compose(tr, compose(unit, placement)),
           points = tile.points.map((p) => apply(m, p));
         if (!overlaps(bounds(points), region)) continue;
@@ -138,5 +154,6 @@ export function generate(
       f.id = faceId(f.points.map((p) => apply(inv, p)));
     });
   }
+  if (detail) stabilizeWeave(layer, result);
   return result;
 }

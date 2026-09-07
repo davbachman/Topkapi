@@ -72,6 +72,13 @@ export function decodeProject(contents: string): Project {
     finite(tr.rotation, -36000, 36000);
     finite(tr.scale, 0.01, 100);
     const s = object(l.style);
+    s.drawOutline ??= s.kind !== 'thick' && Number(s.outlineWidth) > 0;
+    s.fillInside ??= true;
+    s.fillOutside ??= false;
+    s.shadowWidth ??= 0;
+    for (const key of ['drawOutline', 'fillInside', 'fillOutside'])
+      if (typeof s[key] !== 'boolean') throw Error('Invalid rendering option.');
+    finite(s.shadowWidth, 0, 0.7);
     choice(s.kind, [
       'plain',
       'thick',
@@ -83,7 +90,7 @@ export function decodeProject(contents: string): Project {
     ]);
     choice(s.join, ['round', 'miter', 'bevel']);
     for (const k of ['color', 'outline', 'background']) color(s[k]);
-    finite(s.width, 0.001, 2);
+    finite(s.width, 0, 2);
     finite(s.outlineWidth, 0, 1);
     finite(s.gap, 0, 1);
     finite(s.opacity, 0, 1);
@@ -120,6 +127,10 @@ export function decodeProject(contents: string): Project {
       const invalid = polygonError(points);
       if (invalid) throw Error(invalid);
       for (const m of array(tile.placements, 1, 100)) matrix(m);
+      if (tile.excluded !== undefined)
+        array(tile.excluded, 0, 100).forEach((i) =>
+          integer(i, 0, (tile.placements as unknown[]).length - 1),
+        );
       const m = object(motifs[tid]);
       choice(m.kind, [
         'star',
@@ -142,11 +153,26 @@ export function decodeProject(contents: string): Project {
       integer(m.symmetry, 1, 24);
       if (typeof m.reflect !== 'boolean')
         throw Error('Invalid motif symmetry.');
-      for (const s of array(m.lines, 0, 200)) {
+      for (const s of array(m.lines, 0, 5000)) {
         const line = object(s);
         point(line.a);
         point(line.b);
       }
+    }
+    if (l.frozen !== undefined) {
+      for (const entry of array(l.frozen, 0, 100000)) {
+        const line = object(entry);
+        point(line.a);
+        point(line.b);
+      }
+    }
+    if (l.frozenFaceClasses !== undefined) {
+      const classes = object(l.frozenFaceClasses);
+      if (
+        Object.keys(classes).length > 100000 ||
+        Object.values(classes).some((v) => typeof v !== 'boolean')
+      )
+        throw Error('Invalid frozen face classes.');
     }
     const paints = object(l.regionColors);
     if (Object.keys(paints).length > 5000)

@@ -983,3 +983,55 @@
   color: #9a3d28;
   background: #fff5ee;
 }
+
+.language-control {
+  font-size: 12px;
+  max-width: 80px;
+  padding: 5px;
+  border: 1px solid #d4dddd;
+  border-radius: 6px;
+  background: white;
+  color: #2c5355;
+}
+.canvas-toolbar .language-control {
+  display: none;
+}
+.tiling-grid img {
+  width: 100%;
+  height: 140px;
+  object-fit: contain;
+  background: white;
+}
+
+.mobile-panel-close,
+.mobile-history {
+  display: none;
+}
+@media (max-width: 850px) {
+  .mobile-panel-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 5px;
+    background: #eef5f4;
+    cursor: pointer;
+  }
+  .mobile-history {
+    display: flex !important;
+    gap: 2px;
+    border-right: 1px solid #dce5e7;
+    padding-right: 6px;
+  }
+  .workbench[inert] .wb-left,
+  .workbench[inert] .wb-right {
+    display: none;
+  }
+  .workbench[inert] {
+    grid-template-columns: 0 minmax(180px, 1fr) 0;
+  }
+  .canvas-toolbar {
+    overflow-x: auto;
+  }
+}

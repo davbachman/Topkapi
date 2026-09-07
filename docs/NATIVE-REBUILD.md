@@ -1,42 +1,47 @@
 # Native rebuild — September 7, 2026
 
-This is the first native editing milestone of the ground-up rebuild. The main route runs React and TypeScript without loading Java. The previous application remains at `/classic` for reference and for older workflows; its previous verification results apply to that route only. This milestone is not a claim of complete native parity with every legacy function or completion of every proposed future feature.
+The main workspace is React/TypeScript with a browser geometry worker and no Java dependency. The original desktop application's construction, layer, style, library, tiling-editor, language and output workflows now have native equivalents. `/classic` retains the previous Java migration as a reference. Old `.tap` files are deliberately outside the rebuild's compatibility requirements.
 
-## Delivered
+## Native capabilities
 
-- Independent geometry, motif, topology, rendering and project modules. Geometry runs in a cancellable browser worker; view changes regenerate the visible patch.
-- 105 distinct Alhambra catalog tilings, including four concentric inflation tilings. Searchable previews, per-shape motifs, live star/rosette/extended controls, polygon star/rosette/hourglass, Girih, Intersect and progressive Intersect, adjustable Hankin rays, and neighbor-based inference.
-- Direct line drawing and point editing, erasure, exact vertex/midpoint snapping, grid snapping, rotational/reflection symmetry, clipping to the tile, and baking symmetry into editable lines.
-- Seed-patch editor: regular polygons, editable vertices, numeric vertex positions, duplicate/remove placements, rotation/reflection, exact edge matching with scaling, translation vectors, concentric ring controls, description and author. Apply stores a private tiling copy within the layer.
-- Nine-way parameter gallery for radial and Hankin studies.
-- Layers with visibility, locking, reordering, cloning, group-move participation, selection transforms, and copying position. Style, transform, motif, project replacement and canvas gestures have undo/redo; a slider or drag gesture is one undo step.
-- Seven render modes; colors, outline width/color, corner joins, opacity, band width, weave clearance and emboss light direction. Paintable bounded regions keep their identities across layer transforms.
-- Tile and symmetry-center guides, endpoint/junction/weave diagnostics, device-local recovery, validated self-contained JSON projects, reference-image placement/rotation/scale/opacity, and physical output dimensions.
-- SVG, PNG (2400 px on its longest side), and DXF centerline/closed-outline/triangulated-face exports. Export geometry is regenerated for the full output aspect ratio. DXF coordinates are cropped and converted to the chosen physical units; overlapping centerline segments are split and deduplicated. Incomplete geometry is refused at export, with a message to zoom in or simplify.
-- Output report: band width against a user-specified minimum, centerline length, connected graphs, interior open ends, and weave conflicts. This reports centerline connectivity, not physical cut-piece counts.
-- Optional WebMCP read/replace-project tools sharing the visible document and validation. Unsupported browsers continue normally.
+- 197 catalog entries: all 92 original Taprats definitions alongside the 105 Alhambra entries, including four concentric inflation tilings. Definitions with the same name are retained separately. Searchable previews preserve author and description metadata.
+- All 73 indexed original example designs, converted to self-contained native projects with 297 layers. Conversion preserves finite construction geometry, top-to-bottom ordering, coordinate orientation, layer transforms, style parameters and original inside/outside region selections. Examples remain editable; changing a motif resumes procedural repetition. Freeze/resume is also available for new constructions.
+- Per-shape Star, Rosette, Extended Rosette, polygon Star/Rosette/Hourglass, Girih, Intersect, progressive Intersect, Hankin rays and neighbor-dependent inference. Radial and irregular parameter controls update live.
+- Motif line drawing, point editing, erasure, construction-point/grid snapping, rotational/reflection symmetry, clipping and symmetry baking. Nine-choice variation gallery.
+- Tiling construction: new/open/catalog/save; regular and free polygons; numeric and pointer vertex/placement editing; duplicate, move, rotate, reflect and edge matching with scaling; included master polygons and excluded construction copies; fill, exclude all, remove excluded; editable/drawable translation vectors; repetition preview and concentric controls; name, description and author. Apply also registers the tiling in the browser library. Standalone native JSON, textual `.tiling` and Java initialization-snippet exports are supported. Native JSON is required for concentric inflation.
+- Layers with visibility, locking, reorder buttons and dragging, cloning, multiple selection, group-move participation, numeric/pointer transforms and copying position. Document edits and canvas gestures have undo/redo; a gesture is one undo step.
+- Seven styles: linework, bands, outlined, interlaced, embossed, filled and sketched. Independent inner/outer fills, optional outlines, color, paper, opacity, band/outline widths, weave clearance, interlace shadows and emboss lighting.
+- Interlace choices are tied to a doubled periodic cell, independent of viewport size, pan, layer rotation or export crop. Joined polygon bands and angled underpass cuts replace the early round background masks. Interlace, outlined and embossed geometry derive from the original band's offset/join construction.
+- Paintable regions with stable identities under layer transforms; tiling/center guides; endpoint, junction and weave diagnostics; reference-image placement/scale/rotation/opacity; physical output dimensions.
+- IndexedDB recovery, immediate saving status, pending-save page-close warning, validated portable `.taprats.json` files and undoable project replacement. English/French controls, language persistence, and mobile panel controls with accessible undo/redo.
+- SVG, EPS, PNG, JPEG, GIF, BMP, WBMP, editable project and three DXF exports (centerlines, closed outlines, triangulated faces). Raster output has a 2400-pixel longest side. EPS flattens transparency against the paper color. Exports regenerate geometry for the output crop and refuse truncated output.
+- Output report: physical band widths against a chosen minimum, centerline length, connected graphs, interior open ends and weave conflicts.
+- Optional WebMCP read/replace-project tools use the visible document and the same validation.
 
-## Verification performed
+## Verification
 
-`npm run test:native` runs 18 tests, including:
+`npm run test:native` runs 24 tests, including:
 
-- 216 star, rosette and extended-rosette parameter cases compared with line coordinates produced by the unchanged Taprats JAR. Values are compared at 1e-6; reference inputs stay in the valid parameter range.
-- Generation and JSON reopening of all 105 catalog tilings, including all four inflation patterns.
-- Affine inverses, intersection splitting, overlap deduplication, bounded-face area/Euler checks, stable face IDs, strand traversal and alternating oblique weave constraints.
-- Custom symmetry/clipping; neighbor inference; nonempty finite output for irregular motif families; edge matching; cropped physical measurements and DXF entities; concave face triangulation; SVG escaping; invalid-project rejection; pure history transactions and redo branching.
+- 216 radial and 144 irregular constructions compared with coordinates from the unchanged original JAR at 1e-6 precision. An irregular polygon-arc rounding discrepancy found during this comparison was fixed.
+- Generation and self-contained project reopening for every catalog entry.
+- Full topology and finite SVG rendering of all 73 examples, comprising 297 layers and approximately 1.99 million graph edges. All 204,987 saved inside/outside classifications from 100 filled layers match the native faces. Representative original/native artwork comparisons caught and fixed layer order, vertical orientation and fill-class differences.
+- Affine transforms, exact snapping, planar intersections and overlaps, face extraction, stable painting, strand traversal, weave constraints, viewport-independent crossing choices and oblique polygonal underpasses without masks.
+- Motif symmetry/clipping, neighbor inference, edge matching, physical clipping/measurements, DXF entities, triangulation, SVG escaping, tiling round trips, fill controls, invalid-input rejection and transactional history.
 
-`npm run typecheck`, scoped native lint, `npm run verify` (six unchanged pinned JARs), and the production build passed for this milestone. The native worker is emitted as a separate client asset.
+Type checking, scoped native lint, the six pinned JAR checks and the production build pass. Actual Chromium interaction and export checks are recorded in [NATIVE-BROWSER-QA.md](NATIVE-BROWSER-QA.md). Both development and production workers were exercised. Browser QA uncovered and fixed a development-worker URL issue, saving-status timing, inaccessible mobile panel controls and missing mobile undo access.
 
-The native browser interaction flow, IndexedDB recovery, PNG download, worker performance during pointer interaction, visual rendering, and responsive layout have **not** had a browser QA pass in this resumed stage. A local HTTP render is checked, but that does not establish those behaviors. The prior browser QA files describe the preserved Java version. Native WebMCP registration/execution has no supported live validation context in this run and is unverified; it is optional and does not block ordinary editing.
+This establishes the native workflow coverage and tested cases above, not pixel-identical Java rasterization or exhaustive coverage of every possible parameter combination. Browser interaction testing used Chromium; Safari/Firefox and optional WebMCP execution were not validated in this environment.
 
-## Remaining stages
+## Deliberate differences and practical bounds
 
-1. Browser interaction and visual QA for the new native interface; broaden algorithm comparisons to irregular/inferred constructions and add representative geometric regression cases based on any discrepancies.
-2. Remaining native legacy coverage: selectable inner/outer face classes, interlace shadows, additional raster/EPS export formats, the legacy example-design library, French localization, and advanced construction-copy/include/exclude workflows. `.tap` compatibility and Java-code export are deliberately not rebuild requirements.
-3. Richer construction teaching tools, strand coloring, named reusable motif/variation libraries, multiple recovery snapshots, and reference-image perspective rectification.
-4. Fabrication analysis of actual band boundaries and cut pieces, beyond centerline diagnostics.
-5. True substitution/rule-based aperiodic tilings. Concentric inflation is not substitution and is labeled accordingly.
+The rebuild uses portable self-contained JSON instead of Java serialization and its sidecar files. Live inspectors and undo replace the original multi-stage Apply wizard. Tiling construction runs in an in-page editor rather than multiple independent desktop windows. Standard browser upload/download dialogs replace filesystem-directory browsing. Project and geometry limits bound browser work: 24 layers, a 10 MB project input, and a capped generated viewport patch. Dense output is refused with an actionable message instead of silently exported incompletely. Imported finite examples retain their complete geometry.
+
+Concentric inflation is not substitution. The output report measures centerline connectivity, not actual cut-piece counts. JPEG/GIF/WBMP have their usual color/quality limitations; use SVG/PNG for faithful colored artwork. EPS cannot retain arbitrary overlapping alpha compositing.
+
+## Later development
+
+These additions remain beyond native desktop workflow parity: strand coloring; named reusable motif/variation libraries; multiple recovery snapshots; richer construction teaching; reference-image perspective rectification; fabrication analysis of band boundaries and actual cut pieces; and true substitution/rule-based aperiodic tilings.
 
 ## Reproducibility
 
-The catalog importer is `scripts/import-catalog.py` and reads the Alhambra source revision recorded in `THIRD-PARTY-NOTICES.md`. `tests/native/reference-radial.jjs` regenerates the checked-in radial fixtures using Java 8 `jjs -cp public/taprats.jar`; Java is unnecessary for normal tests, development or the native app.
+`scripts/import-catalog.py` reads the Alhambra revision in `THIRD-PARTY-NOTICES.md`. `scripts/import-native-library.jjs` converts the original catalog and example resources. `tests/native/reference-radial.jjs` and `reference-advanced.jjs` regenerate the original algorithm fixtures using Java 8 `jjs -cp public/taprats.jar`. Java is unnecessary for ordinary development, tests or native app use.

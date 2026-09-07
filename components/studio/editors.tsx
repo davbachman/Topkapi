@@ -1,4 +1,5 @@
 'use client';
+import { useT } from './locale';
 import { useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -33,6 +34,15 @@ import { makeMotif } from '@/lib/engine/motifs';
 import { polygonError, snapPoint, matchEdge } from '@/lib/engine/construction';
 import { pathData } from '@/lib/engine/render';
 import { uid } from '@/lib/project/model';
+import {
+  decodeTiling,
+  validateTiling,
+  exportTiling,
+  includedTiling,
+  saveTiling,
+} from '@/lib/project/tilings';
+import { download } from '@/lib/project/storage';
+import { catalog } from '@/lib/project/model';
 import { Range, Choice, Check } from './controls';
 import { Preview } from './preview';
 
@@ -62,12 +72,13 @@ function ConstructionDialog({
   onClose: () => void;
   children: React.ReactNode;
 }) {
+  const trText = useT();
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="construction-dialog">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogTitle>{trText(title)}</DialogTitle>
+          <DialogDescription>{trText(description)}</DialogDescription>
         </DialogHeader>
         {children}
       </DialogContent>
@@ -86,6 +97,7 @@ export function MotifEditor({
   onApply: (m: Motif) => void;
   onClose: () => void;
 }) {
+  const trText = useT();
   const [draft, setDraft] = useState<Motif>(() => ({
     ...structuredClone(motif),
     kind: 'custom',
@@ -127,8 +139,10 @@ export function MotifEditor({
   const rendered = useMemo(() => makeMotif(tile, draft), [tile, draft]);
   return (
     <ConstructionDialog
-      title="Draw a motif"
-      description="Click two points to draw a segment. Snap to vertices, edge midpoints, existing points, or the grid. Symmetry repeats the drawing inside this tile."
+      title={trText('Draw a motif')}
+      description={trText(
+        'Click two points to draw a segment. Snap to vertices, edge midpoints, existing points, or the grid. Symmetry repeats the drawing inside this tile.',
+      )}
       onClose={onClose}
     >
       <div className="construction-layout">
@@ -144,10 +158,10 @@ export function MotifEditor({
                 }}
               >
                 {t === 'draw'
-                  ? 'Draw lines'
+                  ? trText('Draw lines')
                   : t === 'move'
-                    ? 'Move points'
-                    : 'Erase lines'}
+                    ? trText('Move points')
+                    : trText('Erase lines')}
               </Button>
             ))}
             <Button
@@ -159,14 +173,14 @@ export function MotifEditor({
                 setStart(null);
               }}
             >
-              Undo drawing
+              {trText('Undo drawing')}
             </Button>
           </div>
           <svg
             className="construction-canvas"
             viewBox={viewBox(tile.points)}
             role="application"
-            aria-label="Motif drawing canvas"
+            aria-label={trText('Motif drawing canvas')}
             onPointerDown={(e) => {
               const p = snapped(localPoint(e));
               setNotice('');
@@ -312,7 +326,7 @@ export function MotifEditor({
         </div>
         <div className="editor-settings">
           <Range
-            label="Rotational copies"
+            label={trText('Rotational copies')}
             value={draft.symmetry}
             min={1}
             max={24}
@@ -324,7 +338,7 @@ export function MotifEditor({
             }
           />
           <Check
-            label="Reflect across the horizontal axis"
+            label={trText('Reflect across the horizontal axis')}
             checked={draft.reflect}
             onChange={(v) =>
               change((m) => {
@@ -333,13 +347,16 @@ export function MotifEditor({
             }
           />
           <Check
-            label="Snap to construction points and grid"
+            label={trText('Snap to construction points and grid')}
             checked={snap}
             onChange={setSnap}
           />
           <p className="panel-hint">
-            {draft.lines.length} drawn segments · {rendered.length} segments
-            after symmetry and clipping. Lines outside the tile are clipped.
+            {draft.lines.length} {trText('drawn segments ·')}
+            {rendered.length}{' '}
+            {trText(
+              'segments after symmetry and clipping. Lines outside the tile are clipped.',
+            )}
           </p>
           <Button
             variant="outline"
@@ -352,7 +369,7 @@ export function MotifEditor({
             }
             disabled={rendered.length > 200}
           >
-            Bake symmetry into drawing
+            {trText('Bake symmetry into drawing')}
           </Button>
           <Button
             variant="ghost"
@@ -363,7 +380,7 @@ export function MotifEditor({
               setStart(null);
             }}
           >
-            Clear drawing
+            {trText('Clear drawing')}
           </Button>
           {notice && <p role="alert">{notice}</p>}
           <Button
@@ -372,10 +389,10 @@ export function MotifEditor({
               onClose();
             }}
           >
-            Apply motif
+            {trText('Apply motif')}
           </Button>
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {trText('Cancel')}
           </Button>
         </div>
       </div>
@@ -394,6 +411,7 @@ export function VariationEditor({
   onApply: (m: Motif) => void;
   onClose: () => void;
 }) {
+  const trText = useT();
   const [spread, setSpread] = useState(
       motif.kind === 'star'
         ? 0.5
@@ -445,12 +463,14 @@ export function VariationEditor({
         : `Rays at ${m.angle.toFixed(1)}°`;
   return (
     <ConstructionDialog
-      title="Explore variations"
-      description="Compare nine constructions. Choose a study to apply it to every copy of this tile shape."
+      title={trText('Explore variations')}
+      description={trText(
+        'Compare nine constructions. Choose a study to apply it to every copy of this tile shape.',
+      )}
       onClose={onClose}
     >
       <Range
-        label="Parameter spread"
+        label={trText('Parameter spread')}
         value={spread}
         min={
           motif.kind === 'star'
@@ -500,7 +520,7 @@ export function VariationEditor({
       </div>
       <div className="editor-footer">
         <Button variant="ghost" onClick={onClose}>
-          Cancel
+          {trText('Cancel')}
         </Button>
         <Button
           onClick={() => {
@@ -508,7 +528,7 @@ export function VariationEditor({
             onClose();
           }}
         >
-          Apply selected variation
+          {trText('Apply selected variation')}
         </Button>
       </div>
     </ConstructionDialog>
@@ -524,14 +544,20 @@ export function TilingEditor({
   onApply: (tiling: Tiling) => void;
   onClose: () => void;
 }) {
+  const trText = useT();
   const [tiling, setTiling] = useState(() => structuredClone(layer.tiling)),
     [tileId, setTileId] = useState(layer.tiling.tiles[0].id),
     [placement, setPlacement] = useState(0),
-    [mode, setMode] = useState<'place' | 'vertices'>('place'),
+    [mode, setMode] = useState<
+      'place' | 'vertices' | 'draw' | 'pan' | 'vector-u' | 'vector-v'
+    >('place'),
     [snap, setSnap] = useState(true),
     [sides, setSides] = useState(6),
     [error, setError] = useState(''),
     [past, setPast] = useState<Tiling[]>([]);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [drawing, setDrawing] = useState<Point[]>([]),
+    [repeatPreview, setRepeatPreview] = useState(false);
   const [vertexIndex, setVertexIndex] = useState(0),
     [sourceEdge, setSourceEdge] = useState(0),
     [targetEdge, setTargetEdge] = useState(0),
@@ -542,7 +568,10 @@ export function TilingEditor({
     start: Point;
     before: Tiling;
     index: number;
-    kind: 'placement' | 'vertex';
+    kind: 'placement' | 'vertex' | 'pan' | 'u' | 'v';
+    box: string;
+    clientX: number;
+    clientY: number;
   } | null>(null);
   const points = tiling.tiles.flatMap((t) =>
     t.placements.flatMap((m) => t.points.map((p) => apply(m, p))),
@@ -584,6 +613,63 @@ export function TilingEditor({
   const span = Math.max(...canvasBox.split(' ').slice(2).map(Number));
   const valid = tiling.tiles.map((t) => polygonError(t.points)).find(Boolean);
   const rep = tiling.repetition;
+  function load(t: Tiling) {
+    change((n) => Object.assign(n, t));
+    setTileId(t.tiles[0].id);
+    setPlacement(0);
+    setCanvasBox(
+      viewBox(
+        t.tiles.flatMap((s) =>
+          s.placements.flatMap((m) => s.points.map((p) => apply(m, p))),
+        ),
+        1,
+      ),
+    );
+    setDrawing([]);
+  }
+  function finishPolygon() {
+    const problem = polygonError(drawing);
+    if (problem) {
+      setError(problem);
+      return;
+    }
+    if (tiling.tiles.length >= 60) {
+      setError('A tiling supports 60 shapes.');
+      return;
+    }
+    const id = uid();
+    change((t) =>
+      t.tiles.push({
+        id,
+        regular: false,
+        points: drawing,
+        placements: [[...IDENTITY]],
+      }),
+    );
+    setTileId(id);
+    setPlacement(0);
+    setDrawing([]);
+    setMode('place');
+  }
+  function save(format: 'json' | 'text' | 'code') {
+    try {
+      const t = validateTiling(tiling);
+      saveTiling(t);
+      download(
+        `${t.name}.${format === 'json' ? 'tiling.json' : format === 'code' ? 'java' : 'tiling'}`,
+        format === 'json'
+          ? JSON.stringify(
+              { format: 'taprats-tiling', version: 1, tiling: t },
+              null,
+              2,
+            )
+          : exportTiling(t, format === 'code'),
+      );
+      setError('Tiling saved to the library and downloaded.');
+    } catch (e) {
+      setError(String(e));
+    }
+  }
   function applyTiling() {
     if (valid) {
       setError(valid);
@@ -606,15 +692,110 @@ export function TilingEditor({
       setError('Inflation needs a nonzero scale.');
       return;
     }
-    onApply({ ...tiling, id: uid() });
+    try {
+      const t = validateTiling({ ...tiling, id: uid() });
+      saveTiling(t);
+      onApply(t);
+    } catch (e) {
+      setError(String(e));
+      return;
+    }
     onClose();
   }
   return (
     <ConstructionDialog
-      title="Construct a tiling"
-      description="Arrange the seed patch, edit its polygons, and set how the patch repeats. Drag a placement or switch to vertex editing. Apply stores a private copy in this layer."
+      title={trText('Construct a tiling')}
+      description={trText(
+        'Arrange polygons and repeat the included copies. Dashed copies are construction guides. Scroll to zoom; drag vector handles to edit the lattice. Apply also saves to your tiling library.',
+      )}
       onClose={onClose}
     >
+      <input
+        ref={fileInput}
+        type="file"
+        hidden
+        accept=".json,.tiling"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f)
+            void f
+              .arrayBuffer()
+              .then((buffer) => {
+                const bytes = new Uint8Array(buffer);
+                let source;
+                try {
+                  source = new TextDecoder('utf-8', { fatal: true }).decode(
+                    bytes,
+                  );
+                } catch {
+                  source = new TextDecoder('windows-1252').decode(bytes);
+                }
+                load(decodeTiling(source));
+              })
+              .catch((e) => setError(String(e)));
+          e.target.value = '';
+        }}
+      />
+      <div className="editor-tools">
+        <Button
+          variant="outline"
+          onClick={() =>
+            load({
+              id: uid(),
+              name: 'Untitled tiling',
+              description: '',
+              author: '',
+              tiles: [
+                {
+                  id: uid(),
+                  points: regular(4),
+                  regular: true,
+                  placements: [[...IDENTITY]],
+                },
+              ],
+              repetition: {
+                kind: 'translation',
+                u: { x: 2, y: 0 },
+                v: { x: 0, y: 2 },
+              },
+            })
+          }
+        >
+          {trText('New tiling')}
+        </Button>
+        <Button variant="outline" onClick={() => fileInput.current?.click()}>
+          {trText('Open tiling')}
+        </Button>
+        <Button variant="outline" onClick={() => save('json')}>
+          {trText('Save tiling')}
+        </Button>
+        <Button
+          variant="ghost"
+          disabled={rep.kind !== 'translation'}
+          onClick={() => save('text')}
+        >
+          {trText('Export .tiling')}
+        </Button>
+        <Button
+          variant="ghost"
+          disabled={rep.kind !== 'translation'}
+          onClick={() => save('code')}
+        >
+          {trText('Export Java code')}
+        </Button>
+        <Choice
+          label={trText('Select catalog tiling')}
+          value=""
+          options={[
+            { value: '', label: 'Choose a tiling…' },
+            ...catalog.map((t) => ({ value: t.id, label: t.name })),
+          ]}
+          onChange={(id) => {
+            const t = catalog.find((t) => t.id === id);
+            if (t) load(structuredClone(t));
+          }}
+        />
+      </div>
       <div className="construction-layout">
         <div>
           <div className="editor-tools">
@@ -622,14 +803,40 @@ export function TilingEditor({
               variant={mode === 'place' ? 'default' : 'outline'}
               onClick={() => setMode('place')}
             >
-              Move tiles
+              {trText('Move tiles')}
             </Button>
             <Button
               variant={mode === 'vertices' ? 'default' : 'outline'}
               onClick={() => setMode('vertices')}
             >
-              Edit vertices
+              {trText('Edit vertices')}
             </Button>
+            <Button
+              variant={mode === 'draw' ? 'default' : 'outline'}
+              onClick={() => {
+                setMode('draw');
+                setDrawing([]);
+              }}
+            >
+              {trText('Draw polygon')}
+            </Button>
+            <Button
+              variant={mode === 'pan' ? 'default' : 'outline'}
+              onClick={() => setMode('pan')}
+            >
+              {trText('Pan view')}
+            </Button>
+            <Button
+              variant={repeatPreview ? 'default' : 'outline'}
+              onClick={() => setRepeatPreview((v) => !v)}
+            >
+              {trText('Preview repetition')}
+            </Button>
+            {mode === 'draw' && (
+              <Button disabled={drawing.length < 3} onClick={finishPolygon}>
+                {trText('Close polygon')}
+              </Button>
+            )}
             <Button
               variant="outline"
               disabled={!past.length}
@@ -639,7 +846,7 @@ export function TilingEditor({
                 setPlacement(0);
               }}
             >
-              Undo construction
+              {trText('Undo construction')}
             </Button>
             <Button
               variant="ghost"
@@ -648,16 +855,50 @@ export function TilingEditor({
                 setError('View fitted.');
               }}
             >
-              Fit patch
+              {trText('Fit patch')}
             </Button>
           </div>
           <svg
             className="construction-canvas"
             viewBox={canvasBox}
-            aria-label="Tiling construction canvas"
+            aria-label={trText('Tiling construction canvas')}
             role="application"
+            onWheel={(e) => {
+              const [x, y, w, h] = canvasBox.split(' ').map(Number),
+                f = Math.exp(Math.max(-0.3, Math.min(0.3, e.deltaY * 0.002)));
+              setCanvasBox(
+                `${x + (w * (1 - f)) / 2} ${y + (h * (1 - f)) / 2} ${w * f} ${h * f}`,
+              );
+            }}
             onPointerDown={(e) => {
-              const p = localPoint(e),
+              const raw = localPoint(e);
+              if (mode === 'draw') {
+                const p = snap
+                  ? snapPoint(raw, points, 0.05, span * 0.025)
+                  : raw;
+                if (
+                  drawing.length >= 3 &&
+                  distance(p, drawing[0]) < span * 0.025
+                )
+                  finishPolygon();
+                else setDrawing((a) => [...a.slice(0, 99), p]);
+                return;
+              }
+              if (mode === 'pan' || mode.startsWith('vector-')) {
+                drag.current = {
+                  start: raw,
+                  before: structuredClone(tiling),
+                  index: -1,
+                  kind:
+                    mode === 'pan' ? 'pan' : mode === 'vector-u' ? 'u' : 'v',
+                  box: canvasBox,
+                  clientX: e.clientX,
+                  clientY: e.clientY,
+                };
+                e.currentTarget.setPointerCapture(e.pointerId);
+                return;
+              }
+              const p = raw,
                 index =
                   mode === 'vertices'
                     ? tile.points
@@ -671,13 +912,37 @@ export function TilingEditor({
                 before: structuredClone(tiling),
                 index,
                 kind: mode === 'vertices' ? 'vertex' : 'placement',
+                box: canvasBox,
+                clientX: e.clientX,
+                clientY: e.clientY,
               };
               e.currentTarget.setPointerCapture(e.pointerId);
             }}
             onPointerMove={(e) => {
               const d = drag.current;
               if (!d) return;
+              if (d.kind === 'pan') {
+                const [x, y, w, h] = d.box.split(' ').map(Number),
+                  rect = e.currentTarget.getBoundingClientRect(),
+                  scale = Math.max(w / rect.width, h / rect.height);
+                setCanvasBox(
+                  `${x - (e.clientX - d.clientX) * scale} ${y - (e.clientY - d.clientY) * scale} ${w} ${h}`,
+                );
+                return;
+              }
               const p = localPoint(e);
+              if (d.kind === 'u' || d.kind === 'v') {
+                const next = structuredClone(d.before);
+                if (next.repetition.kind === 'translation') {
+                  const q = snap ? snapPoint(p, points, 0.05, span * 0.025) : p;
+                  next.repetition[d.kind] = {
+                    x: q.x - d.start.x,
+                    y: q.y - d.start.y,
+                  };
+                }
+                setTiling(next);
+                return;
+              }
               const next = structuredClone(d.before),
                 t = next.tiles.find((x) => x.id === tile.id);
               if (!t) return;
@@ -714,6 +979,43 @@ export function TilingEditor({
               drag.current = null;
             }}
           >
+            {repeatPreview &&
+              rep.kind === 'translation' &&
+              [-1, 0, 1].flatMap((x) =>
+                [-1, 0, 1].flatMap((y) =>
+                  x === 0 && y === 0
+                    ? []
+                    : includedTiling(tiling).tiles.flatMap((t) =>
+                        t.placements.map((m, i) => (
+                          <polygon
+                            key={`${x}:${y}:${t.id}:${i}`}
+                            points={pointsAttribute(
+                              t.points.map((p) => {
+                                const q = apply(m, p);
+                                return {
+                                  x: q.x + x * rep.u.x + y * rep.v.x,
+                                  y: q.y + x * rep.u.y + y * rep.v.y,
+                                };
+                              }),
+                            )}
+                            fill="#176b7210"
+                            stroke="#176b7244"
+                            strokeWidth={span * 0.002}
+                            pointerEvents="none"
+                          />
+                        )),
+                      ),
+                ),
+              )}
+            {drawing.length > 0 && (
+              <polyline
+                points={pointsAttribute(drawing)}
+                fill="none"
+                stroke="#c05c3c"
+                strokeWidth={span * 0.005}
+                pointerEvents="none"
+              />
+            )}
             {tiling.tiles.flatMap((t) =>
               t.placements.map((m, i) => (
                 <polygon
@@ -727,6 +1029,12 @@ export function TilingEditor({
                   stroke={
                     t.id === tile.id && i === placement ? '#176b72' : '#a88d55'
                   }
+                  strokeDasharray={
+                    t.excluded?.includes(i)
+                      ? `${span * 0.015} ${span * 0.01}`
+                      : undefined
+                  }
+                  opacity={t.excluded?.includes(i) ? 0.4 : 1}
                   strokeWidth={span * 0.003}
                   onPointerDown={(e) => {
                     if (
@@ -766,6 +1074,21 @@ export function TilingEditor({
                     cx={p.x}
                     cy={p.y}
                     r={span * 0.015}
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      drag.current = {
+                        start: { x: 0, y: 0 },
+                        before: structuredClone(tiling),
+                        index: -1,
+                        kind: i ? 'v' : 'u',
+                        box: canvasBox,
+                        clientX: e.clientX,
+                        clientY: e.clientY,
+                      };
+                      e.currentTarget.ownerSVGElement?.setPointerCapture(
+                        e.pointerId,
+                      );
+                    }}
                     fill={i ? '#b36343' : '#6173ad'}
                   />
                   <text x={p.x + span * 0.02} y={p.y} fontSize={span * 0.04}>
@@ -777,14 +1100,15 @@ export function TilingEditor({
           <div className="patch-preview">
             <Preview tiling={tiling} />
             <p className="panel-hint">
-              Seed patch preview. Enable tile guides in the workspace to inspect
-              connections between repeated patches.
+              {trText(
+                'Seed patch preview. Enable tile guides in the workspace to inspect connections between repeated patches.',
+              )}
             </p>
           </div>
         </div>
         <div className="editor-settings scroll-settings">
           <label className="text-field">
-            Tiling name
+            {trText('Tiling name')}
             <input
               maxLength={200}
               value={tiling.name}
@@ -796,7 +1120,7 @@ export function TilingEditor({
             />
           </label>
           <Choice
-            label="Tile shape"
+            label={trText('Tile shape')}
             value={tile.id}
             options={tiling.tiles.map((t, i) => ({
               value: t.id,
@@ -808,7 +1132,7 @@ export function TilingEditor({
             }}
           />
           <Choice
-            label="Placement"
+            label={trText('Placement')}
             value={String(Math.min(placement, tile.placements.length - 1))}
             options={tile.placements.map((_, i) => ({
               value: String(i),
@@ -817,7 +1141,81 @@ export function TilingEditor({
             onChange={(v) => setPlacement(Number(v))}
           />
           <Check
-            label="Snap to a 0.05-unit grid"
+            label={trText('Include this copy in tiling')}
+            checked={!tile.excluded?.includes(placement)}
+            onChange={(yes) =>
+              changeTile((t) => {
+                t.excluded = yes
+                  ? (t.excluded || []).filter((i) => i !== placement)
+                  : [...(t.excluded || []), placement];
+              })
+            }
+          />
+          <div className="editor-tools">
+            <Button
+              variant="ghost"
+              onClick={() =>
+                change((t) =>
+                  t.tiles.forEach(
+                    (s) => (s.excluded = s.placements.map((_, i) => i)),
+                  ),
+                )
+              }
+            >
+              {trText('Exclude all')}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                const t = includedTiling(tiling);
+                if (!t.tiles.length) {
+                  setError('Include at least one polygon first.');
+                  return;
+                }
+                load(t);
+              }}
+            >
+              {trText('Remove excluded')}
+            </Button>
+            <Button
+              variant="outline"
+              disabled={rep.kind !== 'translation'}
+              onClick={() =>
+                change((t) => {
+                  if (t.repetition.kind !== 'translation') return;
+                  const { u, v } = t.repetition;
+                  for (const s of t.tiles) {
+                    const base = s.placements.filter(
+                      (_, i) => !s.excluded?.includes(i),
+                    );
+                    for (const x of [-1, 0, 1])
+                      for (const y of [-1, 0, 1])
+                        if (x || y)
+                          for (const m of base) {
+                            if (s.placements.length >= 100) continue;
+                            s.excluded = [
+                              ...(s.excluded || []),
+                              s.placements.length,
+                            ];
+                            s.placements.push(
+                              compose(
+                                transformation(
+                                  x * u.x + y * v.x,
+                                  x * u.y + y * v.y,
+                                ),
+                                m,
+                              ),
+                            );
+                          }
+                  }
+                })
+              }
+            >
+              {trText('Fill with construction copies')}
+            </Button>
+          </div>
+          <Check
+            label={trText('Snap to a 0.05-unit grid')}
             checked={snap}
             onChange={setSnap}
           />
@@ -832,7 +1230,7 @@ export function TilingEditor({
                 setPlacement(tile.placements.length);
               }}
             >
-              Duplicate tile
+              {trText('Duplicate tile')}
             </Button>
             <Button
               variant="ghost"
@@ -840,15 +1238,18 @@ export function TilingEditor({
               onClick={() => {
                 changeTile((t) => {
                   t.placements.splice(placement, 1);
+                  t.excluded = t.excluded
+                    ?.filter((i) => i !== placement)
+                    .map((i) => (i > placement ? i - 1 : i));
                 });
                 setPlacement(0);
               }}
             >
-              Remove copy
+              {trText('Remove copy')}
             </Button>
           </div>
           <Range
-            label="Placement x"
+            label={trText('Placement x')}
             value={matrix[2]}
             min={-40}
             max={40}
@@ -858,7 +1259,7 @@ export function TilingEditor({
             }
           />
           <Range
-            label="Placement y"
+            label={trText('Placement y')}
             value={matrix[5]}
             min={-40}
             max={40}
@@ -874,17 +1275,17 @@ export function TilingEditor({
                 setMatrix((m) => compose(m, transformation(0, 0, Math.PI / 12)))
               }
             >
-              Rotate 15°
+              {trText('Rotate 15°')}
             </Button>
             <Button
               variant="outline"
               onClick={() => setMatrix((m) => compose(m, [-1, 0, 0, 0, 1, 0]))}
             >
-              Reflect
+              {trText('Reflect')}
             </Button>
           </div>
           <Range
-            label="New polygon sides"
+            label={trText('New polygon sides')}
             value={sides}
             min={3}
             max={100}
@@ -909,7 +1310,7 @@ export function TilingEditor({
                 setPlacement(0);
               }}
             >
-              Add polygon
+              {trText('Add polygon')}
             </Button>
             <Button
               variant="ghost"
@@ -922,7 +1323,7 @@ export function TilingEditor({
                 setPlacement(0);
               }}
             >
-              Delete shape
+              {trText('Delete shape')}
             </Button>
           </div>
           {mode === 'vertices' && (
@@ -941,13 +1342,13 @@ export function TilingEditor({
                 })
               }
             >
-              Add vertex after selection
+              {trText('Add vertex after selection')}
             </Button>
           )}
           {mode === 'vertices' && (
             <>
               <Choice
-                label="Selected vertex"
+                label={trText('Selected vertex')}
                 value={String(vertexIndex % tile.points.length)}
                 options={tile.points.map((_, i) => ({
                   value: String(i),
@@ -982,14 +1383,14 @@ export function TilingEditor({
                   setVertexIndex(0);
                 }}
               >
-                Remove selected vertex
+                {trText('Remove selected vertex')}
               </Button>
             </>
           )}
           {target && (
             <>
               <Choice
-                label="Match to another tile"
+                label={trText('Match to another tile')}
                 value={target.key}
                 options={otherPlacements.map((t) => ({
                   value: t.key,
@@ -1001,7 +1402,7 @@ export function TilingEditor({
                 }}
               />
               <Choice
-                label="This tile edge"
+                label={trText('This tile edge')}
                 value={String(sourceEdge % tile.points.length)}
                 options={tile.points.map((_, i) => ({
                   value: String(i),
@@ -1010,7 +1411,7 @@ export function TilingEditor({
                 onChange={(v) => setSourceEdge(Number(v))}
               />
               <Choice
-                label="Target edge"
+                label={trText('Target edge')}
                 value={String(targetEdge % target.tile.points.length)}
                 options={target.tile.points.map((_, i) => ({
                   value: String(i),
@@ -1034,12 +1435,12 @@ export function TilingEditor({
                   );
                 }}
               >
-                Snap edge to edge
+                {trText('Snap edge to edge')}
               </Button>
             </>
           )}
           <label className="text-field">
-            Description
+            {trText('Description')}
             <textarea
               value={tiling.description}
               maxLength={10000}
@@ -1052,7 +1453,7 @@ export function TilingEditor({
             />
           </label>
           <label className="text-field">
-            Author
+            {trText('Author')}
             <input
               value={tiling.author}
               maxLength={2000}
@@ -1064,7 +1465,7 @@ export function TilingEditor({
             />
           </label>
           <Choice
-            label="Repetition"
+            label={trText('Repetition')}
             value={rep.kind}
             options={[
               { value: 'translation', label: 'Translation lattice' },
@@ -1085,6 +1486,30 @@ export function TilingEditor({
               })
             }
           />
+          {rep.kind === 'translation' && (
+            <div className="editor-tools">
+              <Button variant="outline" onClick={() => setMode('vector-u')}>
+                {trText('Draw u vector')}
+              </Button>
+              <Button variant="outline" onClick={() => setMode('vector-v')}>
+                {trText('Draw v vector')}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  change((t) => {
+                    t.repetition = {
+                      kind: 'translation',
+                      u: { x: 0, y: 0 },
+                      v: { x: 0, y: 0 },
+                    };
+                  })
+                }
+              >
+                {trText('Clear vectors')}
+              </Button>
+            </div>
+          )}
           {rep.kind === 'translation' ? (
             (['u', 'v'] as const).flatMap((vector) =>
               (['x', 'y'] as const).map((axis) => (
@@ -1107,7 +1532,7 @@ export function TilingEditor({
           ) : (
             <>
               <Range
-                label="Sectors"
+                label={trText('Sectors')}
                 value={rep.sectors}
                 min={2}
                 max={36}
@@ -1120,7 +1545,7 @@ export function TilingEditor({
                 }
               />
               <Range
-                label="Rings"
+                label={trText('Rings')}
                 value={rep.rings}
                 min={1}
                 max={9}
@@ -1133,7 +1558,7 @@ export function TilingEditor({
                 }
               />
               <Range
-                label="Ring scale"
+                label={trText('Ring scale')}
                 value={Math.hypot(rep.transform[0], rep.transform[3])}
                 min={1.01}
                 max={4}
@@ -1155,7 +1580,7 @@ export function TilingEditor({
                 }
               />
               <Range
-                label="Ring rotation"
+                label={trText('Ring rotation')}
                 value={
                   (Math.atan2(rep.transform[3], rep.transform[0]) * 180) /
                   Math.PI
@@ -1192,10 +1617,10 @@ export function TilingEditor({
       </div>
       <div className="editor-footer">
         <Button variant="ghost" onClick={onClose}>
-          Cancel
+          {trText('Cancel')}
         </Button>
         <Button disabled={Boolean(valid)} onClick={applyTiling}>
-          Apply tiling
+          {trText('Apply tiling')}
         </Button>
       </div>
     </ConstructionDialog>
