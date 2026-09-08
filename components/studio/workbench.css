@@ -141,6 +141,7 @@
   color: #7d9299;
 }
 .layer-stack {
+  flex-shrink: 0;
   padding: 12px 10px 0;
   display: flex;
   flex-direction: column;

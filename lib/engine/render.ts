@@ -1,4 +1,4 @@
-import { bandPolygons, embossedFaces, shadeColor } from './bands';
+import { bandOutlines, bandPolygons, embossedFaces, shadeColor } from './bands';
 import type { Geometry, Layer, Project, Point, Bounds } from './types';
 import { mul, add, key } from './geometry';
 import { clipSegment, clipPolygon, triangulate } from './construction';
@@ -155,11 +155,16 @@ export function layerSVG(
     if (s.kind === 'interlace')
       body += `<path d="${bands.flatMap((b) => b.shadows.map((p) => pathData(p, true))).join('')}" fill="${shadeColor(s.color, 0.9, 0.8)}"/>`;
     if (s.outlineWidth) {
-      const edges = bands.flatMap(({ points: p }) =>
-        s.kind === 'emboss'
-          ? [pathData(p, true), pathData([p[1], p[4]])]
-          : [pathData([p[2], p[3]]), pathData([p[5], p[0]])],
+      const edges = bandOutlines(bands).map(({ points, closed }) =>
+        pathData(points, closed),
       );
+      if (s.kind === 'emboss')
+        for (const { points: p } of bands)
+          edges.push(
+            pathData([p[0], p[1], p[2]]),
+            pathData([p[3], p[4], p[5]]),
+            pathData([p[1], p[4]]),
+          );
       body += stroke(
         edges.join(''),
         outline,

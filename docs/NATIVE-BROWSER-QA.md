@@ -1,5 +1,17 @@
 # Native browser checks — September 7, 2026
 
+## September 8: GitHub Pages deployment
+
+The static Pages package was served under `/Topkapi/` with an ordinary file server. The native editor rendered through its geometry worker, example thumbnails loaded from the repository prefix, and opening SimpleStar produced its two layers and 8,976 edges. The preserved classic route reached Ready and displayed the original Java interface, confirming that the runtime script, module import, and JAR classpath work from the repository subdirectory. The layer list was prevented from shrinking out of view on shorter desktop windows.
+
+The Pages build checks for both HTML entry points, all directly linked assets, every example JSON and thumbnail, and the classic runtime resources before upload. TypeScript checking, all 27 native tests, and pinned-artifact verification passed before publication.
+
+## September 8: outline corners and Topkapi name
+
+Band-side outlines now form continuous paths, including closed loops, in the shared SVG canvas/export renderer and EPS output. Flat caps remain at open ends and underpasses. The active interlaced octagonal study was inspected in the in-app browser at 173% zoom: corners were continuous, and crossing gaps remained open. The viewport was restored afterward. The header, page title, project export option, and downloaded-project success message were checked with the Topkapi name. Existing browser autosave recovery was checked after reloading.
+
+All 27 native tests and TypeScript checking pass. New regression cases cover acute and right-angle bends, rotated closed loops, all three stroke joins, EPS closure, oblique underpasses with and without clearance, and decoding projects saved before the rename. The production build and lint on changed source files pass. Full-repository lint still reports the two pre-existing unused-expression errors in the standalone browser-runner snippets below.
+
 Tested Chromium against the Vite development server at `http://localhost:3000/` and the built Wrangler application at `http://localhost:3001/`. Project-replacement checks create fresh browser contexts and close only those contexts, preserving the user's open project and storage.
 
 ## Repeatable interaction checks

@@ -2,6 +2,7 @@
 // Language links intentionally reload the page to restart the Java runtime.
 /* eslint-disable next/no-html-link-for-pages */
 import { useEffect, useRef, useState } from 'react';
+import { sitePath } from '@/lib/site-path';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -60,7 +61,7 @@ export default function Home() {
       );
     if (!window.__tapratsStarted) {
       const script = document.createElement('script');
-      script.src = '/runtime.js';
+      script.src = sitePath('/runtime.js');
       script.type = 'module';
       document.body.appendChild(script);
     }
@@ -274,8 +275,10 @@ export default function Home() {
               trackpad is best for precise drawing.
             </p>
             <p>
-              <strong>Language.</strong> <a href="/?lang=en">English</a> ·{' '}
-              <a href="/?lang=fr">Français</a> (restarts the app; save first).
+              <strong>Language.</strong>{' '}
+              <a href={sitePath('/classic/?lang=en')}>English</a> ·{' '}
+              <a href={sitePath('/classic/?lang=fr')}>Français</a> (restarts the
+              app; save first).
             </p>
             <p className="secondary">
               Taprats 1.1.12 by Craig S. Kaplan and contributors. Powered by{' '}

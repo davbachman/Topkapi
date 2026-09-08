@@ -659,7 +659,7 @@ export function TilingEditor({
         `${t.name}.${format === 'json' ? 'tiling.json' : format === 'code' ? 'java' : 'tiling'}`,
         format === 'json'
           ? JSON.stringify(
-              { format: 'taprats-tiling', version: 1, tiling: t },
+              { format: 'topkapi-tiling', version: 1, tiling: t },
               null,
               2,
             )

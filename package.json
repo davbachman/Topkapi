@@ -1,6 +1,7 @@
 {
-  "name": "taprats-web",
+  "name": "topkapi",
   "version": "0.1.0",
+  "license": "GPL-2.0-or-later",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
@@ -8,6 +9,7 @@
   "scripts": {
     "dev": "vinext dev",
     "build": "vinext build",
+    "build:pages": "TOPKAPI_GITHUB_PAGES=1 NEXT_PUBLIC_BASE_PATH=/Topkapi vinext build && node scripts/prepare-pages.mjs && node scripts/verify-pages.mjs",
     "start": "wrangler dev --config dist/server/wrangler.json",
     "lint": "oxlint",
     "format": "oxfmt",

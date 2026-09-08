@@ -1,5 +1,7 @@
 # Licensing and attribution
 
+Topkapi was created by **David Bachman with GPT 6 Astra**, building on the work credited below. Copyright © 2026 David Bachman for his contributions; upstream work retains its original authorship and license notices.
+
 The native geometry constructions and catalog in `lib/engine/` are derived from **Taprats**, originally by Craig S. Kaplan, and **Alhambra**, with additional work by Pierre Baillargeon.
 
 Alhambra source: https://github.com/pierrebai/Alhambra — revision `284d7d2434775da412c0826e47a7b481110c417d`.

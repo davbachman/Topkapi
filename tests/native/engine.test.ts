@@ -29,6 +29,8 @@ import {
 } from '../../lib/engine/motifs';
 import { planarize } from '../../lib/engine/topology';
 import { generate } from '../../lib/engine/generate';
+import { bandOutlines, bandPolygons } from '../../lib/engine/bands';
+import { exportEPS } from '../../lib/engine/eps';
 import {
   exportDXF,
   exportSVG,
@@ -645,6 +647,99 @@ void test('polygonal underpasses follow oblique band edges and leave genuine tra
     const svg = layerSVG(l, g);
     assert.ok(!/<mask|<circle|fill="#fff/.test(svg));
   }
+});
+
+void test('band outlines join acute and right-angle corners, including the closing seam', () => {
+  const l = newProject().layers[0];
+  l.style.kind = 'outline';
+  for (const angle of [Math.PI / 6, Math.PI / 2, Math.PI * 0.8]) {
+    const g = graph([
+      line(2, 0, 0, 0),
+      line(0, 0, 2 * Math.cos(angle), 2 * Math.sin(angle)),
+    ]);
+    const paths = bandOutlines(bandPolygons(g, l.style));
+    assert.equal(
+      paths.length,
+      2,
+      'Each side of the bend must be one continuous outline',
+    );
+    for (const path of paths) {
+      assert.equal(path.points.length, 3);
+      assert.equal(path.closed, false);
+    }
+  }
+  for (const angle of [0, 0.73]) {
+    const m = transformation(1.7, -0.2, angle, 1.3);
+    const g = graph(
+      squareLines.map(({ a, b }) => ({ a: apply(m, a), b: apply(m, b) })),
+    );
+    const paths = bandOutlines(bandPolygons(g, l.style));
+    assert.equal(paths.length, 2);
+    for (const path of paths) {
+      assert.equal(
+        path.closed,
+        true,
+        'The last corner needs a join, not two end caps',
+      );
+      assert.equal(path.points.length, 4);
+    }
+    for (const join of ['miter', 'round', 'bevel'] as const) {
+      l.style.join = join;
+      const svg = layerSVG(l, g);
+      const outline = [...svg.matchAll(/<path d="([^"]*)" stroke=/g)][0][1];
+      assert.equal((outline.match(/M/g) || []).length, 2);
+      assert.equal((outline.match(/Z/g) || []).length, 2);
+      assert.ok(svg.includes(`stroke-linejoin="${join}"`));
+    }
+    const p = newProject();
+    p.layers = [l];
+    const eps = exportEPS(p, { [l.id]: g }, r);
+    const strokes = eps
+      .split('newpath')
+      .filter((s) => /setlinewidth stroke/.test(s));
+    assert.equal(strokes.length, 2);
+    assert.ok(strokes.every((s) => s.includes('closepath')));
+  }
+});
+
+void test('continuous outlines keep oblique underpasses open and retain every band side', () => {
+  const l = newProject().layers[0];
+  for (const gap of [0, 0.08])
+    for (const slope of [0.3, 1, 2]) {
+      l.style = { ...l.style, width: 0.2, gap };
+      const g = graph([line(-2, 0, 2, 0), line(-2, -2 * slope, 2, 2 * slope)]);
+      g.crossings[0].over = pt(1, 0);
+      const bands = bandPolygons(g, l.style);
+      const paths = bandOutlines(bands);
+      assert.equal(
+        paths.length,
+        6,
+        'Two overpass sides and four separate underpass sides',
+      );
+      assert.ok(paths.every((p) => !p.closed));
+      const original = bands.flatMap(({ points: p }) => [
+        { a: p[2], b: p[3] },
+        { a: p[5], b: p[0] },
+      ]);
+      const joined = paths.flatMap(({ points }) =>
+        points.slice(1).map((b, i) => ({ a: points[i], b })),
+      );
+      assert.deepEqual(signature(joined), signature(original));
+    }
+});
+
+void test('Topkapi projects preserve autosaves and documents saved before the rename', () => {
+  const p = newProject();
+  assert.equal(p.format, 'topkapi');
+  assert.deepEqual(decodeProject(JSON.stringify(p)), p);
+  assert.deepEqual(
+    decodeProject(JSON.stringify({ ...p, format: 'taprats-studio' })),
+    p,
+  );
+  assert.throws(
+    () => decodeProject(JSON.stringify({ ...p, format: 'unknown' })),
+    /Topkapi/,
+  );
 });
 
 void test('standalone tilings round-trip text and JSON, retain metadata and exclude guides', async () => {

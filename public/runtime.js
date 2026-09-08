@@ -1,5 +1,6 @@
-import { registerTapratsTools } from '/webmcp.js';
+import { registerTapratsTools } from './webmcp.js';
 // Original bytecode stays unmodified; this adapter provides browser integration.
+const assetRoot = new URL('.', import.meta.url).pathname;
 const state = { ready: false, bridge: null };
 let importQueue = Promise.resolve();
 let javaQueue = Promise.resolve(),
@@ -63,11 +64,23 @@ async function launch() {
     document.getElementById('taprats-display').appendChild(display);
     cheerpjCreateDisplay(-1, -1, display);
     report('Loading the pattern library and editing tools…');
+    const jars = [
+      'browser-bridge.jar',
+      'taprats.jar',
+      'lib/batik-all-1.19.jar',
+      'lib/xml-apis-ext-1.3.04.jar',
+      'lib/xmlgraphics-commons-2.11.jar',
+      'lib/commons-io-2.17.0.jar',
+      'lib/commons-logging-1.3.0.jar',
+    ];
+    if (new URL(location.href).searchParams.has('verify'))
+      jars.push(
+        'qa/parity-harness.jar',
+        'qa/ui-harness.jar',
+        'qa/diagnostic-harness.jar',
+      );
     const library = await cheerpjRunLibrary(
-      '/app/browser-bridge.jar:/app/taprats.jar:/app/lib/batik-all-1.19.jar:/app/lib/xml-apis-ext-1.3.04.jar:/app/lib/xmlgraphics-commons-2.11.jar:/app/lib/commons-io-2.17.0.jar:/app/lib/commons-logging-1.3.0.jar' +
-        (new URL(location.href).searchParams.has('verify')
-          ? ':/app/qa/parity-harness.jar:/app/qa/ui-harness.jar:/app/qa/diagnostic-harness.jar'
-          : ''),
+      jars.map((file) => `/app${assetRoot}${file}`).join(':'),
     );
     const bridge = await library.taprats.web.BrowserBridge;
     state.bridge = bridge;

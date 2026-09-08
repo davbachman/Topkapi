@@ -24,9 +24,9 @@ export function registerProjectTools(
   const lifecycle = new AbortController();
   const tools: Tool[] = [
     {
-      name: 'read_taprats_project',
+      name: 'read_topkapi_project',
       description:
-        'Read the current editable Taprats Studio project, including self-contained tilings, motif settings, layers and view.',
+        'Read the current editable Topkapi project, including self-contained tilings, motif settings, layers and view.',
       inputSchema: {
         type: 'object',
         properties: {},
@@ -36,9 +36,9 @@ export function registerProjectTools(
       execute: () => structuredClone(get()),
     },
     {
-      name: 'replace_taprats_project',
+      name: 'replace_topkapi_project',
       description:
-        'Validate and replace the visible project with a complete Taprats Studio document. This is undoable and autosaved on this device.',
+        'Validate and replace the visible project with a complete Topkapi document. This is undoable and autosaved on this device.',
       inputSchema: {
         type: 'object',
         properties: { project: { type: 'object' } },

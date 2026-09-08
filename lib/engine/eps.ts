@@ -1,4 +1,4 @@
-import { bandPolygons, embossedFaces, shadeColor } from './bands';
+import { bandOutlines, bandPolygons, embossedFaces, shadeColor } from './bands';
 import type { Bounds, Geometry, Point, Project } from './types';
 import { faceColors, strands } from './render';
 const n = (v: number) => Number(v.toFixed(6));
@@ -48,9 +48,15 @@ export function exportEPS(
     color(c, opacity);
     out.push('fill');
   };
-  const stroke = (ps: Point[], c: string, width: number, opacity: number) => {
+  const stroke = (
+    ps: Point[],
+    c: string,
+    width: number,
+    opacity: number,
+    closed = false,
+  ) => {
     if (width <= 0) return;
-    path(ps);
+    path(ps, closed);
     color(c, opacity);
     out.push(`${n(width)} setlinewidth stroke`);
   };
@@ -102,15 +108,14 @@ export function exportEPS(
             fill(shadow, shadeColor(s.color, 0.9, 0.8), opacity);
       if (ow) {
         out.push('0 setlinecap');
-        for (const { points: p } of bands) {
+        for (const { points, closed } of bandOutlines(bands))
+          stroke(points, s.outline, ow, opacity, closed);
+        for (const { points: p } of bands)
           if (s.kind === 'emboss') {
-            stroke([...p, p[0]], s.outline, ow, opacity);
+            stroke([p[0], p[1], p[2]], s.outline, ow, opacity);
+            stroke([p[3], p[4], p[5]], s.outline, ow, opacity);
             stroke([p[1], p[4]], s.outline, ow, opacity);
-          } else {
-            stroke([p[2], p[3]], s.outline, ow, opacity);
-            stroke([p[5], p[0]], s.outline, ow, opacity);
           }
-        }
         out.push('1 setlinecap');
       }
     } else if (s.kind !== 'filled') {

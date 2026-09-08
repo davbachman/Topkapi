@@ -47,8 +47,12 @@ export function decodeProject(contents: string): Project {
   if (contents.length > 10 * 1024 * 1024)
     throw Error('Project exceeds the 10 MB limit.');
   const p = object(JSON.parse(contents));
-  if (p.format !== 'taprats-studio' || p.version !== 1)
-    throw Error('Open a Taprats Studio .taprats.json project.');
+  if (
+    !['topkapi', 'taprats-studio'].includes(String(p.format)) ||
+    p.version !== 1
+  )
+    throw Error('Open a Topkapi .topkapi.json project.');
+  p.format = 'topkapi';
   text(p.name, 200);
   color(p.paper);
   finite(p.width, 0.01, 10000);
@@ -192,6 +196,7 @@ export function decodeProject(contents: string): Project {
   }
   return p as unknown as Project;
 }
+// Keep the existing database so the name change preserves local projects.
 const DB = 'taprats-studio',
   STORE = 'projects';
 function db(): Promise<IDBDatabase> {

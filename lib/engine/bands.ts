@@ -3,6 +3,61 @@
 import type { Geometry, Point, Style } from './types';
 import { add, sub, mul, normalize, distance, dot, key } from './geometry';
 export type Band = { points: Point[]; shadows: Point[][] };
+export type BandOutline = { points: Point[]; closed: boolean };
+
+/** Join band sides before stroking so corners get a real line join. Leave
+ * underpass cuts and open ends uncapped; joining across them would fill gaps. */
+export function bandOutlines(bands: Band[]): BandOutline[] {
+  const nodes = new Map<string, { point: Point; edges: number[] }>(),
+    edges: [string, string][] = [];
+  for (const { points: p } of bands)
+    for (const [a, b] of [
+      [p[2], p[3]],
+      [p[5], p[0]],
+    ]) {
+      const ka = key(a),
+        kb = key(b);
+      if (ka === kb) continue;
+      const index = edges.length;
+      edges.push([ka, kb]);
+      for (const [k, point] of [
+        [ka, a],
+        [kb, b],
+      ] as const) {
+        const node = nodes.get(k) || { point, edges: [] };
+        node.edges.push(index);
+        nodes.set(k, node);
+      }
+    }
+  const used = new Set<number>(),
+    paths: BandOutline[] = [];
+  function walk(start: string, first: number) {
+    const points = [nodes.get(start)!.point];
+    let current = start,
+      edge = first;
+    while (!used.has(edge)) {
+      used.add(edge);
+      const [a, b] = edges[edge];
+      current = current === a ? b : a;
+      if (current === start) {
+        paths.push({ points, closed: true });
+        return;
+      }
+      const node = nodes.get(current)!;
+      points.push(node.point);
+      if (node.edges.length !== 2) break;
+      edge = node.edges[0] === edge ? node.edges[1] : node.edges[0];
+    }
+    paths.push({ points, closed: false });
+  }
+  // Start at ends first, then close the remaining loops without a cap seam.
+  for (const [k, node] of nodes)
+    if (node.edges.length !== 2)
+      for (const edge of node.edges) if (!used.has(edge)) walk(k, edge);
+  for (let i = 0; i < edges.length; i++) if (!used.has(i)) walk(edges[i][0], i);
+  return paths;
+}
+
 export function joinPoint(
   center: Point,
   a: Point,

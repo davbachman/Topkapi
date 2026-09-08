@@ -1,6 +1,7 @@
 'use client';
 import { useT, LanguageControl } from './locale';
 import { createGeometryWorker } from '@/lib/engine/client-worker';
+import { sitePath } from '@/lib/site-path';
 import {
   useState,
   useEffect,
@@ -10,7 +11,6 @@ import {
   useLayoutEffect,
 } from 'react';
 import { flushSync } from 'react-dom';
-import Link from 'next/link';
 import NextImage from 'next/image';
 import {
   browserModelContext,
@@ -305,7 +305,7 @@ export function Workbench() {
         );
       },
       (error) => {
-        console.warn('Taprats project tools unavailable', error);
+        console.warn('Topkapi project tools unavailable', error);
       },
     );
   }, [hydrated]);
@@ -451,7 +451,7 @@ export function Workbench() {
   }, [geometryKey]);
   const saveProject = useCallback(() => {
     download(
-      `${projectRef.current.name}.taprats.json`,
+      `${projectRef.current.name}.topkapi.json`,
       JSON.stringify(projectRef.current, null, 2),
     );
     setMessage('Project downloaded with its tilings and settings.');
@@ -646,7 +646,7 @@ export function Workbench() {
   async function openExample(id: string) {
     try {
       setMessage('Opening example…');
-      const response = await fetch(`/native-examples/${id}.json`);
+      const response = await fetch(sitePath(`/native-examples/${id}.json`));
       if (!response.ok) throw Error('Example could not be loaded.');
       const p = decodeProject(await response.text());
       setHistory((h) => commit(h, p));
@@ -812,10 +812,7 @@ export function Workbench() {
         <header className="wb-header">
           <div className="wb-brand">
             <Compass size={28} />
-            <strong>
-              {trText('Taprats')}
-              <span>{trText('STUDIO')}</span>
-            </strong>
+            <strong>{trText('Topkapi')}</strong>
           </div>
           <button className="project-name" onClick={() => setModal('project')}>
             {project.name}
@@ -2020,7 +2017,7 @@ export function Workbench() {
                   <button key={e.id} onClick={() => void openExample(e.id)}>
                     <NextImage
                       unoptimized
-                      src={`/native-examples/${e.id}.png`}
+                      src={sitePath(`/native-examples/${e.id}.png`)}
                       alt=""
                       loading="lazy"
                       width={300}
@@ -2215,7 +2212,7 @@ export function Workbench() {
                 { value: 'dxf-solid', label: 'DXF · triangulated solid faces' },
                 {
                   value: 'project',
-                  label: 'Taprats Studio · editable project',
+                  label: 'Topkapi · editable project',
                 },
               ]}
               onChange={setExportType}
@@ -2282,16 +2279,16 @@ export function Workbench() {
               </a>
               .{' '}
               <a
-                href="/licenses/Alhambra-GPL-2.0.txt"
+                href={sitePath('/licenses/Alhambra-GPL-2.0.txt')}
                 target="_blank"
                 rel="noreferrer"
               >
                 {trText('GPL license')}
               </a>
               .{' '}
-              <Link href="/classic">
+              <a href={sitePath('/classic/')}>
                 {trText('Open the classic application')}
-              </Link>
+              </a>
               .
             </p>
             <p className="panel-hint">

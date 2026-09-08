@@ -62,7 +62,7 @@ export function newLayer(tiling: Tiling, color = defaultStyle.color): Layer {
 }
 export function newProject(): Project {
   return {
-    format: 'taprats-studio',
+    format: 'topkapi',
     version: 1,
     name: 'Octagonal study',
     layers: [newLayer(catalog.find((t) => t.name === '4.8^2')!)],

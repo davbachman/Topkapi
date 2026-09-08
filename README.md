@@ -1,40 +1,23 @@
-# Taprats Studio
+# Topkapi
 
-A native web workspace for constructing Islamic geometric patterns. Choose among 197 catalog entries and 73 example designs, edit motifs and tile geometry, combine layers, explore variations, paint regions, and export vector artwork or DXF geometry.
+[Open the app](https://davbachman.github.io/Topkapi/)
 
-This is a ground-up TypeScript rebuild with native construction, editing and export workflows. Its main route has no Java dependency. The preserved desktop migration remains at `/classic`.
+Created by David Bachman with GPT 6 Astra. To learn more about David, visit [his website](https://pzacad.pitzer.edu/~dbachman/), and subscribe to his AI blog, [_Entropy Bonus_](https://profbachman.substack.com/).
 
-## Run locally
+## Brief description
 
-Requires Node.js 22.13 or later:
+Topkapi is a browser app for creating and exploring Islamic geometric patterns. Choose from 197 tiling catalog entries and 73 example designs, edit stars and rosettes, weave interlaced ribbons, combine layers, color regions, and export your artwork. No installation is required.
 
-```sh
-npm ci
-npm run dev
-```
+## Credits
 
-Open the URL printed by the server. The native workspace runs its calculations and stores autosaves in your browser. Download a `.taprats.json` project for a portable backup; it contains its own tilings and motifs. Clearing browser storage removes local autosaves.
+Topkapi builds on **Craig S. Kaplan’s [Taprats](https://cs.uwaterloo.ca/~csk/taprats/)** and **Pierre Baillargeon’s [Alhambra](https://github.com/pierrebai/Alhambra)**. Their mathematical constructions, software, tiling libraries, and examples form the foundation of this rebuild. Credit also belongs to the original contributors and individual tiling authors, whose attribution is retained in the catalog.
 
-## Use
+See [licensing and attribution](THIRD-PARTY-NOTICES.md) for the inherited GPL license and additional third-party credits, including Leaning Technologies’ CheerpJ and Apache components used by the preserved classic application.
 
-- Browse tilings to add a layer. Select a tile shape in the inspector and edit its construction live.
-- Draw a motif to edit line segments, snap to construction points, and apply symmetry. Infer from neighboring motifs continues adjacent linework.
-- Edit tiling to arrange polygons, match edges, edit vertices, and set translation or concentric repetition.
-- Shift-click layers for multiple selection. M moves all unlocked layers with group moves enabled; H or Space-drag pans; V selects a tile; B paints a region.
-- Use ⌘/Ctrl-Z and ⇧⌘/Ctrl-Z for undo/redo; ⌘/Ctrl-S downloads the project.
-- Set output dimensions through the project name. Export SVG, EPS, PNG, JPEG, GIF, BMP, WBMP, DXF centerlines, closed outlines or solid faces. Check output geometry for physical widths and connection diagnostics.
+## Instructions for use
 
-See [native capabilities and later development](docs/NATIVE-REBUILD.md) for the workflow inventory, browser verification and practical limits. Later research and fabrication features remain in development. Legacy functionality and its earlier checks are documented in [the classic app guide](docs/CLASSIC-APP.md).
-
-## Development checks
-
-```sh
-npm run test:native
-npm run typecheck
-npm run verify
-npm run build
-```
-
-The 24 native tests cover all 197 catalog entries, render all 73 examples and compare 360 radial/irregular constructions to the original application. See [native browser checks](docs/NATIVE-BROWSER-QA.md) for the Chromium editing, recovery, mobile, language and download tests.
-
-Geometry and catalog work derives from Craig S. Kaplan's Taprats and Pierre Baillargeon's Alhambra. See [licensing and attribution](THIRD-PARTY-NOTICES.md).
+- Choose a tiling or example, then select a tile shape to edit its pattern.
+- Adjust the drawing style, ribbon width, interlacing, and colors. Add layers to combine designs, or draw your own motifs and tilings.
+- Pan and zoom to explore. Use the paint tool to color individual regions, and undo or redo to experiment.
+- Use **Export** to download an image, vector artwork, fabrication geometry, or an editable `.topkapi.json` project.
+- Your work is automatically saved in this browser. Download an editable project to keep a portable backup or open it on another device.

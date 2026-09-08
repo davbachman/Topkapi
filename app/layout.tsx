@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import { sitePath } from '@/lib/site-path';
 import './globals.css';
+export const dynamic = 'force-static';
 export const metadata: Metadata = {
-  icons: { icon: '/favicon.svg' },
-  title: 'Taprats Studio — Geometric Pattern Workshop',
+  icons: { icon: sitePath('/favicon.svg') },
+  title: 'Topkapi — Geometric Pattern Workshop',
   description:
     'A native web workshop for geometric patterns, tilings, and interlaced ornament.',
 };

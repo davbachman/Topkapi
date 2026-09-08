@@ -90,7 +90,7 @@ export type Layer = {
 };
 export type View = { x: number; y: number; scale: number };
 export type Project = {
-  format: 'taprats-studio';
+  format: 'topkapi';
   version: 1;
   name: string;
   layers: Layer[];
