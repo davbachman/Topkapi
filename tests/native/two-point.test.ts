@@ -1,8 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import type { Segment, Tiling } from '../../lib/engine/types';
+import type { Matrix, Point, Segment, Tiling } from '../../lib/engine/types';
 import {
   apply,
+  area,
+  intersection,
+  mix,
   around,
   distance,
   IDENTITY,
@@ -119,6 +122,134 @@ void test('ray pairing commutes with reflection, including equal-cost choices aw
       0.5,
     ).map((s) => ({ a: apply([...mirror], s.a), b: apply([...mirror], s.b) }));
     sameCoverage(actual, twoPointHankin(square, angle, 0.5));
+  }
+});
+
+// The concave six-sided tile in 12-8 has six connections that remain valid
+// throughout the separation range at 32 degrees. Their identities are fixed by
+// the construction, independently of candidate sorting in the implementation.
+function concaveReference(poly: Point[], delta: number): Segment[] {
+  const winding = Math.sign(area(poly));
+  const rays = poly.flatMap((a, i) => {
+    const b = poly[(i + 1) % poly.length],
+      heading = Math.atan2(b.y - a.y, b.x - a.x);
+    return [-1, 1].map((side) => {
+      const start = mix(a, b, 0.5 + (side * delta) / (2 * distance(a, b))),
+        angle = heading + (winding * (side === -1 ? 32 : 148) * Math.PI) / 180;
+      return {
+        start,
+        end: p(start.x + Math.cos(angle), start.y + Math.sin(angle)),
+      };
+    });
+  });
+  return [
+    [1, 10],
+    [2, 5],
+    [4, 7],
+    [8, 11],
+    [0, 9],
+    [3, 6],
+  ].flatMap(([i, j]) => {
+    const a = rays[i],
+      b = rays[j],
+      hit = intersection(a.start, a.end, b.start, b.end);
+    assert.ok(hit && hit.t >= -1e-8 && hit.u >= -1e-8);
+    return [
+      { a: a.start, b: hit.point },
+      { a: b.start, b: hit.point },
+    ];
+  });
+}
+
+void test('12-8 retains all six concave connections continuously through 28–29% separation', () => {
+  const tiling = catalog.find((t) => t.name === '12-8')!,
+    poly = tiling.tiles.find((t) => t.points.length === 6)!.points,
+    shortest = twoPointDistance(tiling, 1),
+    start = concaveReference(poly, 0),
+    end = concaveReference(poly, shortest);
+  // Include samples immediately around the former 28.68918% branch switch.
+  const fractions = [
+    ...Array.from({ length: 101 }, (_, i) => i / 100),
+    0.28689,
+    0.2869,
+  ];
+  for (const fraction of fractions) {
+    const actual = twoPointHankin(poly, 32, shortest * fraction),
+      expected = start.map((s, i) => ({
+        a: mix(s.a, end[i].a, fraction),
+        b: mix(s.b, end[i].b, fraction),
+      }));
+    // A fixed ray pair's intersection moves affinely with separation.
+    sameCoverage(actual, expected);
+    assert.equal(actual.length, 12, `Lost a contact at ${fraction}`);
+  }
+  for (const fraction of [0.28, 0.29, 0.3]) {
+    const expected = concaveReference(poly, shortest * fraction);
+    sameCoverage(
+      twoPointHankin([...poly].reverse(), 32, shortest * fraction),
+      expected,
+    );
+    for (const transform of [
+      [-1, 0, 0, 0, 1, 0],
+      transformation(2, -3, 0.71, 1.4),
+    ] as Matrix[]) {
+      const scale = Math.hypot(transform[0], transform[3]);
+      sameCoverage(
+        twoPointHankin(
+          poly.map((p) => apply(transform, p)),
+          32,
+          shortest * fraction * scale,
+        ),
+        expected.map((s) => ({
+          a: apply(transform, s.a),
+          b: apply(transform, s.b),
+        })),
+      );
+    }
+  }
+});
+
+void test('12-8 repeated tiles keep their shared contacts connected across the separation threshold', () => {
+  const layer = newLayer(catalog.find((t) => t.name === '12-8')!);
+  for (const separation of [0.28, 0.29, 0.28]) {
+    layer.twoPoint = { angle: 32, separation };
+    const generated = generate(layer, { minX: -8, minY: -8, maxX: 8, maxY: 8 });
+    assert.equal(
+      generated.warnings.filter(
+        (w) => Math.abs(w.point.x) < 6 && Math.abs(w.point.y) < 6,
+      ).length,
+      0,
+    );
+    const saved = decodeProject(
+      JSON.stringify({ ...newProject(), layers: [layer] }),
+    );
+    assert.ok(saved);
+    sameCoverage(
+      placedMotifs(saved.layers[0]).flatMap((t) => t.segments),
+      placedMotifs(layer).flatMap((t) => t.segments),
+    );
+  }
+});
+
+void test('invalid reference connections do not prevent a complete current matching', () => {
+  const poly = catalog.find((t) => t.name === '18.6')!.tiles[0].points,
+    delta =
+      0.9 *
+      Math.min(...poly.map((a, i) => distance(a, poly[(i + 1) % poly.length]))),
+    actual = twoPointHankin(poly, 75, delta);
+  // Two zero-separation pairs become invalid here. Retaining only the other
+  // reference pairs blocks four contacts, although a complete matching exists.
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i],
+      b = poly[(i + 1) % poly.length];
+    for (const side of [-1, 1]) {
+      const contact = mix(a, b, 0.5 + (side * delta) / (2 * distance(a, b)));
+      assert.ok(
+        actual.some(
+          (s) => distance(s.a, contact) < 1e-7 || distance(s.b, contact) < 1e-7,
+        ),
+      );
+    }
   }
 });
 
