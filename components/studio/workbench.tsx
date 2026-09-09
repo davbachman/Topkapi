@@ -74,6 +74,7 @@ import type {
   MotifKind,
   StyleKind,
   Style,
+  TwoPoint,
 } from '@/lib/engine/types';
 import {
   newProject,
@@ -107,8 +108,14 @@ import {
 import { Range, Choice, Check } from './controls';
 import { Preview } from './preview';
 import { FabricationDialog } from './fabrication';
-import { MotifEditor, TilingEditor, VariationEditor } from './editors';
+import {
+  MotifEditor,
+  TilingEditor,
+  VariationEditor,
+  TwoPointVariationEditor,
+} from './editors';
 import { makeMotif } from '@/lib/engine/motifs';
+import { twoPointTile } from '@/lib/engine/placed';
 import { inferNeighbors } from '@/lib/engine/advanced';
 import { updateProject } from '@/lib/project/model';
 import { loadTilings, blankTiling } from '@/lib/project/tilings';
@@ -123,7 +130,7 @@ const styles: { value: StyleKind; label: string }[] = [
   { value: 'filled', label: 'Filled regions' },
   { value: 'sketch', label: 'Sketched' },
 ];
-const motifs: { value: MotifKind; label: string }[] = [
+const motifs: { value: MotifKind | 'two-point'; label: string }[] = [
   { value: 'star', label: 'Star' },
   { value: 'rosette', label: 'Rosette' },
   { value: 'extended', label: 'Extended rosette' },
@@ -131,6 +138,7 @@ const motifs: { value: MotifKind; label: string }[] = [
   { value: 'intersect', label: 'Intersect' },
   { value: 'girih', label: 'Girih tiles' },
   { value: 'hankin', label: 'Hankin rays' },
+  { value: 'two-point', label: 'Two-point (Hankin)' },
   { value: 'custom', label: 'Drawn motif' },
 ];
 const palettes = [
@@ -338,6 +346,15 @@ export function Workbench() {
   };
   const changeStyle = (patch: Partial<Style>, preview = false) =>
     editLayers((l) => Object.assign(l.style, patch), preview);
+  const editTwoPoint = (settings: TwoPoint | undefined, preview = false) =>
+    edit((p) => {
+      const layer = p.layers.find((l) => l.id === active?.id);
+      if (!layer || layer.locked) return;
+      delete layer.frozen;
+      delete layer.frozenFaceClasses;
+      if (settings) layer.twoPoint = settings;
+      else delete layer.twoPoint;
+    }, preview);
   useEffect(() => {
     if (!hydrated) return;
     let live = true;
@@ -408,6 +425,7 @@ export function Workbench() {
       id: l.id,
       tiling: l.tiling,
       motifs: l.motifs,
+      twoPoint: l.twoPoint,
       transform: l.transform,
       visible: l.visible,
       frozen: l.frozen,
@@ -1390,6 +1408,12 @@ export function Workbench() {
                         onClick={() => setTileId(t.id)}
                       >
                         <Preview
+                          motif={active.motifs[t.id]}
+                          segments={
+                            active.twoPoint
+                              ? twoPointTile(active, t)
+                              : undefined
+                          }
                           tiling={{
                             ...active.tiling,
                             tiles: [{ ...t, placements: [[1, 0, 0, 0, 1, 0]] }],
@@ -1402,20 +1426,34 @@ export function Workbench() {
                     ))}
                   </div>
                   <p className="panel-hint">
-                    {trText('Changes repeat in every matching tile.')}
+                    {trText(
+                      active.twoPoint
+                        ? 'Two-point settings apply to every tile in this layer.'
+                        : 'Changes repeat in every matching tile.',
+                    )}
                   </p>
                 </div>
                 <div className="inspector-section">
                   <Choice
                     label={trText('Construction')}
-                    value={motif.kind}
+                    value={active.twoPoint ? 'two-point' : motif.kind}
                     options={
                       activeTile.regular
                         ? motifs
                         : motifs.filter((m) => m.value !== 'extended')
                     }
-                    onChange={(kind) =>
-                      editMotif((m) => {
+                    onChange={(kind) => {
+                      if (kind === 'two-point') {
+                        editTwoPoint({ angle: 45, separation: 0.25 });
+                        return;
+                      }
+                      edit((p) => {
+                        const layer = p.layers.find((l) => l.id === active.id);
+                        if (!layer || layer.locked) return;
+                        delete layer.twoPoint;
+                        delete layer.frozen;
+                        delete layer.frozenFaceClasses;
+                        const m = layer.motifs[activeTile.id];
                         m.kind = kind;
                         if (['star', 'hourglass'].includes(kind))
                           m.d = Math.max(
@@ -1434,173 +1472,234 @@ export function Workbench() {
                               Math.floor((activeTile.points.length - 1) / 2),
                             ),
                           );
-                      })
-                    }
+                      });
+                    }}
                   />
-                  {(motif.kind === 'star' || motif.kind === 'hourglass') && (
-                    <Range
-                      label={trText('Star sharpness')}
-                      value={motif.d}
-                      min={1}
-                      max={Math.max(1.1, activeTile.points.length / 2 - 0.01)}
-                      onChange={(d, p) =>
-                        editMotif((m) => {
-                          m.d = d;
-                        }, p)
-                      }
-                    />
-                  )}{' '}
-                  {(motif.kind === 'rosette' || motif.kind === 'extended') && (
-                    <Range
-                      label={trText('Petal flatness')}
-                      value={motif.q}
-                      min={-0.99}
-                      max={0.99}
-                      onChange={(q, p) =>
-                        editMotif((m) => {
-                          m.q = q;
-                        }, p)
-                      }
-                    />
-                  )}{' '}
-                  {[
-                    'star',
-                    'rosette',
-                    'extended',
-                    'hourglass',
-                    'intersect',
-                  ].includes(motif.kind) && (
-                    <Range
-                      label={trText('Intersections')}
-                      value={motif.s}
-                      min={1}
-                      max={Math.max(
-                        1,
-                        Math.floor((activeTile.points.length - 1) / 2),
-                      )}
-                      step={1}
-                      onChange={(s, p) =>
-                        editMotif((m) => {
-                          m.s = s;
-                        }, p)
-                      }
-                    />
-                  )}{' '}
-                  {motif.kind === 'hankin' && (
-                    <Range
-                      label={trText('Ray angle')}
-                      value={motif.angle}
-                      min={5}
-                      max={85}
-                      unit="°"
-                      onChange={(angle, p) =>
-                        editMotif((m) => {
-                          m.angle = angle;
-                        }, p)
-                      }
-                    />
-                  )}{' '}
-                  {['girih', 'intersect'].includes(motif.kind) && (
+                  {active.twoPoint ? (
                     <>
                       <Range
-                        label={trText('Star sides')}
-                        value={motif.n}
-                        min={3}
-                        max={24}
-                        step={1}
-                        onChange={(v, t) =>
-                          editMotif((m) => {
-                            m.n = v;
-                          }, t)
+                        label={trText('Ray angle')}
+                        value={active.twoPoint.angle}
+                        min={5}
+                        max={85}
+                        step={0.5}
+                        unit="°"
+                        onChange={(angle, p) =>
+                          editTwoPoint({ ...active.twoPoint!, angle }, p)
                         }
                       />
                       <Range
-                        label={trText('Side hops')}
-                        value={motif.d}
-                        min={0.1}
-                        max={12}
-                        step={0.05}
-                        onChange={(v, t) =>
-                          editMotif((m) => {
-                            m.d = v;
-                          }, t)
+                        label={trText('Point separation')}
+                        value={active.twoPoint.separation * 100}
+                        min={0}
+                        max={100}
+                        step={1}
+                        unit="%"
+                        onChange={(separation, p) =>
+                          editTwoPoint(
+                            {
+                              ...active.twoPoint!,
+                              separation: separation / 100,
+                            },
+                            p,
+                          )
                         }
                       />
-                      {motif.kind === 'intersect' && (
-                        <Check
-                          label={trText('Progressive intersections')}
-                          checked={motif.progressive}
-                          onChange={(v) =>
+                      <p className="panel-hint">
+                        {trText(
+                          'Separation is measured against the shortest tile edge. At 0%, the two starting points meet.',
+                        )}
+                      </p>
+                      <Button
+                        variant="outline"
+                        className="full-button"
+                        disabled={active.locked}
+                        onClick={() => editTwoPoint(undefined)}
+                      >
+                        {trText('Restore tile motifs')}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      {(motif.kind === 'star' ||
+                        motif.kind === 'hourglass') && (
+                        <Range
+                          label={trText('Star sharpness')}
+                          value={motif.d}
+                          min={1}
+                          max={Math.max(
+                            1.1,
+                            activeTile.points.length / 2 - 0.01,
+                          )}
+                          onChange={(d, p) =>
                             editMotif((m) => {
-                              m.progressive = v;
-                            })
+                              m.d = d;
+                            }, p)
+                          }
+                        />
+                      )}{' '}
+                      {(motif.kind === 'rosette' ||
+                        motif.kind === 'extended') && (
+                        <Range
+                          label={trText('Petal flatness')}
+                          value={motif.q}
+                          min={-0.99}
+                          max={0.99}
+                          onChange={(q, p) =>
+                            editMotif((m) => {
+                              m.q = q;
+                            }, p)
+                          }
+                        />
+                      )}{' '}
+                      {[
+                        'star',
+                        'rosette',
+                        'extended',
+                        'hourglass',
+                        'intersect',
+                      ].includes(motif.kind) && (
+                        <Range
+                          label={trText('Intersections')}
+                          value={motif.s}
+                          min={1}
+                          max={Math.max(
+                            1,
+                            Math.floor((activeTile.points.length - 1) / 2),
+                          )}
+                          step={1}
+                          onChange={(s, p) =>
+                            editMotif((m) => {
+                              m.s = s;
+                            }, p)
+                          }
+                        />
+                      )}{' '}
+                      {motif.kind === 'hankin' && (
+                        <Range
+                          label={trText('Ray angle')}
+                          value={motif.angle}
+                          min={5}
+                          max={85}
+                          unit="°"
+                          onChange={(angle, p) =>
+                            editMotif((m) => {
+                              m.angle = angle;
+                            }, p)
+                          }
+                        />
+                      )}{' '}
+                      {['girih', 'intersect'].includes(motif.kind) && (
+                        <>
+                          <Range
+                            label={trText('Star sides')}
+                            value={motif.n}
+                            min={3}
+                            max={24}
+                            step={1}
+                            onChange={(v, t) =>
+                              editMotif((m) => {
+                                m.n = v;
+                              }, t)
+                            }
+                          />
+                          <Range
+                            label={trText('Side hops')}
+                            value={motif.d}
+                            min={0.1}
+                            max={12}
+                            step={0.05}
+                            onChange={(v, t) =>
+                              editMotif((m) => {
+                                m.d = v;
+                              }, t)
+                            }
+                          />
+                          {motif.kind === 'intersect' && (
+                            <Check
+                              label={trText('Progressive intersections')}
+                              checked={motif.progressive}
+                              onChange={(v) =>
+                                editMotif((m) => {
+                                  m.progressive = v;
+                                })
+                              }
+                            />
+                          )}
+                        </>
+                      )}
+                      {!activeTile.regular && motif.kind === 'rosette' && (
+                        <Range
+                          label={trText('Flex point')}
+                          value={motif.r}
+                          min={0}
+                          max={1}
+                          onChange={(v, t) =>
+                            editMotif((m) => {
+                              m.r = v;
+                            }, t)
                           }
                         />
                       )}
+                      <Button
+                        variant="outline"
+                        disabled={active.locked}
+                        className="full-button"
+                        onClick={() => {
+                          try {
+                            const maps = new Map(
+                              active.tiling.tiles.map((t) => [
+                                t.id,
+                                makeMotif(t, active.motifs[t.id]),
+                              ]),
+                            );
+                            const lines = inferNeighbors(
+                              activeTile,
+                              active,
+                              maps,
+                            );
+                            if (lines.length > 200)
+                              throw Error(
+                                'The inferred drawing exceeds 200 segments. Simplify neighboring motifs.',
+                              );
+                            editMotif((m) =>
+                              Object.assign(m, {
+                                kind: 'custom',
+                                lines,
+                                symmetry: 1,
+                                reflect: false,
+                              }),
+                            );
+                            setMessage(
+                              'Inferred this motif from its neighbors.',
+                            );
+                          } catch (e) {
+                            setMessage(String(e));
+                          }
+                        }}
+                      >
+                        {trText('Infer from neighboring motifs')}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        disabled={active.locked}
+                        className="full-button"
+                        onClick={() => setModal('motif')}
+                      >
+                        <Compass size={16} />
+                        {trText('Draw a motif')}
+                      </Button>
                     </>
                   )}
-                  {!activeTile.regular && motif.kind === 'rosette' && (
-                    <Range
-                      label={trText('Flex point')}
-                      value={motif.r}
-                      min={0}
-                      max={1}
-                      onChange={(v, t) =>
-                        editMotif((m) => {
-                          m.r = v;
-                        }, t)
-                      }
-                    />
-                  )}
-                  <Button
-                    variant="outline"
-                    disabled={active.locked}
-                    className="full-button"
-                    onClick={() => {
-                      try {
-                        const maps = new Map(
-                          active.tiling.tiles.map((t) => [
-                            t.id,
-                            makeMotif(t, active.motifs[t.id]),
-                          ]),
-                        );
-                        const lines = inferNeighbors(activeTile, active, maps);
-                        if (lines.length > 200)
-                          throw Error(
-                            'The inferred drawing exceeds 200 segments. Simplify neighboring motifs.',
-                          );
-                        editMotif((m) =>
-                          Object.assign(m, {
-                            kind: 'custom',
-                            lines,
-                            symmetry: 1,
-                            reflect: false,
-                          }),
-                        );
-                        setMessage('Inferred this motif from its neighbors.');
-                      } catch (e) {
-                        setMessage(String(e));
-                      }
-                    }}
-                  >
-                    {trText('Infer from neighboring motifs')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    disabled={active.locked}
-                    className="full-button"
-                    onClick={() => setModal('motif')}
-                  >
-                    <Compass size={16} />
-                    {trText('Draw a motif')}
-                  </Button>
                   <Button
                     variant="ghost"
                     className="full-button"
                     disabled={
-                      !['star', 'rosette', 'extended', 'hankin'].includes(
-                        motif.kind,
-                      ) || active.locked
+                      (!active.twoPoint &&
+                        !['star', 'rosette', 'extended', 'hankin'].includes(
+                          motif.kind,
+                        )) ||
+                      active.locked
                     }
                     onClick={() => setModal('explore')}
                   >
@@ -2313,14 +2412,24 @@ export function Workbench() {
             onApply={(m) => editMotif((target) => Object.assign(target, m))}
           />
         )}
-        {modal === 'explore' && activeTile && motif && !active?.locked && (
-          <VariationEditor
-            tile={activeTile}
-            motif={motif}
-            onClose={() => setModal(null)}
-            onApply={(m) => editMotif((target) => Object.assign(target, m))}
-          />
-        )}
+        {modal === 'explore' &&
+          activeTile &&
+          motif &&
+          !active?.locked &&
+          (active?.twoPoint ? (
+            <TwoPointVariationEditor
+              layer={active}
+              onClose={() => setModal(null)}
+              onApply={editTwoPoint}
+            />
+          ) : (
+            <VariationEditor
+              tile={activeTile}
+              motif={motif}
+              onClose={() => setModal(null)}
+              onApply={(m) => editMotif((target) => Object.assign(target, m))}
+            />
+          ))}
         {modal === 'tiling' &&
           (newTilingLayer || (active && !active.locked)) && (
             <TilingEditor

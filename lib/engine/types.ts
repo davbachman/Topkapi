@@ -83,11 +83,15 @@ export type Layer = {
   moving: boolean;
   transform: { x: number; y: number; rotation: number; scale: number };
   regionColors: Record<string, string>;
+  /** Layer-wide Hankin construction; separation is a fraction of the shortest
+   * placed tile edge. Stored motifs remain available when this mode is disabled. */
+  twoPoint?: TwoPoint;
   /** Finite construction, in layer coordinates. Omit to repeat procedurally. */
   frozen?: Segment[];
   /** Original finite designs retain the saved inside/outside face selection. */
   frozenFaceClasses?: Record<string, boolean>;
 };
+export type TwoPoint = { angle: number; separation: number };
 export type View = { x: number; y: number; scale: number };
 export type Project = {
   format: 'topkapi';

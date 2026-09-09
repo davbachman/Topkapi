@@ -272,5 +272,12 @@
   "Horizontal position": "Position horizontale",
   "Vertical position": "Position verticale",
   "Close layers panel": "Fermer les calques",
-  "Close inspector": "Fermer l’inspecteur"
+  "Close inspector": "Fermer l’inspecteur",
+  "Two-point (Hankin)": "Deux points (Hankin)",
+  "Two-point settings apply to every tile in this layer.": "Les réglages à deux points s’appliquent à toutes les tuiles de ce calque.",
+  "Point separation": "Écart entre les points",
+  "Separation is measured against the shortest tile edge. At 0%, the two starting points meet.": "L’écart est mesuré par rapport au côté le plus court. À 0 %, les deux points de départ se rejoignent.",
+  "Restore tile motifs": "Rétablir les motifs des tuiles",
+  "Explore two-point patterns": "Explorer les motifs à deux points",
+  "Compare ray angles across the columns and point separation down the rows. Choose a pattern for the whole layer.": "Comparez les angles des rayons par colonne et l’écart des points par ligne. Choisissez un motif pour tout le calque."
 }

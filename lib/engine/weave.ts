@@ -1,13 +1,6 @@
 import type { Layer, Point, Geometry, Segment } from './types';
-import {
-  apply,
-  compose,
-  inverse,
-  transformation,
-  normalize,
-  sub,
-} from './geometry';
-import { makeMotif } from './motifs';
+import { apply, inverse, transformation, normalize, sub } from './geometry';
+import { placedMotifs } from './placed';
 import { planarize } from './topology';
 /** Weave choices live on a doubled translation cell. A translation may reverse
  * the weave phase, so one cell is insufficient; two cells represent both parities.
@@ -59,29 +52,21 @@ export function stabilizeWeave(layer: Layer, g: Geometry): void {
       ((Math.round(n * 1e5) % 200000) + 200000) % 200000;
     return `${axis(q.x)}:${axis(q.y)}`;
   };
-  const identity = JSON.stringify([layer.tiling, layer.motifs]);
+  const identity = JSON.stringify([layer.tiling, layer.motifs, layer.twoPoint]);
   let phases = cache.get(identity);
   if (!phases) {
     const lines: Segment[] = [];
-    const motifs = layer.tiling.tiles.map((t) => ({
-      t,
-      lines: makeMotif(t, layer.motifs[t.id]),
-    }));
+    const motifs = placedMotifs(layer);
     for (let x = -1; x <= 2; x++)
       for (let y = -1; y <= 2; y++)
-        for (const { t, lines: motif } of motifs)
-          for (const [i, m] of t.placements.entries()) {
-            if (t.excluded?.includes(i)) continue;
-            const tr = compose(
-              transformation(
-                x * rep.u.x + y * rep.v.x,
-                x * rep.u.y + y * rep.v.y,
-              ),
-              m,
-            );
-            for (const s of motif)
-              lines.push({ a: apply(tr, s.a), b: apply(tr, s.b) });
-          }
+        for (const { segments: motif } of motifs) {
+          const tr = transformation(
+            x * rep.u.x + y * rep.v.x,
+            x * rep.u.y + y * rep.v.y,
+          );
+          for (const s of motif)
+            lines.push({ a: apply(tr, s.a), b: apply(tr, s.b) });
+        }
     if (lines.length > 120000)
       throw Error(
         'This construction is too dense to solve its repeating weave. Reduce its complexity.',

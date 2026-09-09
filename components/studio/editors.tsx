@@ -16,6 +16,7 @@ import type {
   Point,
   Tile,
   Tiling,
+  TwoPoint,
 } from '@/lib/engine/types';
 import {
   apply,
@@ -31,6 +32,7 @@ import {
   transformation,
 } from '@/lib/engine/geometry';
 import { makeMotif } from '@/lib/engine/motifs';
+import { placedMotifs } from '@/lib/engine/placed';
 import { polygonError, snapPoint, matchEdge } from '@/lib/engine/construction';
 import { pathData } from '@/lib/engine/render';
 import { uid } from '@/lib/project/model';
@@ -395,6 +397,94 @@ export function MotifEditor({
             {trText('Cancel')}
           </Button>
         </div>
+      </div>
+    </ConstructionDialog>
+  );
+}
+
+export function TwoPointVariationEditor({
+  layer,
+  onApply,
+  onClose,
+}: {
+  layer: Layer;
+  onApply: (settings: TwoPoint) => void;
+  onClose: () => void;
+}) {
+  const trText = useT(),
+    [chosen, setChosen] = useState(4);
+  const variants = useMemo(
+    () =>
+      Array.from({ length: 9 }, (_, i) => {
+        const settings = {
+          angle: Math.max(
+            5,
+            Math.min(85, layer.twoPoint!.angle + ((i % 3) - 1) * 7.5),
+          ),
+          separation: Math.max(
+            0,
+            Math.min(
+              1,
+              layer.twoPoint!.separation + (Math.floor(i / 3) - 1) * 0.15,
+            ),
+          ),
+        };
+        return {
+          settings,
+          figures: placedMotifs({ ...layer, twoPoint: settings }),
+        };
+      }),
+    [layer],
+  );
+  return (
+    <ConstructionDialog
+      title={trText('Explore two-point patterns')}
+      description={trText(
+        'Compare ray angles across the columns and point separation down the rows. Choose a pattern for the whole layer.',
+      )}
+      onClose={onClose}
+    >
+      <div className="variation-grid">
+        {variants.map(({ settings, figures }, i) => (
+          <button
+            key={i}
+            className={chosen === i ? 'chosen' : ''}
+            aria-pressed={chosen === i}
+            onClick={() => setChosen(i)}
+          >
+            <svg
+              viewBox={viewBox(figures.flatMap((f) => f.points))}
+              aria-hidden="true"
+            >
+              <path
+                d={figures
+                  .flatMap((f) => f.segments.map((s) => pathData([s.a, s.b])))
+                  .join('')}
+                fill="none"
+                stroke="#176b72"
+                strokeWidth=".025"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span>
+              {settings.angle.toFixed(1)}° ·{' '}
+              {Math.round(settings.separation * 100)}%
+            </span>
+          </button>
+        ))}
+      </div>
+      <div className="editor-footer">
+        <Button variant="ghost" onClick={onClose}>
+          {trText('Cancel')}
+        </Button>
+        <Button
+          onClick={() => {
+            onApply(variants[chosen].settings);
+            onClose();
+          }}
+        >
+          {trText('Apply')}
+        </Button>
       </div>
     </ConstructionDialog>
   );

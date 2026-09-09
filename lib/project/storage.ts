@@ -69,6 +69,11 @@ export function decodeProject(contents: string): Project {
     if (ids.has(id)) throw Error('Layer IDs must be unique.');
     ids.add(id);
     text(l.name, 200);
+    if (l.twoPoint !== undefined) {
+      const settings = object(l.twoPoint);
+      finite(settings.angle, 5, 85);
+      finite(settings.separation, 0, 1);
+    }
     for (const k of ['visible', 'locked', 'moving'])
       if (typeof l[k] !== 'boolean') throw Error('Invalid layer flags.');
     const tr = object(l.transform);

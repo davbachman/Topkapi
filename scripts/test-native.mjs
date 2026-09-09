@@ -41,7 +41,11 @@ await compile('lib/project');
 await compile('tests/native');
 const result = spawnSync(
   process.execPath,
-  ['--test', resolve(output, 'tests/native/engine.test.js')],
+  [
+    '--test',
+    resolve(output, 'tests/native/engine.test.js'),
+    resolve(output, 'tests/native/two-point.test.js'),
+  ],
   { stdio: 'inherit' },
 );
 process.exitCode = result.status ?? 1;

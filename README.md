@@ -17,6 +17,7 @@ See [licensing and attribution](THIRD-PARTY-NOTICES.md) for the inherited GPL li
 ## Instructions for use
 
 - Choose a tiling or example, then select a tile shape to edit its pattern.
+- Choose **Two-point (Hankin)** under **Construction** to create two-point patterns across a layer. Adjust **Ray angle** and **Point separation**, or use **Explore variations**. **Restore tile motifs** returns to the previous per-tile construction.
 - Adjust the drawing style, ribbon width, interlacing, and colors. Add layers to combine designs, or draw your own motifs and tilings.
 - Pan and zoom to explore. Use the paint tool to color individual regions, and undo or redo to experiment.
 - Use **Export** to download an image, vector artwork, fabrication geometry, or an editable `.topkapi.json` project.

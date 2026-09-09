@@ -1,4 +1,4 @@
-import type { Tiling, Motif } from '@/lib/engine/types';
+import type { Tiling, Motif, Segment } from '@/lib/engine/types';
 import { apply, bounds } from '@/lib/engine/geometry';
 import { makeMotif } from '@/lib/engine/motifs';
 import { defaultMotif } from '@/lib/project/model';
@@ -6,10 +6,12 @@ import { pathData } from '@/lib/engine/render';
 export function Preview({
   tiling,
   motif,
+  segments,
   color = '#25787b',
 }: {
   tiling: Tiling;
   motif?: Motif;
+  segments?: Segment[];
   color?: string;
 }) {
   const pts = tiling.tiles.flatMap((t) =>
@@ -40,10 +42,12 @@ export function Preview({
       <path
         d={tiling.tiles
           .flatMap((t) => {
-            const figure = makeMotif(
-              t,
-              motif || defaultMotif(t.regular && t.points.length > 4),
-            );
+            const figure =
+              segments ??
+              makeMotif(
+                t,
+                motif || defaultMotif(t.regular && t.points.length > 4),
+              );
             return t.placements.flatMap((m) =>
               figure.map((s) => pathData([apply(m, s.a), apply(m, s.b)])),
             );

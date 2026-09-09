@@ -10,7 +10,7 @@ import {
   overlaps,
   cleanSegments,
 } from './geometry';
-import { makeMotif } from './motifs';
+import { placedMotifs, twoPointDistance } from './placed';
 import { stabilizeWeave } from './weave';
 import { planarize, faceId } from './topology';
 export function generate(
@@ -128,24 +128,26 @@ export function generate(
       expansion = compose(expansion, repetition.transform);
     }
   }
-  const motifs = new Map(
-    layer.tiling.tiles.map((t) => [t.id, makeMotif(t, layer.motifs[t.id])]),
-  );
-  outer: for (const unit of units)
-    for (const tile of layer.tiling.tiles)
-      for (const [placementIndex, placement] of tile.placements.entries()) {
-        if (tile.excluded?.includes(placementIndex)) continue;
-        const m = compose(tr, compose(unit, placement)),
-          points = tile.points.map((p) => apply(m, p));
-        if (!overlaps(bounds(points), region)) continue;
-        result.tiles.push({ points, tileId: tile.id });
-        for (const s of motifs.get(tile.id) || [])
-          result.segments.push({ a: apply(m, s.a), b: apply(m, s.b) });
-        if (result.segments.length > 14000 || result.tiles.length > 1600) {
-          result.truncated = true;
-          break outer;
-        }
+  const delta = layer.twoPoint
+      ? twoPointDistance(layer.tiling, layer.twoPoint.separation)
+      : 0,
+    motifs = placedMotifs(layer, IDENTITY, delta);
+  outer: for (const unit of units) {
+    const constructedUnit = repetition.kind === 'inflation' && !!layer.twoPoint,
+      figures = constructedUnit ? placedMotifs(layer, unit, delta) : motifs,
+      m = constructedUnit ? tr : compose(tr, unit);
+    for (const tile of figures) {
+      const points = tile.points.map((p) => apply(m, p));
+      if (!overlaps(bounds(points), region)) continue;
+      result.tiles.push({ points, tileId: tile.tileId });
+      for (const s of tile.segments)
+        result.segments.push({ a: apply(m, s.a), b: apply(m, s.b) });
+      if (result.segments.length > 14000 || result.tiles.length > 1600) {
+        result.truncated = true;
+        break outer;
       }
+    }
+  }
   result.segments = cleanSegments(result.segments);
   if (detail) {
     Object.assign(result, planarize(result.segments));
