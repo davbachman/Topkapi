@@ -1,9 +1,11 @@
 import data from '../engine/catalog.json';
 import original from '../engine/original-catalog.json';
+import rosettePilots from '../engine/rosette-pilots.json';
 import type { Tiling, Layer, Motif, Project, Style } from '../engine/types';
 // Keep original named definitions as well as Alhambra's revised constructions.
 export const catalog = [
   ...data,
+  ...rosettePilots,
   ...original.map((t) => ({
     ...t,
     name: data.some((a) => a.name === t.name) ? `${t.name} · Taprats` : t.name,
@@ -58,6 +60,11 @@ export function newLayer(tiling: Tiling, color = defaultStyle.color): Layer {
     moving: true,
     transform: { x: 0, y: 0, rotation: 0, scale: 1 },
     regionColors: {},
+    ...(tiling.recommended || tiling.tiles.some((t) => t.contacts)
+      ? {
+          twoPoint: { ...(tiling.recommended || { angle: 45, separation: 0 }) },
+        }
+      : {}),
   };
 }
 export function newProject(): Project {

@@ -13,9 +13,11 @@
     "start": "wrangler dev --config dist/server/wrangler.json",
     "lint": "oxlint",
     "format": "oxfmt",
-    "verify": "node scripts/verify-artifacts.mjs",
+    "verify": "node scripts/verify-artifacts.mjs && npm run verify:rosette",
     "build:java": "sh scripts/build-java.sh",
     "test:native": "node scripts/test-native.mjs",
+    "generate:rosette": "node scripts/generate-rosette-pilots.mjs",
+    "verify:rosette": "node scripts/generate-rosette-pilots.mjs --check",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

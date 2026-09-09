@@ -8,6 +8,8 @@ export type Tile = {
   placements: Matrix[];
   regular: boolean;
   excluded?: number[];
+  /** One fraction along each directed edge; omission means edge midpoints. */
+  contacts?: number[];
 };
 export type Repetition =
   | { kind: 'translation'; u: Point; v: Point }
@@ -25,6 +27,9 @@ export type Tiling = {
   author: string;
   tiles: Tile[];
   repetition: Repetition;
+  collection?: 'rosette';
+  /** Recommended layer-wide Hankin settings for this tiling. */
+  recommended?: TwoPoint;
 };
 export type MotifKind =
   | 'star'
@@ -83,8 +88,9 @@ export type Layer = {
   moving: boolean;
   transform: { x: number; y: number; rotation: number; scale: number };
   regionColors: Record<string, string>;
-  /** Layer-wide Hankin construction; separation is a fraction of the shortest
-   * placed tile edge. Stored motifs remain available when this mode is disabled. */
+  /** Layer-wide Hankin construction; separation is a fraction of the available
+   * symmetric split at all placed contacts (shortest edge for midpoint contacts).
+   * Stored motifs remain available when this mode is disabled. */
   twoPoint?: TwoPoint;
   /** Finite construction, in layer coordinates. Omit to repeat procedurally. */
   frozen?: Segment[];

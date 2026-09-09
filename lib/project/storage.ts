@@ -109,6 +109,12 @@ export function decodeProject(contents: string): Project {
     text(t.name, 200);
     text(t.description, 10000);
     text(t.author, 2000);
+    if (t.collection !== undefined) choice(t.collection, ['rosette']);
+    if (t.recommended !== undefined) {
+      const settings = object(t.recommended);
+      finite(settings.angle, 5, 85);
+      finite(settings.separation, 0, 1);
+    }
     const rep = object(t.repetition);
     choice(rep.kind, ['translation', 'inflation']);
     if (rep.kind === 'translation') {
@@ -135,6 +141,17 @@ export function decodeProject(contents: string): Project {
       const points = array(tile.points, 3, 100).map(point);
       const invalid = polygonError(points);
       if (invalid) throw Error(invalid);
+      if (tile.contacts !== undefined) {
+        for (const entry of array(
+          tile.contacts,
+          points.length,
+          points.length,
+        )) {
+          const contact = finite(entry, 0, 1);
+          if (contact === 0 || contact === 1)
+            throw Error('Contact positions must lie inside their tile edges.');
+        }
+      }
       for (const m of array(tile.placements, 1, 100)) matrix(m);
       if (tile.excluded !== undefined)
         array(tile.excluded, 0, 100).forEach((i) =>
@@ -168,6 +185,18 @@ export function decodeProject(contents: string): Project {
         point(line.b);
       }
     }
+    // Contact-bearing tilings use the layer-wide construction. A standalone
+    // imported tiling may not yet have layer settings; initialize those without
+    // changing any frozen artwork or replacing an explicitly saved choice.
+    if (
+      l.twoPoint === undefined &&
+      (t.tiles as Record<string, unknown>[]).some(
+        (tile) => tile.contacts !== undefined,
+      )
+    )
+      l.twoPoint = {
+        ...((t.recommended as object) || { angle: 45, separation: 0 }),
+      };
     if (l.frozen !== undefined) {
       for (const entry of array(l.frozen, 0, 100000)) {
         const line = object(entry);

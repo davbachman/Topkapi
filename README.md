@@ -6,7 +6,7 @@ Created by David Bachman with GPT 6 Astra. To learn more about David, visit [his
 
 ## Brief description
 
-Topkapi is a browser app for creating and exploring Islamic geometric patterns. Choose from 197 tiling catalog entries and 73 example designs, edit stars and rosettes, weave interlaced ribbons, combine layers, color regions, and export your artwork. No installation is required.
+Topkapi is a browser app for creating and exploring Islamic geometric patterns. Choose from 200 tiling catalog entries and 73 example designs, edit stars and rosettes, weave interlaced ribbons, combine layers, color regions, and export your artwork. No installation is required.
 
 ## Credits
 
@@ -17,6 +17,7 @@ See [licensing and attribution](THIRD-PARTY-NOTICES.md) for the inherited GPL li
 ## Instructions for use
 
 - Choose a tiling or example, then select a tile shape to edit its pattern.
+- In **Browse tilings**, choose the **Rosette-transformed** collection for three reference tilings with corrected contact positions. They open with recommended settings; adjust the ray angle and separation to explore.
 - Choose **Two-point (Hankin)** under **Construction** to create two-point patterns across a layer. Adjust **Ray angle** and **Point separation**, or use **Explore variations**. **Restore tile motifs** returns to the previous per-tile construction.
 - Adjust the drawing style, ribbon width, interlacing, and colors. Add layers to combine designs, or draw your own motifs and tilings.
 - Pan and zoom to explore. Use the paint tool to color individual regions, and undo or redo to experiment.

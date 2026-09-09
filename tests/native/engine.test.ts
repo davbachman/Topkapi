@@ -232,8 +232,8 @@ void test('custom symmetry is clipped to the tile and duplicate segments disappe
   assert.equal(clipToTile([line(-2, 1, 4, 1)], square).length, 1);
 });
 
-void test('all 197 catalog tilings produce finite geometry and reopen as self-contained projects', () => {
-  assert.equal(catalog.length, 197);
+void test('all catalog tilings produce finite geometry and reopen as self-contained projects', () => {
+  assert.equal(catalog.filter((t) => t.collection !== 'rosette').length, 197);
   assert.equal(
     catalog.filter((t) => t.repetition.kind === 'inflation').length,
     4,

@@ -1,5 +1,6 @@
 import type { Layer, Tiling, Matrix, Point, Segment, Tile } from './types';
-import { apply, compose, distance, IDENTITY, inverse } from './geometry';
+import { apply, compose, IDENTITY, inverse } from './geometry';
+import { contactSeparationLimit } from './contacts';
 import { makeMotif } from './motifs';
 import { twoPointHankin } from './hankin';
 
@@ -16,11 +17,10 @@ export function twoPointDistance(tiling: Tiling, separation: number): number {
         if (tile.excluded?.includes(i)) continue;
         const m = compose(expansion, placement),
           points = tile.points.map((p) => apply(m, p));
-        for (let j = 0; j < points.length; j++)
-          shortest = Math.min(
-            shortest,
-            distance(points[j], points[(j + 1) % points.length]),
-          );
+        shortest = Math.min(
+          shortest,
+          contactSeparationLimit(points, tile.contacts),
+        );
       }
     }
     if (rep.kind === 'inflation') expansion = compose(expansion, rep.transform);
@@ -56,7 +56,7 @@ export function placedMotifs(
           tileId: tile.id,
           points,
           segments: layer.twoPoint
-            ? twoPointHankin(points, layer.twoPoint.angle, delta)
+            ? twoPointHankin(points, layer.twoPoint.angle, delta, tile.contacts)
             : motif.map((s) => ({ a: apply(m, s.a), b: apply(m, s.b) })),
         },
       ];
@@ -76,5 +76,6 @@ export function twoPointTile(layer: Layer, tile: Tile): Segment[] {
     tile.points.map((p) => apply(m, p)),
     layer.twoPoint.angle,
     twoPointDistance(layer.tiling, layer.twoPoint.separation),
+    tile.contacts,
   ).map((s) => ({ a: apply(back, s.a), b: apply(back, s.b) }));
 }

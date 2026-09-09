@@ -209,6 +209,7 @@ export function Workbench() {
     [modal, setModal] = useState<Modal>(null),
     [query, setQuery] = useState(''),
     [libraryCount, setLibraryCount] = useState(24);
+  const [collection, setCollection] = useState<'all' | 'rosette'>('all');
   const [mode, setMode] = useState<
       'select' | 'pan' | 'paint' | 'move' | 'rotate' | 'scale'
     >('pan'),
@@ -243,6 +244,13 @@ export function Workbench() {
     return () => window.removeEventListener('taprats-tilings', load);
   }, []);
   const allTilings = [...savedTilings, ...catalog];
+  const filteredTilings = allTilings.filter(
+    (t) =>
+      (collection === 'all' || t.collection === collection) &&
+      `${t.name} ${t.description} ${t.author} ${t.repetition.kind}`
+        .toLowerCase()
+        .includes(query.toLowerCase()),
+  );
   const [newTilingLayer, setNewTilingLayer] = useState<Layer | null>(null);
   const [exporting, setExporting] = useState(false);
   const stage = useRef<HTMLDivElement>(null),
@@ -278,6 +286,7 @@ export function Workbench() {
     active?.tiling.tiles.find((t) => t.id === tileId) ||
     active?.tiling.tiles[0];
   const motif = activeTile && active?.motifs[activeTile.id];
+  const hasContacts = active?.tiling.tiles.some((t) => t.contacts) ?? false;
   const region: Bounds = {
     minX: project.view.x - dimensions.w / (2 * project.view.scale),
     maxX: project.view.x + dimensions.w / (2 * project.view.scale),
@@ -353,7 +362,8 @@ export function Workbench() {
       delete layer.frozen;
       delete layer.frozenFaceClasses;
       if (settings) layer.twoPoint = settings;
-      else delete layer.twoPoint;
+      else if (!layer.tiling.tiles.some((t) => t.contacts))
+        delete layer.twoPoint;
     }, preview);
   useEffect(() => {
     if (!hydrated) return;
@@ -931,7 +941,11 @@ export function Workbench() {
                   }}
                 >
                   <span className="layer-thumb">
-                    <Preview tiling={l.tiling} color={l.style.color} />
+                    <Preview
+                      tiling={l.tiling}
+                      layer={l}
+                      color={l.style.color}
+                    />
                   </span>
                   <span>
                     <strong>{l.name}</strong>
@@ -1427,9 +1441,11 @@ export function Workbench() {
                   </div>
                   <p className="panel-hint">
                     {trText(
-                      active.twoPoint
-                        ? 'Two-point settings apply to every tile in this layer.'
-                        : 'Changes repeat in every matching tile.',
+                      hasContacts
+                        ? 'These tiles store the points where neighboring motifs meet. Ray settings apply to the whole layer.'
+                        : active.twoPoint
+                          ? 'Two-point settings apply to every tile in this layer.'
+                          : 'Changes repeat in every matching tile.',
                     )}
                   </p>
                 </div>
@@ -1438,13 +1454,25 @@ export function Workbench() {
                     label={trText('Construction')}
                     value={active.twoPoint ? 'two-point' : motif.kind}
                     options={
-                      activeTile.regular
-                        ? motifs
-                        : motifs.filter((m) => m.value !== 'extended')
+                      hasContacts
+                        ? [
+                            {
+                              value: 'two-point',
+                              label: 'Hankin at stored contacts',
+                            },
+                          ]
+                        : activeTile.regular
+                          ? motifs
+                          : motifs.filter((m) => m.value !== 'extended')
                     }
                     onChange={(kind) => {
                       if (kind === 'two-point') {
-                        editTwoPoint({ angle: 45, separation: 0.25 });
+                        editTwoPoint(
+                          active.tiling.recommended || {
+                            angle: 45,
+                            separation: hasContacts ? 0 : 0.25,
+                          },
+                        );
                         return;
                       }
                       edit((p) => {
@@ -1507,17 +1535,21 @@ export function Workbench() {
                       />
                       <p className="panel-hint">
                         {trText(
-                          'Separation is measured against the shortest tile edge. At 0%, the two starting points meet.',
+                          hasContacts
+                            ? 'Separation uses the space available around the stored contacts. At 0%, rays start at those contacts.'
+                            : 'Separation is measured against the shortest tile edge. At 0%, the two starting points meet.',
                         )}
                       </p>
-                      <Button
-                        variant="outline"
-                        className="full-button"
-                        disabled={active.locked}
-                        onClick={() => editTwoPoint(undefined)}
-                      >
-                        {trText('Restore tile motifs')}
-                      </Button>
+                      {!hasContacts && (
+                        <Button
+                          variant="outline"
+                          className="full-button"
+                          disabled={active.locked}
+                          onClick={() => editTwoPoint(undefined)}
+                        >
+                          {trText('Restore tile motifs')}
+                        </Button>
+                      )}
                     </>
                   ) : (
                     <>
@@ -2158,32 +2190,51 @@ export function Workbench() {
                 }}
               />
             </div>
+            <Choice
+              label={trText('Collection')}
+              value={collection}
+              options={[
+                { value: 'all', label: 'All tilings' },
+                { value: 'rosette', label: 'Rosette-transformed' },
+              ]}
+              onChange={(value) => {
+                setCollection(value);
+                setLibraryCount(24);
+              }}
+            />
+            {collection === 'rosette' && (
+              <p className="panel-hint">
+                {trText(
+                  'Reference tilings with recommended ray settings and stored contact positions.',
+                )}
+              </p>
+            )}
             <div className="tiling-grid">
-              {allTilings
-                .filter((t) =>
-                  `${t.name} ${t.description} ${t.author} ${t.repetition.kind}`
-                    .toLowerCase()
-                    .includes(query.toLowerCase()),
-                )
-                .slice(0, libraryCount)
-                .map((t) => (
-                  <button key={t.id} onClick={() => addTiling(t.id)}>
-                    <Preview tiling={t} />
-                    <strong>{t.name}</strong>
-                    <small>
-                      {t.repetition.kind === 'inflation'
-                        ? trText('Concentric inflation')
-                        : `${t.tiles.length} tile shape${t.tiles.length === 1 ? '' : 's'}`}
-                    </small>
-                  </button>
-                ))}
+              {filteredTilings.slice(0, libraryCount).map((t) => (
+                <button key={t.id} onClick={() => addTiling(t.id)}>
+                  <Preview tiling={t} />
+                  <strong>{t.name}</strong>
+                  <small>
+                    {t.repetition.kind === 'inflation'
+                      ? trText('Concentric inflation')
+                      : `${t.tiles.length} tile shape${t.tiles.length === 1 ? '' : 's'}`}
+                  </small>
+                </button>
+              ))}
             </div>
-            <Button
-              variant="outline"
-              onClick={() => setLibraryCount((n) => n + 24)}
-            >
-              {trText('Show more tilings')}
-            </Button>
+            {!filteredTilings.length && (
+              <p className="panel-hint">
+                {trText('No tilings match this search.')}
+              </p>
+            )}
+            {filteredTilings.length > libraryCount && (
+              <Button
+                variant="outline"
+                onClick={() => setLibraryCount((n) => n + 24)}
+              >
+                {trText('Show more tilings')}
+              </Button>
+            )}
           </DialogContent>
         </Dialog>
         <Dialog
@@ -2446,7 +2497,17 @@ export function Workbench() {
                   if (newTilingLayer) p.layers.push(l);
                   delete l.frozen;
                   delete l.frozenFaceClasses;
+                  const previouslyHadContacts = l.tiling.tiles.some(
+                    (t) => t.contacts,
+                  );
                   l.tiling = tiling;
+                  if (
+                    tiling.tiles.some((t) => t.contacts) &&
+                    (!l.twoPoint || !previouslyHadContacts)
+                  )
+                    l.twoPoint = structuredClone(
+                      tiling.recommended || { angle: 45, separation: 0 },
+                    );
                   l.motifs = Object.fromEntries(
                     tiling.tiles.map((t) => [
                       t.id,

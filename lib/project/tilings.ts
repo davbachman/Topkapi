@@ -91,6 +91,8 @@ export function includedTiling(t: Tiling): Tiling {
 }
 export function exportTiling(t: Tiling, code = false): string {
   t = includedTiling(validateTiling(t));
+  if (t.tiles.some((s) => s.contacts))
+    throw Error('Use native JSON to preserve this tiling’s contact positions.');
   if (t.repetition.kind !== 'translation')
     throw Error('Use native JSON to save an inflation tiling.');
   const q = (s: string) => JSON.stringify(s),

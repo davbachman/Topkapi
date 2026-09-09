@@ -33,6 +33,7 @@ import {
 } from '@/lib/engine/geometry';
 import { makeMotif } from '@/lib/engine/motifs';
 import { placedMotifs } from '@/lib/engine/placed';
+import { contactPositions } from '@/lib/engine/contacts';
 import { polygonError, snapPoint, matchEdge } from '@/lib/engine/construction';
 import { pathData } from '@/lib/engine/render';
 import { uid } from '@/lib/project/model';
@@ -130,9 +131,7 @@ export function MotifEditor({
     tolerance = span * 0.035;
   const targets = [
     ...tile.points,
-    ...tile.points.map((p, i) =>
-      mix(p, tile.points[(i + 1) % tile.points.length], 0.5),
-    ),
+    ...contactPositions(tile.points, tile.contacts),
     centroid(tile.points),
     ...draft.lines.flatMap((s) => [s.a, s.b]),
   ];
@@ -703,8 +702,11 @@ export function TilingEditor({
   const span = Math.max(...canvasBox.split(' ').slice(2).map(Number));
   const valid = tiling.tiles.map((t) => polygonError(t.points)).find(Boolean);
   const rep = tiling.repetition;
+  const hasContacts = tiling.tiles.some((t) => t.contacts);
   function load(t: Tiling) {
-    change((n) => Object.assign(n, t));
+    setPast((p) => [...p.slice(-39), structuredClone(tiling)]);
+    setTiling(structuredClone(t));
+    setError('');
     setTileId(t.tiles[0].id);
     setPlacement(0);
     setCanvasBox(
@@ -861,14 +863,14 @@ export function TilingEditor({
         </Button>
         <Button
           variant="ghost"
-          disabled={rep.kind !== 'translation'}
+          disabled={rep.kind !== 'translation' || hasContacts}
           onClick={() => save('text')}
         >
           {trText('Export .tiling')}
         </Button>
         <Button
           variant="ghost"
-          disabled={rep.kind !== 'translation'}
+          disabled={rep.kind !== 'translation' || hasContacts}
           onClick={() => save('code')}
         >
           {trText('Export Java code')}
@@ -886,6 +888,13 @@ export function TilingEditor({
           }}
         />
       </div>
+      {hasContacts && (
+        <p className="panel-hint">
+          {trText(
+            'This tiling includes stored contacts, shown as small dots. Save tiling preserves them; older tiling formats cannot store them.',
+          )}
+        </p>
+      )}
       <div className="construction-layout">
         <div>
           <div className="editor-tools">
@@ -1138,6 +1147,26 @@ export function TilingEditor({
                   }}
                 />
               )),
+            )}
+            {tiling.tiles.flatMap((t) =>
+              t.placements.flatMap((m, placementIndex) =>
+                (t.contacts ? contactPositions(t.points, t.contacts) : []).map(
+                  (contact, edge) => {
+                    const p = apply(m, contact);
+                    return (
+                      <circle
+                        key={`contact-${t.id}-${placementIndex}-${edge}`}
+                        cx={p.x}
+                        cy={p.y}
+                        r={span * 0.006}
+                        fill="#b36343"
+                        pointerEvents="none"
+                        opacity={t.excluded?.includes(placementIndex) ? 0.4 : 1}
+                      />
+                    );
+                  },
+                ),
+              ),
             )}
             {mode === 'vertices' &&
               tile.points.map((p, i) => {
@@ -1416,12 +1445,20 @@ export function TilingEditor({
               {trText('Delete shape')}
             </Button>
           </div>
+          {mode === 'vertices' && tile.contacts && (
+            <p className="panel-hint">
+              {trText(
+                'Moving vertices keeps contacts attached to their edges. Adding or removing vertices is unavailable for tiles with stored contacts.',
+              )}
+            </p>
+          )}
           {mode === 'vertices' && (
             <Button
               variant="outline"
-              disabled={tile.points.length >= 100}
+              disabled={tile.points.length >= 100 || !!tile.contacts}
               onClick={() =>
                 changeTile((t) => {
+                  if (t.contacts) return;
                   const i = vertexIndex % t.points.length;
                   t.points.splice(
                     i + 1,
@@ -1464,9 +1501,10 @@ export function TilingEditor({
               ))}
               <Button
                 variant="ghost"
-                disabled={tile.points.length <= 3}
+                disabled={tile.points.length <= 3 || !!tile.contacts}
                 onClick={() => {
                   changeTile((t) => {
+                    if (t.contacts) return;
                     t.points.splice(vertexIndex % t.points.length, 1);
                     t.regular = false;
                   });

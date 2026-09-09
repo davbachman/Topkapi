@@ -18,6 +18,7 @@ import {
   cleanSegments,
 } from './geometry';
 import { clipToTile } from './construction';
+import { contactSeparationLimit } from './contacts';
 
 type Candidate = {
   i: number;
@@ -43,18 +44,22 @@ export function twoPointHankin(
   poly: Point[],
   degrees: number,
   delta = 0,
+  contacts?: number[],
 ): Segment[] {
   const winding = area(poly) < 0 ? -1 : 1;
   const shortest = Math.min(
     ...poly.map((p, i) => distance(p, poly[(i + 1) % poly.length])),
   );
-  const gap = Math.max(0, Math.min(shortest, delta)),
+  const gap = Math.max(
+      0,
+      Math.min(contactSeparationLimit(poly, contacts), delta),
+    ),
     angle = (degrees * Math.PI) / 180,
     eps = Math.max(1e-10, shortest * 1e-8);
   const candidatesAt = (gap: number): Candidate[] => {
     const rays = poly.flatMap((a, edge) => {
       const b = poly[(edge + 1) % poly.length],
-        mid = mix(a, b, 0.5),
+        mid = mix(a, b, contacts?.[edge] ?? 0.5),
         v = normalize(sub(b, a));
       return [
         {

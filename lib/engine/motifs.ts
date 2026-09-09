@@ -2,6 +2,7 @@
  * Reimplemented with value objects; no Java runtime or serialized classes. */
 import type { Point, Segment, Motif, Tile } from './types';
 import { clipToTile } from './construction';
+import { twoPointHankin } from './hankin';
 import {
   polygonStar,
   polygonRosette,
@@ -190,7 +191,10 @@ export function makeMotif(tile: Tile, m: Motif): Segment[] {
       ),
     );
   }
-  if (m.kind === 'hankin') return hankin(tile.points, m.angle);
+  if (m.kind === 'hankin')
+    return tile.contacts
+      ? twoPointHankin(tile.points, m.angle, 0, tile.contacts)
+      : hankin(tile.points, m.angle);
   if (m.kind === 'girih' || m.kind === 'intersect')
     return polygonRays(tile.points, m);
   if (m.kind === 'hourglass') return polygonStar(tile.points, m.d, m.s, true);

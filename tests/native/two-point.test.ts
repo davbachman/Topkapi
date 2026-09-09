@@ -306,7 +306,7 @@ void test('separation uses the complete inflation, including shrinking rings, in
   );
 });
 
-void test('two-point defaults generate finite nonempty motifs throughout the 197-tiling catalog', () => {
+void test('two-point defaults generate finite nonempty motifs throughout the tiling catalog', () => {
   for (const tiling of catalog) {
     const layer = newLayer(tiling);
     layer.twoPoint = { angle: 45, separation: 0.25 };
