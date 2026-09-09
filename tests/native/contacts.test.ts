@@ -4,6 +4,8 @@ import type { Matrix, Point, Segment, Tiling } from '../../lib/engine/types';
 import {
   apply,
   area,
+  bounds,
+  centroid,
   compose,
   distance,
   IDENTITY,
@@ -36,6 +38,7 @@ import {
 } from '../../lib/project/model';
 import { decodeProject } from '../../lib/project/storage';
 import { decodeTiling, exportTiling } from '../../lib/project/tilings';
+import analyticSources from '../../lib/engine/rosette-sources.json';
 
 const p = (x: number, y: number) => ({ x, y });
 const square = [p(0, 0), p(1, 0), p(1, 1), p(0, 1)];
@@ -300,31 +303,34 @@ void test('saved off-midpoint contact designs export finite geometry in every dr
   }
 });
 
-void test('rosette pilot cells cover their lattice and agree on every repeated shared-edge contact', () => {
-  const pilots = catalog.filter((t) => t.collection === 'rosette');
-  assert.deepEqual(pilots.map((t) => t.id).sort(), [
-    'rosette-4-6-12',
-    'rosette-4-8-2',
-    'rosette-6',
-  ]);
+void test('curated rosette cells cover their lattice and agree on every repeated shared-edge contact', () => {
+  const collection = catalog.filter((t) => t.collection === 'rosette');
+  assert.equal(new Set(collection.map((t) => t.id)).size, collection.length);
+  for (const id of ['rosette-4-6-12', 'rosette-4-8-2', 'rosette-6'])
+    assert.ok(
+      collection.some((t) => t.id === id),
+      `Missing reference ${id}`,
+    );
   const expectedFaces: Record<string, number> = {
     'rosette-4-6-12': 15,
     'rosette-4-8-2': 5,
     'rosette-6': 3,
   };
   let offMidpoint = 0;
-  for (const tiling of pilots) {
+  for (const tiling of collection) {
     assert.equal(tiling.repetition.kind, 'translation');
     if (tiling.repetition.kind !== 'translation') continue;
     const { u, v } = tiling.repetition,
       determinant = u.x * v.y - u.y * v.x,
       figures = placedMotifs(newLayer(tiling));
-    assert.equal(figures.length, expectedFaces[tiling.id]);
+    if (expectedFaces[tiling.id])
+      assert.equal(figures.length, expectedFaces[tiling.id]);
     assert.ok(
       Math.abs(
         figures.reduce((sum, f) => sum + Math.abs(area(f.points)), 0) -
           Math.abs(determinant),
       ) < 1e-7,
+      `${tiling.id}: faces do not cover one lattice cell`,
     );
     const edges = new Map<string, { midpoint: Point; contacts: Point[] }>();
     for (let i = -2; i <= 2; i++) {
@@ -370,6 +376,7 @@ void test('rosette pilot cells cover their lattice and agree on every repeated s
       .flatMap((t) => t.contacts!)
       .filter((t) => Math.abs(t - 0.5) > 1e-6).length;
     const layer = newLayer(tiling);
+    assert.ok(tiling.recommended, `${tiling.id}: missing recommended settings`);
     assert.deepEqual(layer.twoPoint, tiling.recommended);
     for (const settings of [
       tiling.recommended!,
@@ -378,18 +385,25 @@ void test('rosette pilot cells cover their lattice and agree on every repeated s
     ]) {
       layer.twoPoint = settings;
       const g = generate(layer, region);
+      assert.equal(
+        g.truncated,
+        false,
+        `${tiling.id}: truncated reference patch`,
+      );
       assert.ok(g.crossings.length > 10, tiling.id);
       assert.equal(
         g.warnings.filter(
           (w) => Math.abs(w.point.x) < 2 && Math.abs(w.point.y) < 2,
         ).length,
         0,
-        `${tiling.id}: disconnected interior`,
+        `${tiling.id}: disconnected interior at ${settings.angle}°/${settings.separation}`,
       );
     }
     const reopened = decodeProject(
       JSON.stringify({ ...newProject(), layers: [layer] }),
     );
+    assert.deepEqual(reopened.layers[0], layer);
+    assert.deepEqual(decodeTiling(JSON.stringify(tiling)), tiling);
     sameCoverage(
       placedMotifs(reopened.layers[0]).flatMap((f) => f.segments),
       placedMotifs(layer).flatMap((f) => f.segments),
@@ -397,8 +411,165 @@ void test('rosette pilot cells cover their lattice and agree on every repeated s
   }
   assert.ok(
     offMidpoint > 0,
-    'The pilot collection must exercise off-midpoint contacts',
+    'The curated collection must exercise off-midpoint contacts',
   );
+});
+
+void test('every curated rosette design retains its contacts and exports every artwork style', () => {
+  for (const tiling of catalog.filter((t) => t.collection === 'rosette')) {
+    const layer = newLayer(tiling),
+      project = decodeProject(
+        JSON.stringify({ ...newProject(), layers: [layer] }),
+      ),
+      savedLayer = project.layers[0],
+      geometry = generate(savedLayer, region);
+    assert.deepEqual(savedLayer.tiling, tiling);
+    assert.deepEqual(savedLayer.twoPoint, tiling.recommended);
+    assert.ok(geometry.edges.length > 10, tiling.id);
+    for (const kind of [
+      'plain',
+      'thick',
+      'outline',
+      'interlace',
+      'emboss',
+      'filled',
+      'sketch',
+    ] as const) {
+      savedLayer.style.kind = kind;
+      const svg = exportSVG(project, { [savedLayer.id]: geometry }, region),
+        eps = exportEPS(project, { [savedLayer.id]: geometry }, region);
+      assert.ok(
+        svg.includes('<path') && eps.includes('lineto'),
+        `${tiling.id}: ${kind}`,
+      );
+      assert.ok(
+        !/NaN|Infinity/.test(svg + eps),
+        `${tiling.id}: nonfinite ${kind} artwork`,
+      );
+    }
+  }
+});
+
+void test('curated transforms retain each regular source polygon’s full rosette symmetry', () => {
+  const sources = [...catalog, ...(analyticSources as Tiling[])];
+  const checkedOrders = new Set<number>();
+  for (const tiling of catalog.filter((t) => t.collection === 'rosette')) {
+    assert.ok(tiling.rosette, `${tiling.id}: missing source metadata`);
+    const source = sources.find((t) => t.id === tiling.rosette!.sourceId);
+    assert.ok(source, `${tiling.id}: missing independent source fixture`);
+    const expectedOrders = [
+      ...new Set(
+        source.tiles
+          .filter((t) => t.regular && t.points.length >= 5)
+          .map((t) => t.points.length),
+      ),
+    ].sort((a, b) => a - b);
+    assert.deepEqual(
+      tiling.rosette.orders,
+      expectedOrders,
+      `${tiling.id}: incorrect rosette order labels`,
+    );
+    for (const tile of source.tiles.filter(
+      (t) => t.regular && t.points.length >= 5,
+    )) {
+      const placement = tile.placements.find(
+        (_, i) => !tile.excluded?.includes(i),
+      );
+      if (!placement) continue;
+      const polygon = tile.points.map((point) => apply(placement, point)),
+        center = centroid(polygon),
+        box = bounds(polygon),
+        margin = Math.max(box.maxX - box.minX, box.maxY - box.minY),
+        patch = {
+          minX: box.minX - margin,
+          minY: box.minY - margin,
+          maxX: box.maxX + margin,
+          maxY: box.maxY + margin,
+        },
+        turn = (point: Point) => {
+          const turned = rotate(
+            p(point.x - center.x, point.y - center.y),
+            (2 * Math.PI) / polygon.length,
+          );
+          return p(turned.x + center.x, turned.y + center.y);
+        },
+        layer = newLayer(tiling);
+      for (const angle of [35, 45, 55]) {
+        layer.twoPoint = { angle, separation: 0 };
+        const geometry = generate(layer, patch),
+          rosette = clipToTile(geometry.segments, polygon);
+        assert.equal(
+          geometry.truncated,
+          false,
+          `${tiling.id}: truncated symmetry patch`,
+        );
+        assert.ok(
+          length(rosette) > 1e-6,
+          `${tiling.id}: empty ${polygon.length}-fold rosette`,
+        );
+        sameCoverage(
+          rosette,
+          rosette.map((s) => ({ a: turn(s.a), b: turn(s.b) })),
+        );
+      }
+      checkedOrders.add(polygon.length);
+    }
+  }
+  for (const order of [6, 8, 12])
+    assert.ok(
+      checkedOrders.has(order),
+      `Missing ${order}-fold symmetry reference`,
+    );
+});
+
+void test('rosette collection metadata survives native documents and rejects malformed previews or order labels', () => {
+  const tiling = catalog.find((t) => t.id === 'rosette-4-8-2')!,
+    original = { ...newProject(), layers: [newLayer(tiling)] };
+  assert.deepEqual(decodeProject(JSON.stringify(original)), original);
+  assert.deepEqual(decodeTiling(JSON.stringify(tiling)), tiling);
+
+  // First-milestone documents already contain contacts but predate descriptive
+  // source metadata. Their geometry and settings remain independently usable.
+  const oldProject = structuredClone(original);
+  delete oldProject.layers[0].tiling.rosette;
+  assert.deepEqual(decodeProject(JSON.stringify(oldProject)), oldProject);
+  assert.deepEqual(
+    decodeTiling(JSON.stringify(oldProject.layers[0].tiling)),
+    oldProject.layers[0].tiling,
+  );
+
+  const valid = tiling.rosette!;
+  for (const invalid of [
+    null,
+    [],
+    {},
+    { ...valid, sourceId: null },
+    { ...valid, sourceId: 'a'.repeat(201) },
+    { ...valid, sourceName: 12 },
+    { ...valid, sourceName: 'a'.repeat(201) },
+    { ...valid, orders: null },
+    { ...valid, orders: ['8'] },
+    { ...valid, orders: [8, 8] },
+    { ...valid, orders: [4] },
+    { ...valid, orders: [8.5] },
+    { ...valid, orders: [101] },
+    { ...valid, preview: null },
+    { ...valid, preview: { center: p(0, 0) } },
+    { ...valid, preview: { radius: 1 } },
+    { ...valid, preview: { center: p(1e6, 0), radius: 1 } },
+    { ...valid, preview: { center: { x: '0', y: 0 }, radius: 1 } },
+    { ...valid, preview: { center: p(0, 0), radius: 0 } },
+    { ...valid, preview: { center: p(0, 0), radius: -1 } },
+    { ...valid, preview: { center: p(0, 0), radius: 1e6 } },
+    { ...valid, preview: { center: p(0, 0), radius: '1' } },
+  ]) {
+    const project = structuredClone(original) as unknown as {
+      layers: { tiling: { rosette: unknown } }[];
+    };
+    project.layers[0].tiling.rosette = invalid;
+    assert.throws(() => decodeProject(JSON.stringify(project)));
+    assert.throws(() => decodeTiling(JSON.stringify(project.layers[0].tiling)));
+  }
 });
 
 void test('adjusted 4.8² contacts restore eightfold rosette symmetry that midpoint contacts lose', () => {

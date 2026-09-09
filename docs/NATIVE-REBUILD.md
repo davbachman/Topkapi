@@ -4,7 +4,7 @@ The main workspace is React/TypeScript with a browser geometry worker and no Jav
 
 ## Native capabilities
 
-- 200 catalog entries: all 92 original Taprats definitions alongside the 105 Alhambra entries (including four concentric inflation tilings), plus three precomputed rosette-transformed references with stored contacts. Definitions with the same name are retained separately. Searchable previews preserve author and description metadata.
+- 206 catalog entries: all 92 original Taprats definitions alongside the 105 Alhambra entries (including four concentric inflation tilings), plus nine curated rosette-transformed tilings with stored contacts. Definitions with the same name are retained separately. Searchable previews preserve author and description metadata; rosette cards identify their sources and orders and frame a complete central pattern.
 - All 73 indexed original example designs, converted to self-contained native projects with 297 layers. Conversion preserves finite construction geometry, top-to-bottom ordering, coordinate orientation, layer transforms, style parameters and original inside/outside region selections. Examples remain editable; changing a motif resumes procedural repetition. Freeze/resume is also available for new constructions.
 - Per-shape Star, Rosette, Extended Rosette, polygon Star/Rosette/Hourglass, Girih, Intersect, progressive Intersect, Hankin rays and neighbor-dependent inference. Radial and irregular parameter controls update live.
 - Motif line drawing, point editing, erasure, construction-point/grid snapping, rotational/reflection symmetry, clipping and symmetry baking. Nine-choice variation gallery.

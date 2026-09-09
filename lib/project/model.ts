@@ -1,11 +1,11 @@
 import data from '../engine/catalog.json';
 import original from '../engine/original-catalog.json';
-import rosettePilots from '../engine/rosette-pilots.json';
+import rosetteCollection from '../engine/rosette-pilots.json';
 import type { Tiling, Layer, Motif, Project, Style } from '../engine/types';
 // Keep original named definitions as well as Alhambra's revised constructions.
 export const catalog = [
   ...data,
-  ...rosettePilots,
+  ...rosetteCollection,
   ...original.map((t) => ({
     ...t,
     name: data.some((a) => a.name === t.name) ? `${t.name} · Taprats` : t.name,

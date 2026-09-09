@@ -247,7 +247,7 @@ export function Workbench() {
   const filteredTilings = allTilings.filter(
     (t) =>
       (collection === 'all' || t.collection === collection) &&
-      `${t.name} ${t.description} ${t.author} ${t.repetition.kind}`
+      `${t.name} ${t.description} ${t.author} ${t.repetition.kind} ${t.rosette?.sourceName ?? ''} ${t.rosette?.orders.join(' ') ?? ''}`
         .toLowerCase()
         .includes(query.toLowerCase()),
   );
@@ -2203,21 +2203,57 @@ export function Workbench() {
               }}
             />
             {collection === 'rosette' && (
-              <p className="panel-hint">
-                {trText(
-                  'Reference tilings with recommended ray settings and stored contact positions.',
-                )}
-              </p>
+              <div className="collection-intro">
+                <strong>
+                  <output>
+                    {trText(
+                      filteredTilings.length === 1
+                        ? '{count} rosette-transformed tiling'
+                        : '{count} rosette-transformed tilings',
+                    ).replace('{count}', String(filteredTilings.length))}
+                  </output>
+                </strong>
+                <p>
+                  {trText(
+                    'Curated transformations of familiar tilings. Each opens with recommended settings; adjust the rays to explore.',
+                  )}
+                </p>
+              </div>
             )}
             <div className="tiling-grid">
               {filteredTilings.slice(0, libraryCount).map((t) => (
-                <button key={t.id} onClick={() => addTiling(t.id)}>
+                <button
+                  key={t.id}
+                  onClick={() => addTiling(t.id)}
+                  title={t.description}
+                >
                   <Preview tiling={t} />
                   <strong>{t.name}</strong>
-                  <small>
-                    {t.repetition.kind === 'inflation'
-                      ? trText('Concentric inflation')
-                      : `${t.tiles.length} tile shape${t.tiles.length === 1 ? '' : 's'}`}
+                  {t.rosette && (
+                    <small className="tiling-source">
+                      {trText('Source: {name}').replace(
+                        '{name}',
+                        t.rosette.sourceName,
+                      )}
+                    </small>
+                  )}
+                  <small
+                    className={
+                      t.rosette?.orders.length ? 'tiling-orders' : undefined
+                    }
+                  >
+                    {t.rosette?.orders.length
+                      ? trText('Rosettes: {orders} points').replace(
+                          '{orders}',
+                          t.rosette.orders.join(', '),
+                        )
+                      : t.repetition.kind === 'inflation'
+                        ? trText('Concentric inflation')
+                        : trText(
+                            t.tiles.length === 1
+                              ? '{count} tile shape'
+                              : '{count} tile shapes',
+                          ).replace('{count}', String(t.tiles.length))}
                   </small>
                 </button>
               ))}

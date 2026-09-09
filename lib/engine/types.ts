@@ -30,6 +30,13 @@ export type Tiling = {
   collection?: 'rosette';
   /** Recommended layer-wide Hankin settings for this tiling. */
   recommended?: TwoPoint;
+  /** Source of a precomputed rosette transform and its initial catalog view. */
+  rosette?: {
+    sourceId: string;
+    sourceName: string;
+    orders: number[];
+    preview: { center: Point; radius: number };
+  };
 };
 export type MotifKind =
   | 'star'

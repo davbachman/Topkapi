@@ -580,6 +580,17 @@
 .library-dialog {
   max-width: 840px !important;
   width: calc(100vw - 40px) !important;
+  max-height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.library-dialog > * {
+  flex-shrink: 0;
+}
+.library-dialog > .tiling-grid {
+  flex-shrink: 1;
+  min-height: min(180px, 35dvh);
 }
 .library-search {
   display: flex;
@@ -595,6 +606,21 @@
   border: 0;
   outline: 0;
   font-size: 14px;
+}
+.collection-intro {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #eff7f5;
+  color: #446b70;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.collection-intro strong {
+  color: #276b67;
+  font-weight: 600;
+}
+.collection-intro p {
+  margin-top: 3px;
 }
 .tiling-grid {
   display: grid;
@@ -634,6 +660,17 @@
   font-size: 14px;
   color: #779397;
   margin-top: 6px;
+  text-align: center;
+  line-height: 1.4;
+}
+.tiling-grid .tiling-source {
+  font-size: 12px;
+  color: #5b787e;
+}
+.tiling-grid .tiling-orders {
+  font-size: 12px;
+  color: #397970;
+  margin-top: 3px;
 }
 .text-field {
   display: flex;

@@ -3,8 +3,22 @@
     "id": "rosette-4-8-2",
     "name": "Rosette · 4.8²",
     "description": "Precomputed rosette transform of 4.8^2. Constructed from Craig S. Kaplan’s 2005 “Islamic Star Patterns from Polygons in Contact”, section 4. Contacts preserve intersections with the source tiling, including the off-midpoint adjustment in Figures 11–12. Source tiling: Craig S. Kaplan / Taprats and Pierre Baillargeon / Alhambra.",
-    "author": "Craig S. Kaplan; pilot reconstruction by David Bachman with GPT 6 Astra",
+    "author": "Craig S. Kaplan; reconstruction by David Bachman with GPT 6 Astra",
     "collection": "rosette",
+    "rosette": {
+      "sourceId": "4-8-2",
+      "sourceName": "4.8²",
+      "orders": [
+        8
+      ],
+      "preview": {
+        "center": {
+          "x": 0,
+          "y": 0
+        },
+        "radius": 1.352990250365
+      }
+    },
     "recommended": {
       "angle": 45,
       "separation": 0
@@ -152,8 +166,23 @@
     "id": "rosette-4-6-12",
     "name": "Rosette · 4.6.12",
     "description": "Precomputed rosette transform of 4.6.12. Constructed from Craig S. Kaplan’s 2005 “Islamic Star Patterns from Polygons in Contact”, section 4. Contacts preserve intersections with the source tiling. Source tiling: Craig S. Kaplan / Taprats and Pierre Baillargeon / Alhambra.",
-    "author": "Craig S. Kaplan; pilot reconstruction by David Bachman with GPT 6 Astra",
+    "author": "Craig S. Kaplan; reconstruction by David Bachman with GPT 6 Astra",
     "collection": "rosette",
+    "rosette": {
+      "sourceId": "4-6-12",
+      "sourceName": "4.6.12",
+      "orders": [
+        6,
+        12
+      ],
+      "preview": {
+        "center": {
+          "x": 0,
+          "y": 0
+        },
+        "radius": 1.294095225513
+      }
+    },
     "recommended": {
       "angle": 45,
       "separation": 0
@@ -476,8 +505,22 @@
     "id": "rosette-6",
     "name": "Rosette · 6³",
     "description": "Precomputed rosette transform of 6. Constructed from Craig S. Kaplan’s 2005 “Islamic Star Patterns from Polygons in Contact”, section 4. Contacts preserve intersections with the source tiling. Source tiling: Craig S. Kaplan / Taprats and Pierre Baillargeon / Alhambra.",
-    "author": "Craig S. Kaplan; pilot reconstruction by David Bachman with GPT 6 Astra",
+    "author": "Craig S. Kaplan; reconstruction by David Bachman with GPT 6 Astra",
     "collection": "rosette",
+    "rosette": {
+      "sourceId": "6",
+      "sourceName": "6³",
+      "orders": [
+        6
+      ],
+      "preview": {
+        "center": {
+          "x": 0,
+          "y": 0
+        },
+        "radius": 1.443375672974
+      }
+    },
     "recommended": {
       "angle": 45,
       "separation": 0
@@ -557,6 +600,1244 @@
       "v": {
         "x": 1,
         "y": 1.732050807569
+      }
+    }
+  },
+  {
+    "id": "rosette-3-12-2",
+    "name": "Rosette · 3.12²",
+    "description": "Precomputed rosette transform of 3.12^2. Constructed from Craig S. Kaplan’s 2005 “Islamic Star Patterns from Polygons in Contact”, section 4. Contacts preserve intersections with the source tiling. Source tiling: Craig S. Kaplan / Taprats and Pierre Baillargeon / Alhambra.",
+    "author": "Craig S. Kaplan; reconstruction by David Bachman with GPT 6 Astra",
+    "collection": "rosette",
+    "rosette": {
+      "sourceId": "3-12-2",
+      "sourceName": "3.12²",
+      "orders": [
+        12
+      ],
+      "preview": {
+        "center": {
+          "x": 0,
+          "y": 0
+        },
+        "radius": 1.294095225513
+      }
+    },
+    "recommended": {
+      "angle": 45,
+      "separation": 0
+    },
+    "tiles": [
+      {
+        "id": "rosette-0",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0.360305185139,
+            "y": 0
+          },
+          {
+            "x": 0.466733981825,
+            "y": 0.39719767662
+          },
+          {
+            "x": 0.110616287365,
+            "y": 0.60280232338
+          },
+          {
+            "x": -0.180152592569,
+            "y": 0.312033443445
+          }
+        ],
+        "contacts": [
+          0.429359733804,
+          0.5,
+          0.5,
+          0.5,
+          0.570640266196
+        ],
+        "regular": false,
+        "placements": [
+          [
+            -0.5,
+            -0.866025403784,
+            0.57735026919,
+            0.866025403784,
+            -0.5,
+            1
+          ],
+          [
+            -0.5,
+            0.866025403784,
+            0.57735026919,
+            -0.866025403784,
+            -0.5,
+            1
+          ],
+          [
+            -1,
+            0,
+            1.154700538379,
+            0,
+            -1,
+            2
+          ],
+          [
+            0.5,
+            -0.866025403784,
+            1.154700538379,
+            0.866025403784,
+            0.5,
+            2
+          ],
+          [
+            0.5,
+            0.866025403784,
+            1.154700538379,
+            -0.866025403784,
+            0.5,
+            2
+          ],
+          [
+            1,
+            0,
+            0.57735026919,
+            0,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "id": "rosette-1",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0.411209293519,
+            "y": 0
+          },
+          {
+            "x": 0.767326987979,
+            "y": 0.20560464676
+          },
+          {
+            "x": 0.972931634739,
+            "y": 0.561722341219
+          },
+          {
+            "x": 0.972931634739,
+            "y": 0.972931634739
+          },
+          {
+            "x": 0.767326987979,
+            "y": 1.329049329198
+          },
+          {
+            "x": 0.411209293519,
+            "y": 1.534653975958
+          },
+          {
+            "x": 0,
+            "y": 1.534653975958
+          },
+          {
+            "x": -0.35611769446,
+            "y": 1.329049329198
+          },
+          {
+            "x": -0.561722341219,
+            "y": 0.972931634739
+          },
+          {
+            "x": -0.561722341219,
+            "y": 0.561722341219
+          },
+          {
+            "x": -0.35611769446,
+            "y": 0.20560464676
+          }
+        ],
+        "contacts": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "regular": true,
+        "placements": [
+          [
+            -0.707106781187,
+            -0.707106781187,
+            0.687966556555,
+            0.707106781187,
+            -0.707106781187,
+            0.39719767662
+          ]
+        ]
+      }
+    ],
+    "repetition": {
+      "kind": "translation",
+      "u": {
+        "x": 0,
+        "y": 2
+      },
+      "v": {
+        "x": 1.732050807569,
+        "y": 1
+      }
+    }
+  },
+  {
+    "id": "rosette-3-4-6",
+    "name": "Rosette · 3.4.6.4",
+    "description": "Precomputed rosette transform of 3.4.6. Constructed from Craig S. Kaplan’s 2005 “Islamic Star Patterns from Polygons in Contact”, section 4. Contacts preserve intersections with the source tiling. Source tiling: Craig S. Kaplan / Taprats and Pierre Baillargeon / Alhambra.",
+    "author": "Craig S. Kaplan; reconstruction by David Bachman with GPT 6 Astra",
+    "collection": "rosette",
+    "rosette": {
+      "sourceId": "3-4-6",
+      "sourceName": "3.4.6.4",
+      "orders": [
+        6
+      ],
+      "preview": {
+        "center": {
+          "x": 0,
+          "y": 0
+        },
+        "radius": 1.443375672974
+      }
+    },
+    "recommended": {
+      "angle": 45,
+      "separation": 0
+    },
+    "tiles": [
+      {
+        "id": "rosette-0",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0.910683602523,
+            "y": 0
+          },
+          {
+            "x": 0.910683602523,
+            "y": 0.910683602523
+          },
+          {
+            "x": 0.122008467928,
+            "y": 1.366025403784
+          },
+          {
+            "x": -0.333333333333,
+            "y": 0.57735026919
+          }
+        ],
+        "contacts": [
+          0.366025403784,
+          0.633974596216,
+          0.366025403784,
+          0.633974596216,
+          0.5
+        ],
+        "regular": false,
+        "placements": [
+          [
+            -0.5,
+            -0.866025403784,
+            2.821367205046,
+            0.866025403784,
+            -0.5,
+            0.57735026919
+          ],
+          [
+            -0.5,
+            0.866025403784,
+            1.244016935856,
+            -0.866025403784,
+            -0.5,
+            2.154700538379
+          ],
+          [
+            -1,
+            0,
+            4.065384140902,
+            0,
+            -1,
+            2.732050807569
+          ],
+          [
+            0.5,
+            -0.866025403784,
+            3.488033871713,
+            0.866025403784,
+            0.5,
+            0.57735026919
+          ],
+          [
+            0.5,
+            0.866025403784,
+            1.910683602523,
+            -0.866025403784,
+            0.5,
+            2.154700538379
+          ],
+          [
+            1,
+            0,
+            0.666666666667,
+            0,
+            1,
+            0
+          ]
+        ]
+      },
+      {
+        "id": "rosette-1",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0.666666666667,
+            "y": 0
+          },
+          {
+            "x": 1,
+            "y": 0.57735026919
+          },
+          {
+            "x": 0.666666666667,
+            "y": 1.154700538379
+          },
+          {
+            "x": 0,
+            "y": 1.154700538379
+          },
+          {
+            "x": -0.333333333333,
+            "y": 0.57735026919
+          }
+        ],
+        "contacts": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "regular": true,
+        "placements": [
+          [
+            -1,
+            0,
+            0.333333333333,
+            0,
+            -1,
+            0.57735026919
+          ]
+        ]
+      }
+    ],
+    "repetition": {
+      "kind": "translation",
+      "u": {
+        "x": 1.57735026919,
+        "y": 2.732050807569
+      },
+      "v": {
+        "x": 3.154700538379,
+        "y": 0
+      }
+    }
+  },
+  {
+    "id": "rosette-square-12-4-3",
+    "name": "Rosette · Square 12.4.3",
+    "description": "Precomputed rosette transform of Square 12.4.3. Constructed from Craig S. Kaplan’s 2005 “Islamic Star Patterns from Polygons in Contact”, section 4. Contacts preserve intersections with the source tiling. Source tiling: Craig S. Kaplan / Taprats and Pierre Baillargeon / Alhambra.",
+    "author": "Craig S. Kaplan; reconstruction by David Bachman with GPT 6 Astra",
+    "collection": "rosette",
+    "rosette": {
+      "sourceId": "square-12-4-3",
+      "sourceName": "Square 12.4.3",
+      "orders": [
+        12
+      ],
+      "preview": {
+        "center": {
+          "x": 0,
+          "y": 0
+        },
+        "radius": 1.294095225513
+      }
+    },
+    "recommended": {
+      "angle": 45,
+      "separation": 0
+    },
+    "tiles": [
+      {
+        "id": "rosette-0",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0.42264973081,
+            "y": 0
+          },
+          {
+            "x": 0.42264973081,
+            "y": 0.42264973081
+          },
+          {
+            "x": 0.110616287365,
+            "y": 0.60280232338
+          },
+          {
+            "x": -0.180152592569,
+            "y": 0.312033443445
+          }
+        ],
+        "contacts": [
+          0.366025403784,
+          0.633974596216,
+          0.429359733804,
+          0.5,
+          0.570640266196
+        ],
+        "regular": false,
+        "placements": [
+          [
+            -0.5,
+            0.866025403784,
+            1.57735026919,
+            -0.866025403784,
+            -0.5,
+            0.732050807569
+          ],
+          [
+            -0.866025403784,
+            -0.5,
+            1.732050807569,
+            0.5,
+            -0.866025403784,
+            0.154700538379
+          ],
+          [
+            0.5,
+            -0.866025403784,
+            1.154700538379,
+            0.866025403784,
+            0.5,
+            0
+          ],
+          [
+            0.866025403784,
+            0.5,
+            1,
+            -0.5,
+            0.866025403784,
+            0.57735026919
+          ]
+        ]
+      },
+      {
+        "id": "rosette-1",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0.360305185139,
+            "y": 0
+          },
+          {
+            "x": 0.466733981825,
+            "y": 0.39719767662
+          },
+          {
+            "x": 0.110616287365,
+            "y": 0.60280232338
+          },
+          {
+            "x": -0.180152592569,
+            "y": 0.312033443445
+          }
+        ],
+        "contacts": [
+          0.429359733804,
+          0.5,
+          0.5,
+          0.5,
+          0.570640266196
+        ],
+        "regular": false,
+        "placements": [
+          [
+            -1,
+            0,
+            1.154700538379,
+            0,
+            -1,
+            0
+          ],
+          [
+            0,
+            -1,
+            1,
+            1,
+            0,
+            0.57735026919
+          ],
+          [
+            0,
+            1,
+            1.732050807569,
+            -1,
+            0,
+            0.154700538379
+          ],
+          [
+            1,
+            0,
+            1.57735026919,
+            0,
+            1,
+            0.732050807569
+          ]
+        ]
+      },
+      {
+        "id": "rosette-2",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0.411209293519,
+            "y": 0
+          },
+          {
+            "x": 0.767326987979,
+            "y": 0.20560464676
+          },
+          {
+            "x": 0.972931634739,
+            "y": 0.561722341219
+          },
+          {
+            "x": 0.972931634739,
+            "y": 0.972931634739
+          },
+          {
+            "x": 0.767326987979,
+            "y": 1.329049329198
+          },
+          {
+            "x": 0.411209293519,
+            "y": 1.534653975958
+          },
+          {
+            "x": 0,
+            "y": 1.534653975958
+          },
+          {
+            "x": -0.35611769446,
+            "y": 1.329049329198
+          },
+          {
+            "x": -0.561722341219,
+            "y": 0.972931634739
+          },
+          {
+            "x": -0.561722341219,
+            "y": 0.561722341219
+          },
+          {
+            "x": -0.35611769446,
+            "y": 0.20560464676
+          }
+        ],
+        "contacts": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "regular": true,
+        "placements": [
+          [
+            -0.707106781187,
+            -0.707106781187,
+            0.687966556555,
+            0.707106781187,
+            -0.707106781187,
+            0.39719767662
+          ]
+        ]
+      }
+    ],
+    "repetition": {
+      "kind": "translation",
+      "u": {
+        "x": 1.732050807569,
+        "y": -1
+      },
+      "v": {
+        "x": 1,
+        "y": 1.732050807569
+      }
+    }
+  },
+  {
+    "id": "rosette-3-4-6-12",
+    "name": "Rosette · 3–4–6–12",
+    "description": "Precomputed rosette transform of 3-4-6-12. Constructed from Craig S. Kaplan’s 2005 “Islamic Star Patterns from Polygons in Contact”, section 4. Contacts preserve intersections with the source tiling. Source tiling: Craig S. Kaplan / Taprats and Pierre Baillargeon / Alhambra.",
+    "author": "Craig S. Kaplan; reconstruction by David Bachman with GPT 6 Astra",
+    "collection": "rosette",
+    "rosette": {
+      "sourceId": "3-4-6-12",
+      "sourceName": "3–4–6–12",
+      "orders": [
+        6,
+        12
+      ],
+      "preview": {
+        "center": {
+          "x": -3.154700538379,
+          "y": 0
+        },
+        "radius": 2.788387679126
+      }
+    },
+    "recommended": {
+      "angle": 45,
+      "separation": 0
+    },
+    "tiles": [
+      {
+        "id": "rosette-0",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0.910683602523,
+            "y": 0
+          },
+          {
+            "x": 0.910683602523,
+            "y": 1.020366712256
+          },
+          {
+            "x": 0.054841554866,
+            "y": 1.249688897774
+          },
+          {
+            "x": -0.333333333333,
+            "y": 0.57735026919
+          }
+        ],
+        "contacts": [
+          0.366025403784,
+          0.565826248794,
+          0.5,
+          0.570640266196,
+          0.5
+        ],
+        "regular": false,
+        "placements": [
+          [
+            -0.5,
+            -0.866025403784,
+            2.821367205046,
+            0.866025403784,
+            -0.5,
+            -4.886751345948
+          ],
+          [
+            -0.5,
+            0.866025403784,
+            -1.910683602523,
+            -0.866025403784,
+            -0.5,
+            -3.309401076758
+          ],
+          [
+            -1,
+            0,
+            0.910683602523,
+            0,
+            -1,
+            -2.732050807569
+          ],
+          [
+            0.5,
+            -0.866025403784,
+            1.910683602523,
+            0.866025403784,
+            0.5,
+            -7.618802153517
+          ],
+          [
+            0.5,
+            0.866025403784,
+            -2.821367205046,
+            -0.866025403784,
+            0.5,
+            -6.041451884327
+          ],
+          [
+            1,
+            0,
+            -0.910683602523,
+            0,
+            1,
+            -8.196152422707
+          ]
+        ]
+      },
+      {
+        "id": "rosette-1",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0.910683602523,
+            "y": 0
+          },
+          {
+            "x": 0.910683602523,
+            "y": 0.910683602523
+          },
+          {
+            "x": 0.122008467928,
+            "y": 1.366025403784
+          },
+          {
+            "x": -0.333333333333,
+            "y": 0.57735026919
+          }
+        ],
+        "contacts": [
+          0.366025403784,
+          0.633974596216,
+          0.366025403784,
+          0.633974596216,
+          0.5
+        ],
+        "regular": false,
+        "placements": [
+          [
+            -0.5,
+            -0.866025403784,
+            1.244016935856,
+            0.866025403784,
+            -0.5,
+            -2.154700538379
+          ],
+          [
+            -0.5,
+            0.866025403784,
+            -0.333333333333,
+            -0.866025403784,
+            -0.5,
+            -0.57735026919
+          ],
+          [
+            -1,
+            0,
+            0.910683602523,
+            0,
+            -1,
+            -8.196152422707
+          ],
+          [
+            0.5,
+            -0.866025403784,
+            0.333333333333,
+            0.866025403784,
+            0.5,
+            -10.350852961086
+          ],
+          [
+            0.5,
+            0.866025403784,
+            -1.244016935856,
+            -0.866025403784,
+            0.5,
+            -8.773502691896
+          ],
+          [
+            1,
+            0,
+            -0.910683602523,
+            0,
+            1,
+            -2.732050807569
+          ]
+        ]
+      },
+      {
+        "id": "rosette-2",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0.776349776399,
+            "y": 0
+          },
+          {
+            "x": 1.005671961918,
+            "y": 0.855842047657
+          },
+          {
+            "x": 0.122008467928,
+            "y": 1.366025403784
+          },
+          {
+            "x": -0.333333333333,
+            "y": 0.57735026919
+          }
+        ],
+        "contacts": [
+          0.429359733804,
+          0.5,
+          0.434173751206,
+          0.633974596216,
+          0.5
+        ],
+        "regular": false,
+        "placements": [
+          [
+            -0.5,
+            -0.866025403784,
+            1.244016935856,
+            0.866025403784,
+            -0.5,
+            -7.618802153517
+          ],
+          [
+            -0.5,
+            0.866025403784,
+            1.244016935856,
+            -0.866025403784,
+            -0.5,
+            -3.309401076759
+          ],
+          [
+            -1,
+            0,
+            2.488033871713,
+            0,
+            -1,
+            -5.464101615138
+          ],
+          [
+            0.5,
+            -0.866025403784,
+            -1.244016935856,
+            0.866025403784,
+            0.5,
+            -7.618802153517
+          ],
+          [
+            0.5,
+            0.866025403784,
+            -1.244016935856,
+            -0.866025403784,
+            0.5,
+            -3.309401076758
+          ],
+          [
+            1,
+            0,
+            -2.488033871713,
+            0,
+            1,
+            -5.464101615138
+          ]
+        ]
+      },
+      {
+        "id": "rosette-3",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0.666666666667,
+            "y": 0
+          },
+          {
+            "x": 1,
+            "y": 0.57735026919
+          },
+          {
+            "x": 0.666666666667,
+            "y": 1.154700538379
+          },
+          {
+            "x": 0,
+            "y": 1.154700538379
+          },
+          {
+            "x": -0.333333333333,
+            "y": 0.57735026919
+          }
+        ],
+        "contacts": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "regular": true,
+        "placements": [
+          [
+            -1,
+            0,
+            -1.244016935856,
+            0,
+            -1,
+            -2.154700538379
+          ],
+          [
+            -1,
+            0,
+            0.333333333333,
+            0,
+            -1,
+            0.57735026919
+          ],
+          [
+            -1,
+            0,
+            1.910683602523,
+            0,
+            -1,
+            -2.154700538379
+          ]
+        ]
+      },
+      {
+        "id": "rosette-4",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0.886032886132,
+            "y": 0
+          },
+          {
+            "x": 1.653359874111,
+            "y": 0.443016443066
+          },
+          {
+            "x": 2.096376317177,
+            "y": 1.210343431045
+          },
+          {
+            "x": 2.096376317177,
+            "y": 2.096376317177
+          },
+          {
+            "x": 1.653359874111,
+            "y": 2.863703305156
+          },
+          {
+            "x": 0.886032886132,
+            "y": 3.306719748222
+          },
+          {
+            "x": 0,
+            "y": 3.306719748222
+          },
+          {
+            "x": -0.767326987979,
+            "y": 2.863703305156
+          },
+          {
+            "x": -1.210343431045,
+            "y": 2.096376317177
+          },
+          {
+            "x": -1.210343431045,
+            "y": 1.210343431045
+          },
+          {
+            "x": -0.767326987979,
+            "y": 0.443016443066
+          }
+        ],
+        "contacts": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "regular": true,
+        "placements": [
+          [
+            -0.707106781187,
+            -0.707106781187,
+            1.482361909795,
+            0.707106781187,
+            -0.707106781187,
+            -4.608259567481
+          ]
+        ]
+      }
+    ],
+    "repetition": {
+      "kind": "translation",
+      "u": {
+        "x": -3.154700538379,
+        "y": -5.464101615138
+      },
+      "v": {
+        "x": 3.154700538379,
+        "y": -5.464101615138
+      }
+    }
+  },
+  {
+    "id": "rosette-snub-square",
+    "name": "Rosette · Snub Square",
+    "description": "Precomputed rosette transform of Snub Square. Constructed from Craig S. Kaplan’s 2005 “Islamic Star Patterns from Polygons in Contact”, section 4. Contacts preserve intersections with the source tiling. Source tiling: Craig S. Kaplan / Taprats and Pierre Baillargeon / Alhambra.",
+    "author": "Craig S. Kaplan; reconstruction by David Bachman with GPT 6 Astra",
+    "collection": "rosette",
+    "rosette": {
+      "sourceId": "snub-square",
+      "sourceName": "Snub Square",
+      "orders": [],
+      "preview": {
+        "center": {
+          "x": 1.366025403784,
+          "y": 2.366025403784
+        },
+        "radius": 1.767766952966
+      }
+    },
+    "recommended": {
+      "angle": 45,
+      "separation": 0
+    },
+    "tiles": [
+      {
+        "id": "rosette-0",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 1.57735026919,
+            "y": 0
+          },
+          {
+            "x": 1.57735026919,
+            "y": 1.57735026919
+          },
+          {
+            "x": 0.211324865405,
+            "y": 2.366025403784
+          },
+          {
+            "x": -0.57735026919,
+            "y": 1
+          }
+        ],
+        "contacts": [
+          0.366025403784,
+          0.633974596216,
+          0.366025403784,
+          0.633974596216,
+          0.5
+        ],
+        "regular": false,
+        "placements": [
+          [
+            -0.5,
+            -0.866025403784,
+            3.154700538379,
+            0.866025403784,
+            -0.5,
+            -2.732050807569
+          ],
+          [
+            -0.866025403784,
+            0.5,
+            3.732050807569,
+            -0.5,
+            -0.866025403784,
+            -0.57735026919
+          ],
+          [
+            0.5,
+            0.866025403784,
+            1.57735026919,
+            -0.866025403784,
+            0.5,
+            0
+          ],
+          [
+            0.866025403784,
+            -0.5,
+            1,
+            0.5,
+            0.866025403784,
+            -2.154700538379
+          ]
+        ]
+      }
+    ],
+    "repetition": {
+      "kind": "translation",
+      "u": {
+        "x": 3.732050807569,
+        "y": 1
+      },
+      "v": {
+        "x": 1,
+        "y": -3.732050807569
+      }
+    }
+  },
+  {
+    "id": "rosette-3-3-3-4-4",
+    "name": "Rosette · 3³.4²",
+    "description": "Precomputed rosette transform of 3³.4². Constructed from Craig S. Kaplan’s 2005 “Islamic Star Patterns from Polygons in Contact”, section 4. Contacts preserve intersections with the source tiling. Source tiling: analytic reconstruction of a standard regular-polygon tiling by David Bachman with GPT 6 Astra.",
+    "author": "Craig S. Kaplan; reconstruction by David Bachman with GPT 6 Astra",
+    "collection": "rosette",
+    "rosette": {
+      "sourceId": "3-3-3-4-4",
+      "sourceName": "3³.4²",
+      "orders": [],
+      "preview": {
+        "center": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "radius": 0.883883476483
+      }
+    },
+    "recommended": {
+      "angle": 45,
+      "separation": 0
+    },
+    "tiles": [
+      {
+        "id": "rosette-0",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0.788675134595,
+            "y": 0
+          },
+          {
+            "x": 0.788675134595,
+            "y": 1
+          },
+          {
+            "x": 0,
+            "y": 1
+          },
+          {
+            "x": -0.288675134595,
+            "y": 0.5
+          }
+        ],
+        "contacts": [
+          0.366025403784,
+          0.5,
+          0.633974596216,
+          0.5,
+          0.5
+        ],
+        "regular": false,
+        "placements": [
+          [
+            0,
+            -1,
+            1,
+            1,
+            0,
+            1.57735026919
+          ],
+          [
+            0,
+            1,
+            0.5,
+            -1,
+            0,
+            1.288675134595
+          ]
+        ]
+      }
+    ],
+    "repetition": {
+      "kind": "translation",
+      "u": {
+        "x": 1,
+        "y": 0
+      },
+      "v": {
+        "x": 0.5,
+        "y": 1.866025403784
       }
     }
   }

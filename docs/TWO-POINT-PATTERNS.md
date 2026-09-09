@@ -12,7 +12,7 @@ The angle ranges from 5° to 85°. Separation ranges from 0% to 100% of the shor
 
 ## Attribution and validation
 
-Two-point patterns are credited to Jay Bonner. The construction follows Craig S. Kaplan's [Islamic Star Patterns from Polygons in Contact (2005), section 3](https://cs.uwaterloo.ca/~csk/publications/Papers/kaplan_2005.pdf). Three precomputed rosette-transformed references are documented in [Rosette pilots](ROSETTE-PILOTS.md). Their stored contacts use this construction with zero separation by default.
+Two-point patterns are credited to Jay Bonner. The construction follows Craig S. Kaplan's [Islamic Star Patterns from Polygons in Contact (2005), section 3](https://cs.uwaterloo.ca/~csk/publications/Papers/kaplan_2005.pdf). Nine precomputed rosette-transformed tilings are documented in the [Rosette collection](ROSETTE-PILOTS.md). Their stored contacts use this construction with zero separation by default.
 
 `tests/native/two-point.test.ts` checks analytically derived square and hexagon geometry, zero/full separation, reflection, scaled shared-edge contacts, excluded guides, inflation scaling, all 197 catalog defaults, continuous separation across the full range for the concave 12–8 tile at 32° (including the former 28–29% discontinuity), fallback when reference connections become invalid, closed strands, zoom/pan/pose/cache weave stability, save validation, undo/redo, restoring motifs, and all seven vector rendering styles. The existing native parity suite remains in place.
 

@@ -115,6 +115,17 @@ export function decodeProject(contents: string): Project {
       finite(settings.angle, 5, 85);
       finite(settings.separation, 0, 1);
     }
+    if (t.rosette !== undefined) {
+      const source = object(t.rosette);
+      text(source.sourceId, 200);
+      text(source.sourceName, 200);
+      const orders = array(source.orders, 0, 96).map((n) => integer(n, 5, 100));
+      if (new Set(orders).size !== orders.length)
+        throw Error('Rosette orders must be distinct.');
+      const preview = object(source.preview);
+      point(preview.center);
+      finite(preview.radius, 1e-5, 1e5);
+    }
     const rep = object(t.repetition);
     choice(rep.kind, ['translation', 'inflation']);
     if (rep.kind === 'translation') {

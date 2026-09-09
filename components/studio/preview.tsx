@@ -1,5 +1,5 @@
 import type { Tiling, Motif, Segment, Layer } from '@/lib/engine/types';
-import { add, apply, bounds } from '@/lib/engine/geometry';
+import { add, apply, bounds, inverse } from '@/lib/engine/geometry';
 import { makeMotif } from '@/lib/engine/motifs';
 import { defaultMotif, newLayer } from '@/lib/project/model';
 import { placedMotifs } from '@/lib/engine/placed';
@@ -39,33 +39,64 @@ export function Preview({
       !segments &&
       !motif &&
       rep.kind === 'translation';
-  const patch =
-    repeatedPatch && rep.kind === 'translation' && contactPreview
-      ? [-1, 0, 1].flatMap((x) =>
-          [-1, 0, 1].flatMap((y) => {
-            const offset = {
-              x: rep.u.x * x + rep.v.x * y,
-              y: rep.u.y * x + rep.v.y * y,
-            };
-            return contactPreview.map((figure) => ({
-              points: figure.points.map((p) => add(p, offset)),
-              segments: figure.segments.map((s) => ({
-                a: add(s.a, offset),
-                b: add(s.b, offset),
-              })),
-            }));
-          }),
-        )
-      : undefined;
-  // All three reference source polygons are centered at the origin. A crop
-  // tied to the lattice length shows a whole central rosette and its neighbors.
-  const extent =
-    patch && rep.kind === 'translation'
-      ? 0.7 *
-        Math.min(Math.hypot(rep.u.x, rep.u.y), Math.hypot(rep.v.x, rep.v.y))
-      : 0;
+  // Older saved reference tilings have no framing metadata. Keep their
+  // original lattice-based crop while new entries frame a chosen source face.
+  const center = tiling.rosette?.preview.center ?? { x: 0, y: 0 },
+    extent =
+      repeatedPatch && rep.kind === 'translation'
+        ? (tiling.rosette?.preview.radius ??
+          0.7 *
+            Math.min(
+              Math.hypot(rep.u.x, rep.u.y),
+              Math.hypot(rep.v.x, rep.v.y),
+            ))
+        : 0;
+  const patch = (() => {
+    if (!repeatedPatch || rep.kind !== 'translation' || !contactPreview)
+      return undefined;
+    let lattice;
+    try {
+      lattice = inverse([rep.u.x, rep.v.x, 0, rep.u.y, rep.v.y, 0]);
+    } catch {
+      return undefined;
+    }
+    const shifts = bounds(
+        [center.x - extent - b.maxX, center.x + extent - b.minX].flatMap((x) =>
+          [center.y - extent - b.maxY, center.y + extent - b.minY].map((y) =>
+            apply(lattice, { x, y }),
+          ),
+        ),
+      ),
+      minX = Math.floor(shifts.minX),
+      maxX = Math.ceil(shifts.maxX),
+      minY = Math.floor(shifts.minY),
+      maxY = Math.ceil(shifts.maxY),
+      count = (maxX - minX + 1) * (maxY - minY + 1);
+    // Edited/imported copies can have a much denser lattice or a distant crop.
+    // Fall back to the seed view instead of letting a thumbnail fill memory.
+    if (!Number.isFinite(count) || count > 225) return undefined;
+    const figures = [];
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        const offset = {
+          x: rep.u.x * x + rep.v.x * y,
+          y: rep.u.y * x + rep.v.y * y,
+        };
+        figures.push(
+          ...contactPreview.map((figure) => ({
+            points: figure.points.map((p) => add(p, offset)),
+            segments: figure.segments.map((s) => ({
+              a: add(s.a, offset),
+              b: add(s.b, offset),
+            })),
+          })),
+        );
+      }
+    }
+    return figures;
+  })();
   const viewBox = patch
-    ? `${-extent} ${-extent} ${2 * extent} ${2 * extent}`
+    ? `${center.x - extent} ${center.y - extent} ${2 * extent} ${2 * extent}`
     : `${b.minX - pad} ${b.minY - pad} ${b.maxX - b.minX + 2 * pad} ${b.maxY - b.minY + 2 * pad}`;
   const strokeUnit = patch ? extent * 0.26 : pad;
   return (

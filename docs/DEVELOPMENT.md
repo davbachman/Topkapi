@@ -17,8 +17,8 @@ npm run verify
 npm run build:pages
 ```
 
-The 47 native tests exercise all 200 catalog entries and 73 original examples, compare 360 constructions to the original algorithms, and check project recovery, weave stability, outline corners, and exports. `verify` checks the pinned Java artifacts for the classic route. See [browser verification](NATIVE-BROWSER-QA.md) and [the feature inventory](NATIVE-REBUILD.md) for details and remaining limits.
+The native tests exercise all 206 catalog entries and 73 original examples, compare 360 constructions to the original algorithms, and check project recovery, weave stability, outline corners, and exports. `verify` checks the pinned Java artifacts for the classic route and regenerates the rosette collection to check its geometry and reproducibility. See [browser verification](NATIVE-BROWSER-QA.md) and [the feature inventory](NATIVE-REBUILD.md) for details and remaining limits.
 
 The main editor runs its calculations and stores autosaves in the browser. It does not require Java or an AI account. The application and derived engine are GPL-2.0-or-later; see [the attribution notices](../THIRD-PARTY-NOTICES.md).
 
-The rosette pilot data is reproducible: `npm run generate:rosette` rebuilds it, and `npm run verify:rosette` checks it. See [Rosette pilots](ROSETTE-PILOTS.md) for contact geometry, benchmarks, and current limits.
+The curated rosette data is reproducible: `npm run generate:rosette` rebuilds it, and `npm run verify:rosette` checks it. See [Rosette collection](ROSETTE-PILOTS.md) for source provenance, selection rationale, contact geometry, benchmarks, and current limits.
