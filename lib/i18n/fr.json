@@ -254,7 +254,7 @@
   "Concentric": "Concentrique",
   "Select any tile to edit its motif": "Sélectionnez une tuile pour modifier son motif",
   "Drag to move layers with group moves enabled": "Glissez pour déplacer les calques activés",
-  "Click an enclosed region to color it": "Cliquez dans une région fermée pour la colorier",
+  "Click a region to color all matching copies": "Cliquez sur une région pour colorier toutes ses copies correspondantes",
   "Space to pan · scroll to zoom": "Espace pour déplacer la vue · défilement pour zoomer",
   "Rotation": "Rotation",
   "Scale": "Échelle",

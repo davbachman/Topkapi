@@ -135,7 +135,13 @@ export type Crossing = {
   under: Point;
   conflict: boolean;
 };
-export type Face = { id: string; points: Point[]; area: number };
+export type Face = {
+  id: string;
+  /** Shared by matching copies; id stays unique for topology and hit testing. */
+  paintId?: string;
+  points: Point[];
+  area: number;
+};
 export type Geometry = {
   segments: Segment[];
   tiles: { points: Point[]; tileId: string }[];

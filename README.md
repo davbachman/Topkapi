@@ -20,6 +20,6 @@ See [licensing and attribution](THIRD-PARTY-NOTICES.md) for the inherited GPL li
 - In **Browse tilings**, choose the **Rosette-transformed** collection for nine curated tilings with corrected contact positions. Cards identify their source tilings and rosette orders. Each opens with recommended settings; adjust the ray angle and separation to explore.
 - Choose **Two-point (Hankin)** under **Construction** to create two-point patterns across a layer. Adjust **Ray angle** and **Point separation**, or use **Explore variations**. **Restore tile motifs** returns to the previous per-tile construction.
 - Adjust the drawing style, ribbon width, interlacing, and colors. Add layers to combine designs, or draw your own motifs and tilings.
-- Pan and zoom to explore. Use the paint tool to color individual regions, and undo or redo to experiment.
+- Pan and zoom to explore. Painting a region colors all matching copies in that layer, including rotated and mirrored copies. Undo or redo to experiment.
 - Use **Export** to download an image, vector artwork, fabrication geometry, or an editable `.topkapi.json` project.
 - Your work is automatically saved in this browser. Download an editable project to keep a portable backup or open it on another device.

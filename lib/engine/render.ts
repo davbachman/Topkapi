@@ -2,6 +2,7 @@ import { bandOutlines, bandPolygons, embossedFaces, shadeColor } from './bands';
 import type { Geometry, Layer, Project, Point, Bounds } from './types';
 import { mul, add, key } from './geometry';
 import { clipSegment, clipPolygon, triangulate } from './construction';
+import { regionColor } from './paint';
 const num = (n: number) => Number(n.toFixed(6));
 const esc = (s: string) =>
   s.replace(
@@ -135,7 +136,7 @@ export function layerSVG(
   let body = '';
   const tones = faceColors(g, layer);
   for (const f of g.faces) {
-    const paint = layer.regionColors[f.id];
+    const paint = regionColor(layer, f);
     if (
       paint ||
       (s.kind === 'filled' &&

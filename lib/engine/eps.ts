@@ -1,6 +1,7 @@
 import { bandOutlines, bandPolygons, embossedFaces, shadeColor } from './bands';
 import type { Bounds, Geometry, Point, Project } from './types';
 import { faceColors, strands } from './render';
+import { regionColor } from './paint';
 const n = (v: number) => Number(v.toFixed(6));
 /** EPS Level 2 vector output. Transparency is flattened against the paper color. */
 export function exportEPS(
@@ -79,7 +80,7 @@ export function exportEPS(
     );
     const tones = faceColors(g, l);
     for (const f of g.faces) {
-      const paint = l.regionColors[f.id];
+      const paint = regionColor(l, f);
       if (
         paint ||
         (s.kind === 'filled' &&

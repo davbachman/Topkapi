@@ -13,6 +13,7 @@ import {
 import { placedMotifs, twoPointDistance } from './placed';
 import { stabilizeWeave } from './weave';
 import { planarize, faceId } from './topology';
+import { shapePaintId } from './paint';
 export function generate(
   layer: Layer,
   region: Bounds,
@@ -43,7 +44,12 @@ export function generate(
       Object.assign(result, planarize(result.segments));
       const inv = inverse(tr);
       result.faces.forEach((f) => {
-        f.id = faceId(f.points.map((p) => apply(inv, p)));
+        const local = f.points.map((p) => apply(inv, p));
+        f.id = faceId(local);
+        f.paintId = shapePaintId(
+          local,
+          layer.tiling.repetition.kind === 'inflation',
+        );
       });
     }
     return result;
@@ -153,7 +159,9 @@ export function generate(
     Object.assign(result, planarize(result.segments));
     const inv = inverse(tr);
     result.faces.forEach((f) => {
-      f.id = faceId(f.points.map((p) => apply(inv, p)));
+      const local = f.points.map((p) => apply(inv, p));
+      f.id = faceId(local);
+      f.paintId = shapePaintId(local, repetition.kind === 'inflation');
     });
   }
   if (detail) stabilizeWeave(layer, result);

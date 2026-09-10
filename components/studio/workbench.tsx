@@ -1,6 +1,7 @@
 'use client';
 import { useT, LanguageControl } from './locale';
 import { createGeometryWorker } from '@/lib/engine/client-worker';
+import { paintRegion } from '@/lib/engine/paint';
 import { sitePath } from '@/lib/site-path';
 import {
   useState,
@@ -566,8 +567,11 @@ export function Workbench() {
         const face = g.faces.find((f) => inside(p, f.points));
         if (face && !l.locked) {
           edit((doc) => {
-            doc.layers.find((x) => x.id === l.id)!.regionColors[face.id] =
-              paint;
+            paintRegion(
+              doc.layers.find((x) => x.id === l.id)!,
+              face,
+              paint,
+            );
           });
           return;
         }
@@ -1216,7 +1220,7 @@ export function Workbench() {
                 : mode === 'move'
                   ? trText('Drag to move layers with group moves enabled')
                   : mode === 'paint'
-                    ? trText('Click an enclosed region to color it')
+                    ? trText('Click a region to color all matching copies')
                     : trText('Space to pan · scroll to zoom')}
             </span>
             <IconButton

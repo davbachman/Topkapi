@@ -46,6 +46,7 @@ const result = spawnSync(
     resolve(output, 'tests/native/engine.test.js'),
     resolve(output, 'tests/native/two-point.test.js'),
     resolve(output, 'tests/native/contacts.test.js'),
+    resolve(output, 'tests/native/paint.test.js'),
   ],
   { stdio: 'inherit' },
 );
