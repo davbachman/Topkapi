@@ -38,6 +38,12 @@
   width: 226px;
   flex-shrink: 0;
   color: #d4bd83;
+  text-decoration: none;
+}
+.wb-brand:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  border-radius: 3px;
 }
 .wb-brand strong {
   font-size: 22px;

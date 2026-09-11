@@ -842,10 +842,16 @@ export function Workbench() {
         className={`workbench ${panels.left ? '' : 'hide-left'} ${panels.right ? '' : 'hide-right'}`}
       >
         <header className="wb-header">
-          <div className="wb-brand">
+          <a
+            className="wb-brand"
+            href="https://github.com/davbachman/Topkapi/blob/main/README.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={trText('Topkapi GitHub README (opens in a new tab)')}
+          >
             <Compass size={28} />
             <strong>{trText('Topkapi')}</strong>
-          </div>
+          </a>
           <button className="project-name" onClick={() => setModal('project')}>
             {project.name}
             <ChevronDown size={14} />
